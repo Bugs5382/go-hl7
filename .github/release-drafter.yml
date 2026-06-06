@@ -28,48 +28,57 @@ template: |
   # Extra
 
   **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
+# v7 config: version resolution is carried by each category's semver-increment
+# (and standalone type: version-resolver entries); the highest matching increment wins.
 categories:
   - title: 💥 Breaking Changes
-    labels:
-      - breaking
+    semver-increment: major
+    when:
+      label: breaking
   - title: 🚀 Features
-    labels:
-      - enhancement
+    semver-increment: minor
+    when:
+      label: enhancement
   - title: 🐛 Bug Fixes
-    labels:
-      - bug
+    semver-increment: patch
+    when:
+      label: bug
   - title: ⚠️ Changes
-    labels:
-      - changed
+    semver-increment: patch
+    when:
+      label: changed
   - title: ⛔️ Deprecated
-    labels:
-      - deprecated
+    semver-increment: patch
+    when:
+      label: deprecated
   - title: 🗑 Removed
-    labels:
-      - removed
+    semver-increment: patch
+    when:
+      label: removed
   - title: 🔐 Security
-    labels:
-      - security
+    semver-increment: patch
+    when:
+      label: security
   - title: 📄 Documentation
-    labels:
-      - documentation
+    semver-increment: patch
+    when:
+      label: documentation
   - title: 🧩 Dependency Updates
-    labels:
-      - dependencies
+    semver-increment: patch
+    when:
+      label: dependencies
     collapse-after: 5
+  - title: Other Changes
+  - type: version-resolver
+    semver-increment: patch
+    when:
+      label: fix
+  - type: version-resolver
+    semver-increment: patch
+    when:
+      label: refactor
+  - type: pre-exclude
+    when:
+      label: skip-changelog
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 change-title-escapes: '\<*_&'
-version-resolver:
-  major:
-    labels:
-      - 'breaking'
-  minor:
-    labels:
-      - 'enhancement'
-  patch:
-    labels:
-      - 'fix'
-      - 'refactor'
-  default: patch
-exclude-labels:
-  - skip-changelog
