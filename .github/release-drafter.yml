@@ -18,11 +18,8 @@
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-# Pinned to v1.0.0 for the first release: release-drafter's resolver does not honor a major
-# (breaking) label on a repo with no prior tag (release-drafter/release-drafter#1630), so the
-# version is fixed here until v1.0.0 ships. After the first release, restore 'v$RESOLVED_VERSION'.
-name-template: 'v1.0.0'
-tag-template: 'v1.0.0'
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
 template: |
   # What Changed 👀
 
@@ -30,7 +27,7 @@ template: |
 
   # Extra
 
-  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v1.0.0
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
 categories:
   - title: 💥 Breaking Changes
     labels:
