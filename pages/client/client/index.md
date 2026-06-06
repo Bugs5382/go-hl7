@@ -37,18 +37,20 @@ This library supports connections over IPv4, IPv6, or Fully Qualified Domain Nam
 import "github.com/Bugs5382/go-hl7/client/client"
 
 // IPv4 only (default)
-c, _ := client.NewClient(client.ClientOptions{Host: "hl7.example.com"})
+c, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "hl7.example.com"})
 
 // Dual-stack with auto-fallback (opt-in)
 dual, _ := client.NewClient(client.ClientOptions{
-    Host: "hl7.example.com", IPv4: ptr(true), IPv6: ptr(true),
+    Version: "2.7", Host: "hl7.example.com", IPv4: ptr(true), IPv6: ptr(true),
 })
 
 // Force IPv6 only (and validate the host against it):
-v6Only, _ := client.NewClient(client.ClientOptions{Host: "2001:db8::1", IPv6: ptr(true)})
+v6Only, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "2001:db8::1", IPv6: ptr(true)})
 ```
 
 This initializes a client targeting the host, but does not yet establish a connection.
+
+`Version` is **required** and pins the client to a single HL7 version — one of `2.1`, `2.2`, `2.3`, `2.3.1`, `2.4`, `2.5`, `2.5.1`, `2.6`, `2.7`, `2.7.1`, `2.8`. An empty or unknown version returns an error from `NewClient`. Every connection opened from this client inherits that one version. This is an intentional divergence from node-hl7, which leaves the transport version-agnostic.
 
 #### Address-family options
 
@@ -88,6 +90,8 @@ The callback is an `OutboundHandler` — `func(res *client.InboundResponse) erro
 _ = OB_ADT.SendMessage(message) // `message` is a MessageItem — *builder.Message, *builder.Batch, or *builder.FileBatch.
 ```
 
+`SendMessage` enforces the client's version: before a message is queued or transmitted, its `MSH.12` must equal the configured version, otherwise `SendMessage` returns an error and **does not send** (for a batch or file, every contained message's `MSH.12` must match).
+
 Outbound connections are persistent by design. This allows multiple messages to be sent over a single TCP/MLLP socket without repeatedly re-establishing the connection.
 
 If the connection drops, the library will attempt to reconnect up to 10 times (or a user-defined limit via `MaxConnectionAttempts`) before giving up, using exponential backoff (`RetryLow` → `RetryHigh`). If reconnection fails, your application will need to restart the connection process.
@@ -109,7 +113,7 @@ If the remote HL7 server expects TLS, set `TLS` on the `ClientOptions`. A non‑
 **Shorthand** — use the system trust store (works for certs chained to public CAs):
 
 ```go
-c, _ := client.NewClient(client.ClientOptions{Host: "hl7.example.com", TLS: &client.TLSConfig{}})
+c, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "hl7.example.com", TLS: &client.TLSConfig{}})
 ```
 
 **Full options** — use this when the server uses a private/self‑signed CA or you need to tune `ServerName`, etc.:
@@ -124,6 +128,7 @@ import (
 ca, _ := os.ReadFile("certs/server-ca-crt.pem")
 
 c, _ := client.NewClient(client.ClientOptions{
+    Version: "2.7",
     Host: "hl7.example.local",
     TLS: &client.TLSConfig{
         // 🪪 Trust this CA for the server cert.
@@ -146,6 +151,7 @@ crt, _ := os.ReadFile("certs/client-crt.pem")
 ca, _ := os.ReadFile("certs/server-ca-crt.pem")
 
 c, _ := client.NewClient(client.ClientOptions{
+    Version: "2.7",
     Host: "hl7.example.local",
     TLS: &client.TLSConfig{
         // 🔑 The client's own identity (this is the cert the server validates).
@@ -247,7 +253,7 @@ flushQueue := func(deliver client.FallBackHandler, notify client.NotifyPendingCo
     }
 }
 
-c, _ := client.NewClient(client.ClientOptions{Host: "0.0.0.0"})
+c, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "0.0.0.0"})
 
 // Create connection without auto-connecting.
 outbound, _ := c.CreateConnection(

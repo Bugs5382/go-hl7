@@ -15,6 +15,8 @@ flowchart LR
 
 Every connection gets its own `modules.MLLPCodec` so concurrent senders never interleave their byte streams. Your handler receives one parsed `builder.Message` at a time even if the inbound frame is a BHS batch or FHS file.
 
+Each listener is bound to a **required** HL7 version (set per port): an inbound message whose `MSH.12` does not match the listener's version is rejected with an `AR` (Application Reject) ACK and never reaches your handler. Dedicate a port per version. This is an intentional divergence from node-hl7, which leaves the transport version‑agnostic.
+
 ## 🗂️ Documentation layout
 
 ```mermaid
@@ -28,7 +30,7 @@ flowchart LR
 
 | Section | Purpose |
 |---|---|
-| 🔌 **[Inbound listeners](inbound/index.md)** | Server / Inbound options, request shape, events, multi‑port setups. |
+| 🔌 **[Inbound listeners](inbound/index.md)** | Server / Inbound options (including the **required** per‑listener HL7 version and `AR` rejection of mismatched inbound), request shape, events, multi‑port setups. |
 | 📬 **[Responses](responses/index.md)** | Auto ACKs (`SendResponse`), MSH overrides, and **fully custom ACKs** (`SendCustomResponse`). |
 | 🔒 **[TLS & mTLS](tls/index.md)** | Server‑auth and mutual‑auth setups, peer-cert inspection, and a cert-generation cheat sheet. |
 | ⚡ **[Performance](performance/index.md)** | Throughput notes, scaling tips, and what the inbound counters measure. |

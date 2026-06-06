@@ -68,7 +68,8 @@ func main() {
 	srv, _ := server.NewServer(&server.ServerOptions{BindAddress: ptr("0.0.0.0")})
 
 	in, _ := srv.CreateInbound(
-		server.ListenerOptions{Port: ptr(3000)},
+		// Version is required; this port accepts only HL7 2.5 messages.
+		server.ListenerOptions{Version: "2.5", Port: ptr(3000)},
 		func(req *server.InboundRequest, res server.ResponseSender) error {
 			message := req.GetMessage()
 			fmt.Println("⬅️  received", message.Get("MSH.10").String())
@@ -171,6 +172,7 @@ in, err := srv.CreateInbound(props server.ListenerOptions, handler server.Inboun
 
 | `ListenerOptions` field | Type | Purpose |
 |---|---|---|
+| `Version` | `string` | **Required** HL7 version (`2.1`..`2.8`). Each port enforces its own version; an inbound message whose `MSH.12` differs is rejected with an `AR` ACK and the handler is not called. |
 | `Port` | `*int` | Required. `0 < port < 65353`. |
 | `Name` | `string` | Optional human‑readable name for logging; auto‑randomized if empty. |
 | `Encoding` | `string` | Retained for parity (default utf8). |
@@ -178,12 +180,24 @@ in, err := srv.CreateInbound(props server.ListenerOptions, handler server.Inboun
 
 The handler gets called **once per parsed message**, even when the inbound frame is a batch (BHS) or file (FHS) containing many messages.
 
+### 🔖 Required HL7 version (per‑listener)
+
+`ListenerOptions.Version` is **required** and must be one of the known versions — `2.1`, `2.2`, `2.3`, `2.3.1`, `2.4`, `2.5`, `2.5.1`, `2.6`, `2.7`, `2.7.1`, `2.8` — or `CreateInbound` returns an error (`version is not defined.` / `version is not a valid HL7 version.`).
+
+Each port enforces **its own** version. When an inbound message's `MSH.12` does not equal the listener's version, the server:
+
+- builds the response and sends an **`AR`** (Application Reject) ACK,
+- emits a version‑mismatch `data.error` event,
+- and **returns without invoking your handler**.
+
+Dedicate a port per version (e.g. 2.5 on 6661, 2.7 on 6662) by calling `CreateInbound` once per version. This is an intentional divergence from node-hl7, which leaves the transport version‑agnostic.
+
 ---
 
 ## 📨 Reading the Request
 
 ```go
-srv.CreateInbound(server.ListenerOptions{Port: ptr(3000)},
+srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(3000)},
 	func(req *server.InboundRequest, res server.ResponseSender) error {
 		msg := req.GetMessage()    // *builder.Message from the client package
 		typ := req.GetType()       // "message" | "batch" | "file"
@@ -259,7 +273,7 @@ import (
 	"github.com/Bugs5382/go-hl7/client/utils"
 )
 
-srv.CreateInbound(server.ListenerOptions{Port: ptr(3000)},
+srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(3000)},
 	func(req *server.InboundRequest, res server.ResponseSender) error {
 		original := req.GetMessage()
 		ctrlID := original.Get("MSH.10").String()
@@ -289,7 +303,8 @@ When the auto‑ACK is *almost* right but a couple of MSH fields need tweaking, 
 ```go
 srv.CreateInbound(
 	server.ListenerOptions{
-		Port: ptr(3000),
+		Version: "2.7",
+		Port:    ptr(3000),
 		MSHOverrides: map[string]server.MSHOverride{
 			"3":   server.StringOverride("MY_APP"),
 			"9.3": server.StringOverride("ACK"),
@@ -359,7 +374,7 @@ srv, _ := server.NewServer(&server.ServerOptions{
 	},
 })
 
-srv.CreateInbound(server.ListenerOptions{Port: ptr(6661)},
+srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(6661)},
 	func(req *server.InboundRequest, res server.ResponseSender) error {
 		// You can inspect the peer via the TLS connection:
 		if tc, ok := req.GetSocket().(*tls.Conn); ok {

@@ -41,7 +41,7 @@ srv, _ := server.NewServer(&server.ServerOptions{
     TLS: &server.TLSConfig{Key: key, Cert: crt},
 })
 
-srv.CreateInbound(server.ListenerOptions{Port: ptr(6661)}, func(req *server.InboundRequest, res server.ResponseSender) error {
+srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(6661)}, func(req *server.InboundRequest, res server.ResponseSender) error {
     return res.SendResponse("AA")
 })
 ```
@@ -72,7 +72,7 @@ srv, _ := server.NewServer(&server.ServerOptions{
     },
 })
 
-srv.CreateInbound(server.ListenerOptions{Port: ptr(6661)}, func(req *server.InboundRequest, res server.ResponseSender) error {
+srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(6661)}, func(req *server.InboundRequest, res server.ResponseSender) error {
     return res.SendResponse("AA")
 })
 ```
@@ -94,7 +94,7 @@ Once the handshake completes, the peer certificate is available via the TLS conn
 ```go
 import "crypto/tls"
 
-srv.CreateInbound(server.ListenerOptions{Port: ptr(6661)}, func(req *server.InboundRequest, res server.ResponseSender) error {
+srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(6661)}, func(req *server.InboundRequest, res server.ResponseSender) error {
     if tc, ok := req.GetSocket().(*tls.Conn); ok {
         state := tc.ConnectionState()
         if len(state.PeerCertificates) > 0 {

@@ -35,6 +35,7 @@ This library exists to make HL7 a first‑class citizen of the Go ecosystem — 
 | Pure Go, standard library only | No supply chain to audit; reproducible builds. |
 | **Zero runtime dependencies** | Faster cold starts, smaller container images, easier audits. |
 | Typed segment builders (HL7 2.1 → 2.8) | No more hand‑typed `MSH\|^~\&\|...` strings. |
+| Version‑pinned client (single‑set, **required**) | The client is bound to one HL7 version; outbound messages whose `MSH.12` differs are rejected before they're sent — an intentional divergence from node-hl7. |
 | Built‑in MLLP framing & TLS | Production‑ready transport without bolting on another library. |
 | Pluggable outbound queue | In‑memory by default; swap in Redis for multi‑pod deployments. |
 
@@ -54,7 +55,7 @@ flowchart LR
 |---|---|
 | 🧱 **[Builder](builder/index.md)** | Construct standardized HL7 messages with the class‑based `hl7.HL7_2_x` builders — versions, MSH-first ordering, usage codes, composites, batches, and validation. |
 | 🧬 **[Segments](segments/index.md)** | The full compatibility matrix of every supported segment across HL7 v2.1 → v2.8, plus a per‑segment cheat‑sheet and Caristix links. |
-| 🔌 **[Client](client/index.md)** | Connect to a remote HL7 server, send messages, handle ACKs, configure TLS/mTLS, and offload the queue (Redis, RabbitMQ). |
+| 🔌 **[Client](client/index.md)** | Connect to a remote HL7 server (with a **required**, single‑set HL7 version), send messages, handle ACKs, configure TLS/mTLS, and offload the queue (Redis, RabbitMQ). |
 | 🔍 **[Parser](parser/index.md)** | Turn raw HL7 strings (single message, batch, or file) back into `builder.Message` objects. |
 | 🏥 **Server docs** | If you also need to **receive** HL7, jump to the [server pages](../server/index.md). |
 
