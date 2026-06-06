@@ -1,0 +1,11 @@
+# GoLic, for more details see: https://github.com/Bugs5382/golic
+# Ignore everything
+*
+
+# But inject license into these files...
+!*.go
+!*.yaml
+!.golic.yaml
+
+# ...even if they are in subdirectories
+dist/*

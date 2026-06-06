@@ -1,0 +1,10 @@
+{
+  "id": "0055",
+  "tableId": "0055",
+  "tableType": "User",
+  "name": "Diagnosis Related Group",
+  "chapters": [
+    "CH_02"
+  ],
+  "entries": []
+}

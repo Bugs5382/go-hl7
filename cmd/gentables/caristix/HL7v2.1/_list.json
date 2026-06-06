@@ -1,0 +1,996 @@
+[
+  {
+    "id": "0001",
+    "type": "Table",
+    "label": "0001 - SEX",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0002",
+    "type": "Table",
+    "label": "0002 - MARITAL STATUS",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0003",
+    "type": "Table",
+    "label": "0003 - EVENT TYPE CODE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0004",
+    "type": "Table",
+    "label": "0004 - PATIENT CLASS",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0005",
+    "type": "Table",
+    "label": "0005 - ETHNIC GROUP",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0006",
+    "type": "Table",
+    "label": "0006 - RELIGION",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0007",
+    "type": "Table",
+    "label": "0007 - ADMISSION TYPE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0008",
+    "type": "Table",
+    "label": "0008 - ACKNOWLEDGMENT CODE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0009",
+    "type": "Table",
+    "label": "0009 - AMBULATORY STATUS",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0010",
+    "type": "Table",
+    "label": "0010 - PHYSICIAN ID",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0011",
+    "type": "Table",
+    "label": "0011 - CHARGING SYSTEM",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0012",
+    "type": "Table",
+    "label": "0012 - STOCK LOCATION",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0013",
+    "type": "Table",
+    "label": "0013 - CHARGEABLE OR NON-CHARGEABLE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0014",
+    "type": "Table",
+    "label": "0014 - HEIGHT UNIT OF MEASURE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0015",
+    "type": "Table",
+    "label": "0015 - WEIGHT UNIT OF MEASURE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0016",
+    "type": "Table",
+    "label": "0016 - ISOLATION",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0017",
+    "type": "Table",
+    "label": "0017 - TRANSACTION TYPE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0018",
+    "type": "Table",
+    "label": "0018 - PATIENT TYPE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0019",
+    "type": "Table",
+    "label": "0019 - ANESTHESIA CODE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0020",
+    "type": "Table",
+    "label": "0020 - UNUSED TABLE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0021",
+    "type": "Table",
+    "label": "0021 - BAD DEBT AGENCY CODE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0022",
+    "type": "Table",
+    "label": "0022 - BILLING STATUS",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0023",
+    "type": "Table",
+    "label": "0023 - ADMIT SOURCE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0024",
+    "type": "Table",
+    "label": "0024 - FEE SCHEDULE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0025",
+    "type": "Table",
+    "label": "0025 - CONFIRMATION CODE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0026",
+    "type": "Table",
+    "label": "0026 - ORDER EVENT TYPE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0027",
+    "type": "Table",
+    "label": "0027 - PRIORITY (COMPONENT 6 QTY/TIMING[735])",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0028",
+    "type": "Table",
+    "label": "0028 - UNUSED TABLE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0029",
+    "type": "Table",
+    "label": "0029 - UNIT OF MEASURE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0030",
+    "type": "Table",
+    "label": "0030 - FREQUENCY CODE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0031",
+    "type": "Table",
+    "label": "0031 - BLOOD BANK - COMPONENT TYPE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0032",
+    "type": "Table",
+    "label": "0032 - CHARGE/PRICE INDICATOR",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0033",
+    "type": "Table",
+    "label": "0033 - ROUTE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0034",
+    "type": "Table",
+    "label": "0034 - SITE ADMINISTERED",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0035",
+    "type": "Table",
+    "label": "0035 - UNIT OF MEASURE FOR THE SOLUTION RATE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0036",
+    "type": "Table",
+    "label": "0036 - UNITS OF MEASURE - ISO528,1977",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0037",
+    "type": "Table",
+    "label": "0037 - DRUG DOSE UNIT OF MEASURE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0038",
+    "type": "Table",
+    "label": "0038 - ORDER STATUS",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0039",
+    "type": "Table",
+    "label": "0039 - UNUSED TABLE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0040",
+    "type": "Table",
+    "label": "0040 - UNUSED TABLE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0041",
+    "type": "Table",
+    "label": "0041 - VOLUME UNIT OF MEASURE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0042",
+    "type": "Table",
+    "label": "0042 - INS. COMPANY PLAN CODE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0043",
+    "type": "Table",
+    "label": "0043 - CONDITION",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0044",
+    "type": "Table",
+    "label": "0044 - CONTRACT CODE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0045",
+    "type": "Table",
+    "label": "0045 - COURTESY CODE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0046",
+    "type": "Table",
+    "label": "0046 - CREDIT RATING",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0047",
+    "type": "Table",
+    "label": "0047 - DANGER CODE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0048",
+    "type": "Table",
+    "label": "0048 - WHAT SUBJECT FILTER",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0049",
+    "type": "Table",
+    "label": "0049 - DEPARTMENT CODE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0050",
+    "type": "Table",
+    "label": "0050 - ACCIDENT CODE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0051",
+    "type": "Table",
+    "label": "0051 - DIAGNOSIS CODE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0052",
+    "type": "Table",
+    "label": "0052 - DIAGNOSIS TYPE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0053",
+    "type": "Table",
+    "label": "0053 - DIAGNOSIS CODING METHOD",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0055",
+    "type": "Table",
+    "label": "0055 - DRG CODE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0056",
+    "type": "Table",
+    "label": "0056 - DRG GROUPER REVIEW CODE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0057",
+    "type": "Table",
+    "label": "0057 - DRUG CODE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0058",
+    "type": "Table",
+    "label": "0058 - UNUSED TABLE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0059",
+    "type": "Table",
+    "label": "0059 - CONSENT CODE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0060",
+    "type": "Table",
+    "label": "0060 - ERROR CODE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0061",
+    "type": "Table",
+    "label": "0061 - CHECK DIGIT SCHEME",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0062",
+    "type": "Table",
+    "label": "0062 - EVENT REASON",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0063",
+    "type": "Table",
+    "label": "0063 - RELATIONSHIP",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0064",
+    "type": "Table",
+    "label": "0064 - FINANCIAL CLASS",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0065",
+    "type": "Table",
+    "label": "0065 - ACTION CODE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0066",
+    "type": "Table",
+    "label": "0066 - EMPLOYMENT STATUS",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0067",
+    "type": "Table",
+    "label": "0067 - UNUSED TABLE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0068",
+    "type": "Table",
+    "label": "0068 - GUARANTOR TYPE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0069",
+    "type": "Table",
+    "label": "0069 - HOSPITAL SERVICE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0070",
+    "type": "Table",
+    "label": "0070 - SOURCE OF SPECIMEN",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0071",
+    "type": "Table",
+    "label": "0071 - UNUSED TABLE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0072",
+    "type": "Table",
+    "label": "0072 - INS. PLAN ID",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0073",
+    "type": "Table",
+    "label": "0073 - INTEREST RATE CODE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0074",
+    "type": "Table",
+    "label": "0074 - DIAGNOSTIC SERVICE SECTION ID",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0075",
+    "type": "Table",
+    "label": "0075 - REPORT TYPES",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0076",
+    "type": "Table",
+    "label": "0076 - MESSAGE TYPE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0077",
+    "type": "Table",
+    "label": "0077 - UNUSED TABLE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0078",
+    "type": "Table",
+    "label": "0078 - ABNORMAL FLAGS",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0079",
+    "type": "Table",
+    "label": "0079 - LOCATION",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0080",
+    "type": "Table",
+    "label": "0080 - NATURE OF ABNORMAL TESTING",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0081",
+    "type": "Table",
+    "label": "0081 - NOTICE OF ADMISSION",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0082",
+    "type": "Table",
+    "label": "0082 - UNUSED TABLE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0083",
+    "type": "Table",
+    "label": "0083 - OUTLIER TYPE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0084",
+    "type": "Table",
+    "label": "0084 - PERFORMED BY CODE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0085",
+    "type": "Table",
+    "label": "0085 - OBSERVATION RESULT STATUS",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0086",
+    "type": "Table",
+    "label": "0086 - INS. PLAN TYPE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0087",
+    "type": "Table",
+    "label": "0087 - PRE-ADMIT TESTING",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0088",
+    "type": "Table",
+    "label": "0088 - PROCEDURE CODE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0089",
+    "type": "Table",
+    "label": "0089 - PROCEDURE CODING METHOD",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0090",
+    "type": "Table",
+    "label": "0090 - PROCEDURE TYPE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0091",
+    "type": "Table",
+    "label": "0091 - QUERY PRIORITY",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0092",
+    "type": "Table",
+    "label": "0092 - RE-ADMISSION INDICATOR",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0093",
+    "type": "Table",
+    "label": "0093 - RELEASE OF INFORMATION",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0094",
+    "type": "Table",
+    "label": "0094 - REPORT OF ELIGIBILITY",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0095",
+    "type": "Table",
+    "label": "0095 - UNUSED TABLE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0096",
+    "type": "Table",
+    "label": "0096 - FINANCIAL TRANSACTION CODE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0097",
+    "type": "Table",
+    "label": "0097 - UNUSED TABLE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0098",
+    "type": "Table",
+    "label": "0098 - TYPE OF AGREEMENT CODE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0099",
+    "type": "Table",
+    "label": "0099 - VIP INDICATOR",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0100",
+    "type": "Table",
+    "label": "0100 - WHEN TO CHARGE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0101",
+    "type": "Table",
+    "label": "0101 - DISPLAY LEVEL",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0102",
+    "type": "Table",
+    "label": "0102 - DELAYED ACKNOWLEDGMENT TYPE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0103",
+    "type": "Table",
+    "label": "0103 - PROCESSING ID",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0104",
+    "type": "Table",
+    "label": "0104 - VERSION CONTROL TABLE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0105",
+    "type": "Table",
+    "label": "0105 - SOURCE OF COMMENT",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0106",
+    "type": "Table",
+    "label": "0106 - QUERY FORMAT CODE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0107",
+    "type": "Table",
+    "label": "0107 - DEFERRED RESPONSE TYPE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0108",
+    "type": "Table",
+    "label": "0108 - QUERY RESULTS LEVEL",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0109",
+    "type": "Table",
+    "label": "0109 - REPORT PRIORITY",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0110",
+    "type": "Table",
+    "label": "0110 - TRANSFER TO BAD DEBT CODE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0111",
+    "type": "Table",
+    "label": "0111 - DELETE ACCOUNT CODE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0112",
+    "type": "Table",
+    "label": "0112 - DISCHARGED DISPOSITION",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0113",
+    "type": "Table",
+    "label": "0113 - DISCHARGED TO LOCATION",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0114",
+    "type": "Table",
+    "label": "0114 - DIET TYPE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0115",
+    "type": "Table",
+    "label": "0115 - SERVICING FACILITY",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0116",
+    "type": "Table",
+    "label": "0116 - BED STATUS",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0117",
+    "type": "Table",
+    "label": "0117 - ACCOUNT STATUS",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0118",
+    "type": "Table",
+    "label": "0118 - MAJOR DIAGNOSTIC CATEGORY",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0119",
+    "type": "Table",
+    "label": "0119 - ORDER CONTROL",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0120",
+    "type": "Table",
+    "label": "0120 - APPLICATION ID",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0121",
+    "type": "Table",
+    "label": "0121 - RESPONSE FLAG",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0122",
+    "type": "Table",
+    "label": "0122 - CHARGE TYPE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0123",
+    "type": "Table",
+    "label": "0123 - RESULT STATUS - OBR",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0124",
+    "type": "Table",
+    "label": "0124 - TRANSPORTATION MODE",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0125",
+    "type": "Table",
+    "label": "0125 - VALUE TYPE",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0126",
+    "type": "Table",
+    "label": "0126 - QUANTITY LIMITED REQUEST",
+    "description": "HL7 Standard Tables",
+    "chapters": []
+  },
+  {
+    "id": "0136",
+    "type": "Table",
+    "label": "0136 - Y/N Indicator",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0145",
+    "type": "Table",
+    "label": "0145 - Room Type",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "0171",
+    "type": "Table",
+    "label": "0171 - Country Code",
+    "description": "User Defined Tables",
+    "chapters": []
+  },
+  {
+    "id": "City",
+    "type": "Table",
+    "label": "City - City",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "CivicNumber",
+    "type": "Table",
+    "label": "CivicNumber - Civic Number",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "Country",
+    "type": "Table",
+    "label": "Country - Country",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "FirstName",
+    "type": "Table",
+    "label": "FirstName - First Name",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "FirstNameFemale",
+    "type": "Table",
+    "label": "FirstNameFemale - Female First Name",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "FirstNameMale",
+    "type": "Table",
+    "label": "FirstNameMale - Male First Name",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "Language",
+    "type": "Table",
+    "label": "Language - Language",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "LastName",
+    "type": "Table",
+    "label": "LastName - LastName",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "Nationality",
+    "type": "Table",
+    "label": "Nationality - Nationality",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "PhoneNumber",
+    "type": "Table",
+    "label": "PhoneNumber - Phone Number",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "Religion",
+    "type": "Table",
+    "label": "Religion - Religion",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "State",
+    "type": "Table",
+    "label": "State - State",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "Street",
+    "type": "Table",
+    "label": "Street - Street",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "ZipCode",
+    "type": "Table",
+    "label": "ZipCode - Zip Code",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  }
+]

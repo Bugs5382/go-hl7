@@ -1,0 +1,11 @@
+{
+  "id": "0328",
+  "tableId": "0328",
+  "tableType": "User",
+  "name": "Employee classification",
+  "chapters": [
+    "CH_02",
+    "CH_06"
+  ],
+  "entries": []
+}

@@ -1,0 +1,3798 @@
+[
+  {
+    "id": "0001",
+    "type": "Table",
+    "label": "0001 - Administrative sex",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0002",
+    "type": "Table",
+    "label": "0002 - Marital status",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0003",
+    "type": "Table",
+    "label": "0003 - Event type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02",
+      "CH_12"
+    ]
+  },
+  {
+    "id": "0004",
+    "type": "Table",
+    "label": "0004 - Patient class",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0005",
+    "type": "Table",
+    "label": "0005 - Race",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0006",
+    "type": "Table",
+    "label": "0006 - Religion",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0007",
+    "type": "Table",
+    "label": "0007 - Admission type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0008",
+    "type": "Table",
+    "label": "0008 - Acknowledgment code",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0009",
+    "type": "Table",
+    "label": "0009 - Ambulatory status",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0010",
+    "type": "Table",
+    "label": "0010 - Physician ID",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0017",
+    "type": "Table",
+    "label": "0017 - Transaction type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0018",
+    "type": "Table",
+    "label": "0018 - Patient type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0019",
+    "type": "Table",
+    "label": "0019 - Anesthesia code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0021",
+    "type": "Table",
+    "label": "0021 - Bad debt agency code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0022",
+    "type": "Table",
+    "label": "0022 - Billing status",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0023",
+    "type": "Table",
+    "label": "0023 - Admit source",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0024",
+    "type": "Table",
+    "label": "0024 - Fee schedule",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0027",
+    "type": "Table",
+    "label": "0027 - Priority",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0032",
+    "type": "Table",
+    "label": "0032 - Charge/price indicator",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0038",
+    "type": "Table",
+    "label": "0038 - Order status",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0042",
+    "type": "Table",
+    "label": "0042 - Company plan code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0043",
+    "type": "Table",
+    "label": "0043 - Condition code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0044",
+    "type": "Table",
+    "label": "0044 - Contract code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0045",
+    "type": "Table",
+    "label": "0045 - Courtesy code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0046",
+    "type": "Table",
+    "label": "0046 - Credit rating",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0048",
+    "type": "Table",
+    "label": "0048 - What subject filter",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_05"
+    ]
+  },
+  {
+    "id": "0049",
+    "type": "Table",
+    "label": "0049 - Department code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0050",
+    "type": "Table",
+    "label": "0050 - Accident code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0051",
+    "type": "Table",
+    "label": "0051 - Diagnosis code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0052",
+    "type": "Table",
+    "label": "0052 - Diagnosis type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0053",
+    "type": "Table",
+    "label": "0053 - Diagnosis coding method",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0055",
+    "type": "Table",
+    "label": "0055 - Diagnosis related group",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0056",
+    "type": "Table",
+    "label": "0056 - DRG grouper review code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0059",
+    "type": "Table",
+    "label": "0059 - Consent code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0061",
+    "type": "Table",
+    "label": "0061 - Check digit scheme",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0062",
+    "type": "Table",
+    "label": "0062 - Event reason",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0063",
+    "type": "Table",
+    "label": "0063 - Relationship",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0064",
+    "type": "Table",
+    "label": "0064 - Financial class",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02",
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0065",
+    "type": "Table",
+    "label": "0065 - Specimen action code",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0066",
+    "type": "Table",
+    "label": "0066 - Employment status",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0068",
+    "type": "Table",
+    "label": "0068 - Guarantor type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0069",
+    "type": "Table",
+    "label": "0069 - Hospital service",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0070",
+    "type": "Table",
+    "label": "0070 - Specimen source codes",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04",
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0072",
+    "type": "Table",
+    "label": "0072 - Insurance plan ID",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0073",
+    "type": "Table",
+    "label": "0073 - Interest rate code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0074",
+    "type": "Table",
+    "label": "0074 - Diagnostic service section ID",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0076",
+    "type": "Table",
+    "label": "0076 - Message type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0078",
+    "type": "Table",
+    "label": "0078 - Abnormal flags",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0080",
+    "type": "Table",
+    "label": "0080 - Nature of abnormal testing",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0083",
+    "type": "Table",
+    "label": "0083 - Outlier type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0084",
+    "type": "Table",
+    "label": "0084 - Performed by",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0085",
+    "type": "Table",
+    "label": "0085 - Observation result status codes interpretation",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0086",
+    "type": "Table",
+    "label": "0086 - Plan ID",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0087",
+    "type": "Table",
+    "label": "0087 - Pre-admit test indicator",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0088",
+    "type": "Table",
+    "label": "0088 - Procedure code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0089",
+    "type": "Table",
+    "label": "0089 - Procedure coding method",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0091",
+    "type": "Table",
+    "label": "0091 - Query priority",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_05"
+    ]
+  },
+  {
+    "id": "0092",
+    "type": "Table",
+    "label": "0092 - Re-admission indicator",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0093",
+    "type": "Table",
+    "label": "0093 - Release information",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0098",
+    "type": "Table",
+    "label": "0098 - Type of agreement",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0099",
+    "type": "Table",
+    "label": "0099 - VIP indicator",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0100",
+    "type": "Table",
+    "label": "0100 - When to charge",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0102",
+    "type": "Table",
+    "label": "0102 - Delayed acknowledgment type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0103",
+    "type": "Table",
+    "label": "0103 - Processing ID",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0104",
+    "type": "Table",
+    "label": "0104 - Version ID",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0105",
+    "type": "Table",
+    "label": "0105 - Source of comment",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0106",
+    "type": "Table",
+    "label": "0106 - Query/response format code",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_05"
+    ]
+  },
+  {
+    "id": "0107",
+    "type": "Table",
+    "label": "0107 - Deferred response type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_05"
+    ]
+  },
+  {
+    "id": "0108",
+    "type": "Table",
+    "label": "0108 - Query results level",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_05"
+    ]
+  },
+  {
+    "id": "0109",
+    "type": "Table",
+    "label": "0109 - Report priority",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_05"
+    ]
+  },
+  {
+    "id": "0110",
+    "type": "Table",
+    "label": "0110 - Transfer to bad debt code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0111",
+    "type": "Table",
+    "label": "0111 - Delete account code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0112",
+    "type": "Table",
+    "label": "0112 - Discharge disposition",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0113",
+    "type": "Table",
+    "label": "0113 - Discharged to location",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0114",
+    "type": "Table",
+    "label": "0114 - Diet type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0115",
+    "type": "Table",
+    "label": "0115 - Servicing facility",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0116",
+    "type": "Table",
+    "label": "0116 - Bed status",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0117",
+    "type": "Table",
+    "label": "0117 - Account status",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0118",
+    "type": "Table",
+    "label": "0118 - Major diagnostic category",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0119",
+    "type": "Table",
+    "label": "0119 - Order control codes",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0121",
+    "type": "Table",
+    "label": "0121 - Response flag",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0122",
+    "type": "Table",
+    "label": "0122 - Charge type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0123",
+    "type": "Table",
+    "label": "0123 - Result status",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0124",
+    "type": "Table",
+    "label": "0124 - Transportation mode",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0125",
+    "type": "Table",
+    "label": "0125 - Value type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0126",
+    "type": "Table",
+    "label": "0126 - Quantity limited request",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_05"
+    ]
+  },
+  {
+    "id": "0127",
+    "type": "Table",
+    "label": "0127 - Allergen type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0128",
+    "type": "Table",
+    "label": "0128 - Allergy severity",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0129",
+    "type": "Table",
+    "label": "0129 - Accommodation code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0130",
+    "type": "Table",
+    "label": "0130 - Visit user code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0131",
+    "type": "Table",
+    "label": "0131 - Contact role",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03",
+      "CH_11"
+    ]
+  },
+  {
+    "id": "0132",
+    "type": "Table",
+    "label": "0132 - Transaction code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0133",
+    "type": "Table",
+    "label": "0133 - Procedure practitioner identifier code type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0135",
+    "type": "Table",
+    "label": "0135 - Assignment of benefits",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0136",
+    "type": "Table",
+    "label": "0136 - Yes/no indicator",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0137",
+    "type": "Table",
+    "label": "0137 - Mail claim party",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0139",
+    "type": "Table",
+    "label": "0139 - Employer information data",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0140",
+    "type": "Table",
+    "label": "0140 - Military service",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0141",
+    "type": "Table",
+    "label": "0141 - Military rank/grade",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0142",
+    "type": "Table",
+    "label": "0142 - Military status",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0143",
+    "type": "Table",
+    "label": "0143 - Non-covered insurance code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0144",
+    "type": "Table",
+    "label": "0144 - Eligibility source",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0145",
+    "type": "Table",
+    "label": "0145 - Room type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0146",
+    "type": "Table",
+    "label": "0146 - Amount type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0147",
+    "type": "Table",
+    "label": "0147 - Policy type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0148",
+    "type": "Table",
+    "label": "0148 - Penalty type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0149",
+    "type": "Table",
+    "label": "0149 - Day type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0150",
+    "type": "Table",
+    "label": "0150 - Pre-certification patient type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0151",
+    "type": "Table",
+    "label": "0151 - Second opinion status",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0152",
+    "type": "Table",
+    "label": "0152 - Second opinion documentation received",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0153",
+    "type": "Table",
+    "label": "0153 - Value code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0155",
+    "type": "Table",
+    "label": "0155 - Accept/application acknowledgment conditions",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0156",
+    "type": "Table",
+    "label": "0156 - Which date/time qualifier",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_05"
+    ]
+  },
+  {
+    "id": "0157",
+    "type": "Table",
+    "label": "0157 - Which date/time status qualifier",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_05"
+    ]
+  },
+  {
+    "id": "0158",
+    "type": "Table",
+    "label": "0158 - Date/time selection qualifier",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_05"
+    ]
+  },
+  {
+    "id": "0159",
+    "type": "Table",
+    "label": "0159 - Diet code specification type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0160",
+    "type": "Table",
+    "label": "0160 - Tray type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0161",
+    "type": "Table",
+    "label": "0161 - Allow substitution",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0162",
+    "type": "Table",
+    "label": "0162 - Route of administration",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0163",
+    "type": "Table",
+    "label": "0163 - Body site",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0164",
+    "type": "Table",
+    "label": "0164 - Administration device",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0165",
+    "type": "Table",
+    "label": "0165 - Administration method",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0166",
+    "type": "Table",
+    "label": "0166 - RX component type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0167",
+    "type": "Table",
+    "label": "0167 - Substitution status",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0168",
+    "type": "Table",
+    "label": "0168 - Processing priority",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0169",
+    "type": "Table",
+    "label": "0169 - Reporting priority",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0170",
+    "type": "Table",
+    "label": "0170 - Derived specimen",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0171",
+    "type": "Table",
+    "label": "0171 - Citizenship",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0172",
+    "type": "Table",
+    "label": "0172 - Veterans military status",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0173",
+    "type": "Table",
+    "label": "0173 - Coordination of benefits",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0174",
+    "type": "Table",
+    "label": "0174 - Nature of service/test/observation",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0175",
+    "type": "Table",
+    "label": "0175 - Master file identifier code",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0177",
+    "type": "Table",
+    "label": "0177 - Confidentiality code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0178",
+    "type": "Table",
+    "label": "0178 - File level event code",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0179",
+    "type": "Table",
+    "label": "0179 - Response level",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0180",
+    "type": "Table",
+    "label": "0180 - Record-level event code",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0181",
+    "type": "Table",
+    "label": "0181 - MFN record-level error return",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0182",
+    "type": "Table",
+    "label": "0182 - Staff type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_15"
+    ]
+  },
+  {
+    "id": "0183",
+    "type": "Table",
+    "label": "0183 - Active/inactive",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_15"
+    ]
+  },
+  {
+    "id": "0184",
+    "type": "Table",
+    "label": "0184 - Department",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_15"
+    ]
+  },
+  {
+    "id": "0185",
+    "type": "Table",
+    "label": "0185 - Preferred method of contact",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_15"
+    ]
+  },
+  {
+    "id": "0186",
+    "type": "Table",
+    "label": "0186 - Practitioner category",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_15"
+    ]
+  },
+  {
+    "id": "0187",
+    "type": "Table",
+    "label": "0187 - Provider billing",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_15"
+    ]
+  },
+  {
+    "id": "0188",
+    "type": "Table",
+    "label": "0188 - Operator ID",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0189",
+    "type": "Table",
+    "label": "0189 - Ethnic group",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0190",
+    "type": "Table",
+    "label": "0190 - Address type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0191",
+    "type": "Table",
+    "label": "0191 - Type of referenced data",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0193",
+    "type": "Table",
+    "label": "0193 - Amount class",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0200",
+    "type": "Table",
+    "label": "0200 - Name type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02",
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0201",
+    "type": "Table",
+    "label": "0201 - Telecommunication use code",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0202",
+    "type": "Table",
+    "label": "0202 - Telecommunication equipment type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0203",
+    "type": "Table",
+    "label": "0203 - Identifier type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0204",
+    "type": "Table",
+    "label": "0204 - Organizational name type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0205",
+    "type": "Table",
+    "label": "0205 - Price type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0206",
+    "type": "Table",
+    "label": "0206 - Segment action code",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0207",
+    "type": "Table",
+    "label": "0207 - Processing mode",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0208",
+    "type": "Table",
+    "label": "0208 - Query response status",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_05"
+    ]
+  },
+  {
+    "id": "0209",
+    "type": "Table",
+    "label": "0209 - Relational operator",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02",
+      "CH_05"
+    ]
+  },
+  {
+    "id": "0210",
+    "type": "Table",
+    "label": "0210 - Relational conjunction",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02",
+      "CH_05"
+    ]
+  },
+  {
+    "id": "0211",
+    "type": "Table",
+    "label": "0211 - Alternate character sets",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0212",
+    "type": "Table",
+    "label": "0212 - Nationality",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0213",
+    "type": "Table",
+    "label": "0213 - Purge status code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0214",
+    "type": "Table",
+    "label": "0214 - Special program codes",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0215",
+    "type": "Table",
+    "label": "0215 - Publicity code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0216",
+    "type": "Table",
+    "label": "0216 - Patient status",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0217",
+    "type": "Table",
+    "label": "0217 - Visit priority code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0218",
+    "type": "Table",
+    "label": "0218 - Patient charge adjustment",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0219",
+    "type": "Table",
+    "label": "0219 - Recurring service",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0220",
+    "type": "Table",
+    "label": "0220 - Living arrangement",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0222",
+    "type": "Table",
+    "label": "0222 - Contact reason",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0223",
+    "type": "Table",
+    "label": "0223 - Living dependency",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0224",
+    "type": "Table",
+    "label": "0224 - Transport arranged",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0225",
+    "type": "Table",
+    "label": "0225 - Escort required",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0227",
+    "type": "Table",
+    "label": "0227 - Manufacturers of vaccines",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0228",
+    "type": "Table",
+    "label": "0228 - Diagnosis classification",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0229",
+    "type": "Table",
+    "label": "0229 - DRG payor",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0230",
+    "type": "Table",
+    "label": "0230 - Procedure functional type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0231",
+    "type": "Table",
+    "label": "0231 - Student status",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0232",
+    "type": "Table",
+    "label": "0232 - Insurance company contact reason",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0233",
+    "type": "Table",
+    "label": "0233 - Non-concur code/description",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0234",
+    "type": "Table",
+    "label": "0234 - Report timing",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0235",
+    "type": "Table",
+    "label": "0235 - Report source",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0236",
+    "type": "Table",
+    "label": "0236 - Event reported to",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0237",
+    "type": "Table",
+    "label": "0237 - Event qualification",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0238",
+    "type": "Table",
+    "label": "0238 - Event seriousness",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0239",
+    "type": "Table",
+    "label": "0239 - Event expected",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0240",
+    "type": "Table",
+    "label": "0240 - Event consequence",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0241",
+    "type": "Table",
+    "label": "0241 - Patient outcome",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0242",
+    "type": "Table",
+    "label": "0242 - Primary observer’s qualification",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0243",
+    "type": "Table",
+    "label": "0243 - Identity may be divulged",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0244",
+    "type": "Table",
+    "label": "0244 - Single use device",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0245",
+    "type": "Table",
+    "label": "0245 - Product problem",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0246",
+    "type": "Table",
+    "label": "0246 - Product available for inspection",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0247",
+    "type": "Table",
+    "label": "0247 - Status of evaluation",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0248",
+    "type": "Table",
+    "label": "0248 - Product source",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0249",
+    "type": "Table",
+    "label": "0249 - Generic product",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0250",
+    "type": "Table",
+    "label": "0250 - Relatedness assessment",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0251",
+    "type": "Table",
+    "label": "0251 - Action taken in response to the event",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0252",
+    "type": "Table",
+    "label": "0252 - Causality observations",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0253",
+    "type": "Table",
+    "label": "0253 - Indirect exposure mechanism",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0254",
+    "type": "Table",
+    "label": "0254 - Kind of quantity",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0255",
+    "type": "Table",
+    "label": "0255 - Duration categories",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0256",
+    "type": "Table",
+    "label": "0256 - Time delay post challenge",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0257",
+    "type": "Table",
+    "label": "0257 - Nature of challenge",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0258",
+    "type": "Table",
+    "label": "0258 - Relationship modifier",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0259",
+    "type": "Table",
+    "label": "0259 - Modality",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0260",
+    "type": "Table",
+    "label": "0260 - Patient location type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0261",
+    "type": "Table",
+    "label": "0261 - Location equipment",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0262",
+    "type": "Table",
+    "label": "0262 - Privacy level",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0263",
+    "type": "Table",
+    "label": "0263 - Level of care",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0264",
+    "type": "Table",
+    "label": "0264 - Location department",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0265",
+    "type": "Table",
+    "label": "0265 - Specialty type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0267",
+    "type": "Table",
+    "label": "0267 - Days of the week",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02",
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0268",
+    "type": "Table",
+    "label": "0268 - Override",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0269",
+    "type": "Table",
+    "label": "0269 - Charge on indicator",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0270",
+    "type": "Table",
+    "label": "0270 - Document type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_09"
+    ]
+  },
+  {
+    "id": "0271",
+    "type": "Table",
+    "label": "0271 - Document completion status",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_09"
+    ]
+  },
+  {
+    "id": "0272",
+    "type": "Table",
+    "label": "0272 - Document confidentiality status",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_09"
+    ]
+  },
+  {
+    "id": "0273",
+    "type": "Table",
+    "label": "0273 - Document availability status",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_09"
+    ]
+  },
+  {
+    "id": "0275",
+    "type": "Table",
+    "label": "0275 - Document storage status",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_09"
+    ]
+  },
+  {
+    "id": "0276",
+    "type": "Table",
+    "label": "0276 - Appointment reason codes",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_10"
+    ]
+  },
+  {
+    "id": "0277",
+    "type": "Table",
+    "label": "0277 - Appointment type codes",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_10"
+    ]
+  },
+  {
+    "id": "0278",
+    "type": "Table",
+    "label": "0278 - Filler status codes",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_10"
+    ]
+  },
+  {
+    "id": "0279",
+    "type": "Table",
+    "label": "0279 - Allow substitution codes",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_10"
+    ]
+  },
+  {
+    "id": "0280",
+    "type": "Table",
+    "label": "0280 - Referral priority",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_11"
+    ]
+  },
+  {
+    "id": "0281",
+    "type": "Table",
+    "label": "0281 - Referral type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_11"
+    ]
+  },
+  {
+    "id": "0282",
+    "type": "Table",
+    "label": "0282 - Referral disposition",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_11"
+    ]
+  },
+  {
+    "id": "0283",
+    "type": "Table",
+    "label": "0283 - Referral status",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_11"
+    ]
+  },
+  {
+    "id": "0284",
+    "type": "Table",
+    "label": "0284 - Referral category",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_11"
+    ]
+  },
+  {
+    "id": "0285",
+    "type": "Table",
+    "label": "0285 - Insurance company ID codes",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_11"
+    ]
+  },
+  {
+    "id": "0286",
+    "type": "Table",
+    "label": "0286 - Provider role",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_11"
+    ]
+  },
+  {
+    "id": "0287",
+    "type": "Table",
+    "label": "0287 - Problem/goal action code",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_12"
+    ]
+  },
+  {
+    "id": "0288",
+    "type": "Table",
+    "label": "0288 - Census tract",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0289",
+    "type": "Table",
+    "label": "0289 - County/parish",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0290",
+    "type": "Table",
+    "label": "0290 - MIME base64 encoding characters",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0291",
+    "type": "Table",
+    "label": "0291 - Subtype of referenced data",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0292",
+    "type": "Table",
+    "label": "0292 - Vaccines administered",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0293",
+    "type": "Table",
+    "label": "0293 - Billing category",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0294",
+    "type": "Table",
+    "label": "0294 - Time selection criteria parameter class codes",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02",
+      "CH_10"
+    ]
+  },
+  {
+    "id": "0295",
+    "type": "Table",
+    "label": "0295 - Handicap",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0296",
+    "type": "Table",
+    "label": "0296 - Primary language",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0297",
+    "type": "Table",
+    "label": "0297 - CN ID source",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0298",
+    "type": "Table",
+    "label": "0298 - CP range type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0299",
+    "type": "Table",
+    "label": "0299 - Encoding",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0300",
+    "type": "Table",
+    "label": "0300 - Namespace ID",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0301",
+    "type": "Table",
+    "label": "0301 - Universal ID type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0302",
+    "type": "Table",
+    "label": "0302 - Point of care",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0303",
+    "type": "Table",
+    "label": "0303 - Room",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0304",
+    "type": "Table",
+    "label": "0304 - Bed",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0305",
+    "type": "Table",
+    "label": "0305 - Person location type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0306",
+    "type": "Table",
+    "label": "0306 - Location status",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0307",
+    "type": "Table",
+    "label": "0307 - Building",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0308",
+    "type": "Table",
+    "label": "0308 - Floor",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0309",
+    "type": "Table",
+    "label": "0309 - Coverage type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0311",
+    "type": "Table",
+    "label": "0311 - Job status",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0312",
+    "type": "Table",
+    "label": "0312 - Policy scope",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0313",
+    "type": "Table",
+    "label": "0313 - Policy source",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0315",
+    "type": "Table",
+    "label": "0315 - Living will code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0316",
+    "type": "Table",
+    "label": "0316 - Organ donor code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0317",
+    "type": "Table",
+    "label": "0317 - Annotations",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0319",
+    "type": "Table",
+    "label": "0319 - Department cost center",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0320",
+    "type": "Table",
+    "label": "0320 - Item natural account code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0321",
+    "type": "Table",
+    "label": "0321 - Dispense method",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0322",
+    "type": "Table",
+    "label": "0322 - Completion status",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0323",
+    "type": "Table",
+    "label": "0323 - Action code",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0324",
+    "type": "Table",
+    "label": "0324 -  Location characteristic ID",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0325",
+    "type": "Table",
+    "label": "0325 - Location relationship ID",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0326",
+    "type": "Table",
+    "label": "0326 - Visit indicator",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0327",
+    "type": "Table",
+    "label": "0327 - Job code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02",
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0328",
+    "type": "Table",
+    "label": "0328 - Employee classification",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02",
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0329",
+    "type": "Table",
+    "label": "0329 - Quantity method",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0330",
+    "type": "Table",
+    "label": "0330 - Marketing basis",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0331",
+    "type": "Table",
+    "label": "0331 - Facility type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_07"
+    ]
+  },
+  {
+    "id": "0332",
+    "type": "Table",
+    "label": "0332 - Source type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_14"
+    ]
+  },
+  {
+    "id": "0333",
+    "type": "Table",
+    "label": "0333 - Driver’s license issuing authority",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0334",
+    "type": "Table",
+    "label": "0334 - Disabled person",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0335",
+    "type": "Table",
+    "label": "0335 - Repeat pattern",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0336",
+    "type": "Table",
+    "label": "0336 - Referral reason",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_11"
+    ]
+  },
+  {
+    "id": "0337",
+    "type": "Table",
+    "label": "0337 - Certification status",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_15"
+    ]
+  },
+  {
+    "id": "0338",
+    "type": "Table",
+    "label": "0338 - Practitioner ID number type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_15"
+    ]
+  },
+  {
+    "id": "0339",
+    "type": "Table",
+    "label": "0339 - Advanced beneficiary notice code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0340",
+    "type": "Table",
+    "label": "0340 - Procedure code modifier",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0341",
+    "type": "Table",
+    "label": "0341 - Guarantor credit rating code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0342",
+    "type": "Table",
+    "label": "0342 - Military recipient",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0343",
+    "type": "Table",
+    "label": "0343 - Military handicapped program code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0344",
+    "type": "Table",
+    "label": "0344 - Patient’s relationship to insured",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0345",
+    "type": "Table",
+    "label": "0345 - Appeal reason",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0346",
+    "type": "Table",
+    "label": "0346 - Certification agency",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0347",
+    "type": "Table",
+    "label": "0347 - Auto accident state",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0348",
+    "type": "Table",
+    "label": "0348 - Special program indicator",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0349",
+    "type": "Table",
+    "label": "0349 - PSRO/UR approval indicator",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0350",
+    "type": "Table",
+    "label": "0350 - Occurrence code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0351",
+    "type": "Table",
+    "label": "0351 - Occurrence span",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0353",
+    "type": "Table",
+    "label": "0353 - CWE statuses",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0354",
+    "type": "Table",
+    "label": "0354 - Message structure",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0355",
+    "type": "Table",
+    "label": "0355 - Primary key value type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0356",
+    "type": "Table",
+    "label": "0356 - Alternate character set handling scheme",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0357",
+    "type": "Table",
+    "label": "0357 - Message error condition codes",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0358",
+    "type": "Table",
+    "label": "0358 - Practitioner group",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_15"
+    ]
+  },
+  {
+    "id": "0359",
+    "type": "Table",
+    "label": "0359 - Diagnosis priority",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0360",
+    "type": "Table",
+    "label": "0360 - Degree",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0361",
+    "type": "Table",
+    "label": "0361 - Sending/receiving application",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0362",
+    "type": "Table",
+    "label": "0362 - Sending/receiving facility",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0363",
+    "type": "Table",
+    "label": "0363 - Assigning authority",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02",
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0364",
+    "type": "Table",
+    "label": "0364 - Comment type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0365",
+    "type": "Table",
+    "label": "0365 - Equipment state",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0366",
+    "type": "Table",
+    "label": "0366 - Local/remote control state",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0367",
+    "type": "Table",
+    "label": "0367 - Alert level",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0368",
+    "type": "Table",
+    "label": "0368 - Remote control command",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0369",
+    "type": "Table",
+    "label": "0369 - Specimen role",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0370",
+    "type": "Table",
+    "label": "0370 - Container status",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0371",
+    "type": "Table",
+    "label": "0371 - Additive",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0372",
+    "type": "Table",
+    "label": "0372 - Specimen component",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0373",
+    "type": "Table",
+    "label": "0373 - Treatment",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0374",
+    "type": "Table",
+    "label": "0374 - System induced contaminants",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0375",
+    "type": "Table",
+    "label": "0375 - Artificial blood",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0376",
+    "type": "Table",
+    "label": "0376 - Special handling considerations",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0377",
+    "type": "Table",
+    "label": "0377 - Other environmental factors",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0378",
+    "type": "Table",
+    "label": "0378 - Carrier type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0379",
+    "type": "Table",
+    "label": "0379 - Tray type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0380",
+    "type": "Table",
+    "label": "0380 - Separator type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0381",
+    "type": "Table",
+    "label": "0381 - Cap type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0382",
+    "type": "Table",
+    "label": "0382 - Drug interference",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0383",
+    "type": "Table",
+    "label": "0383 - Substance status",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0384",
+    "type": "Table",
+    "label": "0384 - Substance type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0385",
+    "type": "Table",
+    "label": "0385 - Manufacturer identifier",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0386",
+    "type": "Table",
+    "label": "0386 - Supplier identifier",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0387",
+    "type": "Table",
+    "label": "0387 - Command response",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0388",
+    "type": "Table",
+    "label": "0388 - Processing type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0389",
+    "type": "Table",
+    "label": "0389 - Analyte repeat status",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0391",
+    "type": "Table",
+    "label": "0391 - Segment group",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_05"
+    ]
+  },
+  {
+    "id": "0392",
+    "type": "Table",
+    "label": "0392 - Match reason",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_05"
+    ]
+  },
+  {
+    "id": "0393",
+    "type": "Table",
+    "label": "0393 - Match algorithms",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_05"
+    ]
+  },
+  {
+    "id": "0394",
+    "type": "Table",
+    "label": "0394 - Response modality",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_05"
+    ]
+  },
+  {
+    "id": "0395",
+    "type": "Table",
+    "label": "0395 - Modify indicator",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_05"
+    ]
+  },
+  {
+    "id": "0396",
+    "type": "Table",
+    "label": "0396 - Coding System",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0397",
+    "type": "Table",
+    "label": "0397 - Sequencing",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0398",
+    "type": "Table",
+    "label": "0398 - Continuation style code",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0399",
+    "type": "Table",
+    "label": "0399 - Country code",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0401",
+    "type": "Table",
+    "label": "0401 - Government reimbursement program",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_15"
+    ]
+  },
+  {
+    "id": "0402",
+    "type": "Table",
+    "label": "0402 - School type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_15"
+    ]
+  },
+  {
+    "id": "0403",
+    "type": "Table",
+    "label": "0403 - Language ability",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_15"
+    ]
+  },
+  {
+    "id": "0404",
+    "type": "Table",
+    "label": "0404 - Language proficiency",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_15"
+    ]
+  },
+  {
+    "id": "0405",
+    "type": "Table",
+    "label": "0405 - Organization unit",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_15"
+    ]
+  },
+  {
+    "id": "0406",
+    "type": "Table",
+    "label": "0406 - Organization unit type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_12"
+    ]
+  },
+  {
+    "id": "0409",
+    "type": "Table",
+    "label": "0409 - Application change type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_14"
+    ]
+  },
+  {
+    "id": "0411",
+    "type": "Table",
+    "label": "0411 - Supplemental service information values",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0412",
+    "type": "Table",
+    "label": "0412 - Category identifier",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0413",
+    "type": "Table",
+    "label": "0413 - Consent identifier",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0414",
+    "type": "Table",
+    "label": "0414 - Units of time",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0415",
+    "type": "Table",
+    "label": "0415 - DRG transfer type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0416",
+    "type": "Table",
+    "label": "0416 - Procedure DRG type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0417",
+    "type": "Table",
+    "label": "0417 - Tissue type code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0418",
+    "type": "Table",
+    "label": "0418 - Procedure priority",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0421",
+    "type": "Table",
+    "label": "0421 - Severity of illness code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0422",
+    "type": "Table",
+    "label": "0422 - Triage code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0423",
+    "type": "Table",
+    "label": "0423 - Case category code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0424",
+    "type": "Table",
+    "label": "0424 - Gestation category code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0425",
+    "type": "Table",
+    "label": "0425 - Newborn code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0426",
+    "type": "Table",
+    "label": "0426 - Blood product code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0427",
+    "type": "Table",
+    "label": "0427 - Risk management incident code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0428",
+    "type": "Table",
+    "label": "0428 - Incident type code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0429",
+    "type": "Table",
+    "label": "0429 - Production class Code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0430",
+    "type": "Table",
+    "label": "0430 - Mode of arrival code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0431",
+    "type": "Table",
+    "label": "0431 - Recreational drug use code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0432",
+    "type": "Table",
+    "label": "0432 - Admission level of care code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0433",
+    "type": "Table",
+    "label": "0433 - Precaution code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0434",
+    "type": "Table",
+    "label": "0434 - Patient condition code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0435",
+    "type": "Table",
+    "label": "0435 - Advance directive code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0436",
+    "type": "Table",
+    "label": "0436 - Sensitivity to Causative Agent code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0437",
+    "type": "Table",
+    "label": "0437 - Alert device code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0438",
+    "type": "Table",
+    "label": "0438 - Allergy clinical status",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0440",
+    "type": "Table",
+    "label": "0440 - Data types",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_05"
+    ]
+  },
+  {
+    "id": "0441",
+    "type": "Table",
+    "label": "0441 - Immunization registry status",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0442",
+    "type": "Table",
+    "label": "0442 - Location service code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0443",
+    "type": "Table",
+    "label": "0443 - Provider role",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_12"
+    ]
+  },
+  {
+    "id": "0444",
+    "type": "Table",
+    "label": "0444 - Name assembly order",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0445",
+    "type": "Table",
+    "label": "0445 - Identity Reliability Code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0446",
+    "type": "Table",
+    "label": "0446 - Species Code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0447",
+    "type": "Table",
+    "label": "0447 - Breed Code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_03"
+    ]
+  },
+  {
+    "id": "0448",
+    "type": "Table",
+    "label": "0448 - Name context",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0449",
+    "type": "Table",
+    "label": "0449 - Conformance statements",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0450",
+    "type": "Table",
+    "label": "0450 - Event type",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0451",
+    "type": "Table",
+    "label": "0451 - Substance identifier",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_13"
+    ]
+  },
+  {
+    "id": "0452",
+    "type": "Table",
+    "label": "0452 - Health care provider type code",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_15"
+    ]
+  },
+  {
+    "id": "0453",
+    "type": "Table",
+    "label": "0453 - Health care provider classification",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_15"
+    ]
+  },
+  {
+    "id": "0454",
+    "type": "Table",
+    "label": "0454 - Health care provider area of specialization",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_15"
+    ]
+  },
+  {
+    "id": "0455",
+    "type": "Table",
+    "label": "0455 - Type of bill code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0456",
+    "type": "Table",
+    "label": "0456 - Revenue code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0457",
+    "type": "Table",
+    "label": "0457 - Overall claim disposition code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0458",
+    "type": "Table",
+    "label": "0458 - OCE edit code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0459",
+    "type": "Table",
+    "label": "0459 - Reimbursement Action Code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0460",
+    "type": "Table",
+    "label": "0460 - Denial or rejection code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0461",
+    "type": "Table",
+    "label": "0461 - License number",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0462",
+    "type": "Table",
+    "label": "0462 - Location cost center",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0463",
+    "type": "Table",
+    "label": "0463 - Inventory number",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0464",
+    "type": "Table",
+    "label": "0464 - Facility ID",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0465",
+    "type": "Table",
+    "label": "0465 - Name/address representation",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "0466",
+    "type": "Table",
+    "label": "0466 - Ambulatory payment classification",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0467",
+    "type": "Table",
+    "label": "0467 - Modifier edit code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0468",
+    "type": "Table",
+    "label": "0468 - Payment adjustment code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0469",
+    "type": "Table",
+    "label": "0469 - Packaging status code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0470",
+    "type": "Table",
+    "label": "0470 - Reimbursement type code",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_06"
+    ]
+  },
+  {
+    "id": "0471",
+    "type": "Table",
+    "label": "0471 - Query name",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_05"
+    ]
+  },
+  {
+    "id": "0472",
+    "type": "Table",
+    "label": "0472 - TQ Conjunction ID",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_04"
+    ]
+  },
+  {
+    "id": "0473",
+    "type": "Table",
+    "label": "0473 - Formulary status",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_08"
+    ]
+  },
+  {
+    "id": "0474",
+    "type": "Table",
+    "label": "0474 - Organization unit type",
+    "description": "User Defined Tables",
+    "chapters": [
+      "CH_15"
+    ]
+  },
+  {
+    "id": "4000",
+    "type": "Table",
+    "label": "4000 - Name/address representation",
+    "description": "HL7 Standard Tables",
+    "chapters": [
+      "CH_02"
+    ]
+  },
+  {
+    "id": "City",
+    "type": "Table",
+    "label": "City - City",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "CivicNumber",
+    "type": "Table",
+    "label": "CivicNumber - Civic Number",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "Country",
+    "type": "Table",
+    "label": "Country - Country",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "FirstName",
+    "type": "Table",
+    "label": "FirstName - First Name",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "FirstNameFemale",
+    "type": "Table",
+    "label": "FirstNameFemale - Female First Name",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "FirstNameMale",
+    "type": "Table",
+    "label": "FirstNameMale - Male First Name",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "ISO4217",
+    "type": "Table",
+    "label": "ISO4217 - Currency Codes",
+    "description": "Local Content",
+    "chapters": []
+  },
+  {
+    "id": "Language",
+    "type": "Table",
+    "label": "Language - Language",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "LastName",
+    "type": "Table",
+    "label": "LastName - LastName",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "Nationality",
+    "type": "Table",
+    "label": "Nationality - Nationality",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "OSD1",
+    "type": "Table",
+    "label": "OSD1 - Sequence condition",
+    "description": "Local Content",
+    "chapters": []
+  },
+  {
+    "id": "PhoneNumber",
+    "type": "Table",
+    "label": "PhoneNumber - Phone Number",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "Religion",
+    "type": "Table",
+    "label": "Religion - Religion",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "State",
+    "type": "Table",
+    "label": "State - State",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "Street",
+    "type": "Table",
+    "label": "Street - Street",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  },
+  {
+    "id": "ZipCode",
+    "type": "Table",
+    "label": "ZipCode - Zip Code",
+    "description": "Pre-Loaded Content",
+    "chapters": []
+  }
+]
