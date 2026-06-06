@@ -351,6 +351,19 @@ func (in *Inbound) dispatch(conn net.Conn, msgText, fromType string) {
 	in.stats.totalMessage++
 	in.mu.Unlock()
 
+	// Enforce this listener's required HL7 version: an inbound message whose
+	// MSH.12 differs is rejected with an AR (Application Reject) ACK, a
+	// version-mismatch event is emitted, and the handler is NOT invoked (each
+	// port enforces its own version; an intentional divergence from node-hl7).
+	if got := parsed.Get("MSH.12").String(); got != in.opt.Version {
+		res := in.newResponse(conn, parsed)
+		_ = res.SendResponse("AR")
+		in.emit("data.error", srvutils.NewHL7ServerError(
+			"message version \""+got+"\" does not match the listener version \""+in.opt.Version+"\".",
+		))
+		return
+	}
+
 	request := NewInboundRequest(parsed, InboundRequestProps{Socket: conn, Type: fromType})
 	res := in.newResponse(conn, parsed)
 	res.On("response.sent", func(_ ...any) { in.emit("response.sent") })

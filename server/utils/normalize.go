@@ -27,6 +27,7 @@ import (
 	"regexp"
 
 	"github.com/Bugs5382/go-hl7/client/builder"
+	"github.com/Bugs5382/go-hl7/client/hl7/metadata"
 	clientutils "github.com/Bugs5382/go-hl7/client/utils"
 )
 
@@ -98,6 +99,13 @@ type ListenerOptions struct {
 	Name string
 	// Port is the network address to listen on, 0..65353 (port, required).
 	Port *int
+	// Version is the REQUIRED HL7 version this listener accepts. It must be one
+	// of the known HL7 versions (2.1, 2.2, 2.3, 2.3.1, 2.4, 2.5, 2.5.1, 2.6,
+	// 2.7, 2.7.1, 2.8). This is an intentional divergence from node-hl7, which
+	// leaves the transport version-agnostic: here each port enforces its own
+	// version and an inbound message whose MSH.12 differs is rejected with an
+	// AR (Application Reject) ACK before the handler runs.
+	Version string
 }
 
 // NormalizedServerOptions is the fully-resolved server option set, mirroring
@@ -128,6 +136,9 @@ type ValidatedListenerOptions struct {
 	Name string
 	// Port is the validated listen port.
 	Port int
+	// Version is the validated, required HL7 version this listener enforces;
+	// inbound messages whose MSH.12 differs are rejected with an AR ACK.
+	Version string
 }
 
 var nameFormatRE = regexp.MustCompile("[ `!@#$%^&*()+\\-=\\[\\]{};':\"\\\\|,.<>/?~]")
@@ -140,6 +151,7 @@ func NormalizeListenerOptions(properties ListenerOptions) (ValidatedListenerOpti
 		Encoding:     properties.Encoding,
 		MSHOverrides: properties.MSHOverrides,
 		Name:         properties.Name,
+		Version:      properties.Version,
 	}
 	if out.Encoding == "" {
 		out.Encoding = "utf8"
@@ -164,6 +176,16 @@ func NormalizeListenerOptions(properties ListenerOptions) (ValidatedListenerOpti
 
 	if err := clientutils.AssertNumber(float64(out.Port), "port", 0, 65_353); err != nil {
 		return ValidatedListenerOptions{}, err
+	}
+
+	// Version is required and must be one of the known HL7 versions. Each port
+	// enforces its own version; an inbound message whose MSH.12 differs is
+	// rejected with an AR ACK (an intentional divergence from node-hl7).
+	if out.Version == "" {
+		return ValidatedListenerOptions{}, NewHL7ListenerError("version is not defined.")
+	}
+	if !metadata.IsKnownVersion(out.Version) {
+		return ValidatedListenerOptions{}, NewHL7ListenerError("version is not a valid HL7 version.")
 	}
 
 	return out, nil

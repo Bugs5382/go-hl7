@@ -50,7 +50,7 @@ func TestPR134GetSocketOverWire(t *testing.T) {
 	var sockOK atomic.Bool
 
 	srv, _ := server.NewServer(&server.ServerOptions{BindAddress: ptr("127.0.0.1"), IPv4: ptr(true)})
-	listener, err := srv.CreateInbound(server.ListenerOptions{Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
+	listener, err := srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
 		sock := req.GetSocket()
 		_, okLocal := sock.LocalAddr().(*net.TCPAddr)
 		_, okRemote := sock.RemoteAddr().(*net.TCPAddr)
@@ -62,7 +62,7 @@ func TestPR134GetSocketOverWire(t *testing.T) {
 	}
 	waitFor(t, listener.IsListening)
 
-	cli, _ := client.NewClient(client.ClientOptions{Host: "127.0.0.1", IPv4: ptr(true)})
+	cli, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "127.0.0.1", IPv4: ptr(true)})
 	outbound, err := cli.CreateConnection(client.ClientListenerOptions{Port: ptr(port)}, func(*client.InboundResponse) error {
 		done.signal()
 		return nil
@@ -99,7 +99,7 @@ func TestIssue130CustomACK(t *testing.T) {
 	)
 
 	srv, _ := server.NewServer(&server.ServerOptions{BindAddress: ptr("127.0.0.1"), IPv4: ptr(true)})
-	listener, err := srv.CreateInbound(server.ListenerOptions{Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
+	listener, err := srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
 		original := req.GetMessage()
 		id := original.Get("MSH.10").String()
 		date := utils.CreateHL7Date(time.Now(), "")
@@ -127,7 +127,7 @@ func TestIssue130CustomACK(t *testing.T) {
 	}
 	waitFor(t, listener.IsListening)
 
-	cli, _ := client.NewClient(client.ClientOptions{Host: "127.0.0.1", IPv4: ptr(true)})
+	cli, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "127.0.0.1", IPv4: ptr(true)})
 	outbound, err := cli.CreateConnection(client.ClientListenerOptions{Port: ptr(port)}, func(res *client.InboundResponse) error {
 		got := res.GetMessage()
 		gotMSH3.Store(got.Get("MSH.3").String())
@@ -176,7 +176,7 @@ func TestIssue130CustomACKRawString(t *testing.T) {
 	var gotMSH3, gotMSA1 atomic.Value
 
 	srv, _ := server.NewServer(&server.ServerOptions{BindAddress: ptr("127.0.0.1"), IPv4: ptr(true)})
-	listener, err := srv.CreateInbound(server.ListenerOptions{Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
+	listener, err := srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
 		id := req.GetMessage().Get("MSH.10").String()
 		date := utils.CreateHL7Date(time.Now(), "")
 		raw := joinSegs(
@@ -190,7 +190,7 @@ func TestIssue130CustomACKRawString(t *testing.T) {
 	}
 	waitFor(t, listener.IsListening)
 
-	cli, _ := client.NewClient(client.ClientOptions{Host: "127.0.0.1", IPv4: ptr(true)})
+	cli, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "127.0.0.1", IPv4: ptr(true)})
 	outbound, err := cli.CreateConnection(client.ClientListenerOptions{Port: ptr(port)}, func(res *client.InboundResponse) error {
 		got := res.GetMessage()
 		gotMSH3.Store(got.Get("MSH.3").String())
@@ -227,7 +227,7 @@ func TestIssue130CustomACKResponseSent(t *testing.T) {
 	ackReceived := newEventWaiter()
 
 	srv, _ := server.NewServer(&server.ServerOptions{BindAddress: ptr("127.0.0.1"), IPv4: ptr(true)})
-	listener, err := srv.CreateInbound(server.ListenerOptions{Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
+	listener, err := srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
 		id := req.GetMessage().Get("MSH.10").String()
 		date := utils.CreateHL7Date(time.Now(), "")
 		ack, err := builder.NewMessage(builder.MessageOptions{Text: joinSegs(
@@ -245,7 +245,7 @@ func TestIssue130CustomACKResponseSent(t *testing.T) {
 	listener.On("response.sent", responseSent.signal)
 	waitFor(t, listener.IsListening)
 
-	cli, _ := client.NewClient(client.ClientOptions{Host: "127.0.0.1", IPv4: ptr(true)})
+	cli, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "127.0.0.1", IPv4: ptr(true)})
 	outbound, err := cli.CreateConnection(client.ClientListenerOptions{Port: ptr(port)}, func(*client.InboundResponse) error {
 		ackReceived.signal()
 		return nil
@@ -277,7 +277,7 @@ func TestIssue132Concurrency(t *testing.T) {
 	var dataErrors atomic.Int32
 
 	srv, _ := server.NewServer(&server.ServerOptions{BindAddress: ptr("127.0.0.1"), IPv4: ptr(true)})
-	listener, err := srv.CreateInbound(server.ListenerOptions{Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
+	listener, err := srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
 		id := req.GetMessage().Get("MSH.10").String()
 		mu.Lock()
 		seen[id] = struct{}{}
@@ -297,8 +297,8 @@ func TestIssue132Concurrency(t *testing.T) {
 	listener.On("data.error", func(...any) { dataErrors.Add(1) })
 	waitFor(t, listener.IsListening)
 
-	cliA, _ := client.NewClient(client.ClientOptions{Host: "127.0.0.1", IPv4: ptr(true)})
-	cliB, _ := client.NewClient(client.ClientOptions{Host: "127.0.0.1", IPv4: ptr(true)})
+	cliA, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "127.0.0.1", IPv4: ptr(true)})
+	cliB, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "127.0.0.1", IPv4: ptr(true)})
 	outA, err := cliA.CreateConnection(client.ClientListenerOptions{Port: ptr(port), WaitAck: ptr(false)}, func(*client.InboundResponse) error { return nil })
 	if err != nil {
 		t.Fatal(err)
@@ -357,7 +357,9 @@ func TestIssue132SplitFrame(t *testing.T) {
 	var dataErrors atomic.Int32
 
 	srv, _ := server.NewServer(&server.ServerOptions{BindAddress: ptr("127.0.0.1"), IPv4: ptr(true)})
-	listener, err := srv.CreateInbound(server.ListenerOptions{Port: ptr(port)}, func(_ *server.InboundRequest, res server.ResponseSender) error {
+	// The fragmented frame carries a raw MSH.12=2.5 body, so the listener is
+	// pinned to 2.5 to accept it.
+	listener, err := srv.CreateInbound(server.ListenerOptions{Version: "2.5", Port: ptr(port)}, func(_ *server.InboundRequest, res server.ResponseSender) error {
 		return res.SendResponse("AA")
 	})
 	if err != nil {
@@ -428,7 +430,7 @@ func TestIssue133Throughput(t *testing.T) {
 	var dataErrors atomic.Int32
 
 	srv, _ := server.NewServer(&server.ServerOptions{BindAddress: ptr("127.0.0.1"), IPv4: ptr(true)})
-	listener, err := srv.CreateInbound(server.ListenerOptions{Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
+	listener, err := srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
 		id := req.GetMessage().Get("MSH.10").String()
 		mu.Lock()
 		seen[id] = struct{}{}
@@ -448,7 +450,7 @@ func TestIssue133Throughput(t *testing.T) {
 	listener.On("data.error", func(...any) { dataErrors.Add(1) })
 	waitFor(t, listener.IsListening)
 
-	cli, _ := client.NewClient(client.ClientOptions{Host: "127.0.0.1", IPv4: ptr(true)})
+	cli, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "127.0.0.1", IPv4: ptr(true)})
 	outbound, err := cli.CreateConnection(client.ClientListenerOptions{Port: ptr(port), WaitAck: ptr(false)}, func(*client.InboundResponse) error { return nil })
 	if err != nil {
 		t.Fatal(err)

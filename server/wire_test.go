@@ -56,7 +56,7 @@ func TestEnd2EndBatchTwoMessages(t *testing.T) {
 	done := newEventWaiter()
 
 	srv, _ := server.NewServer(&server.ServerOptions{BindAddress: ptr("127.0.0.1"), IPv4: ptr(true)})
-	listener, err := srv.CreateInbound(server.ListenerOptions{Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
+	listener, err := srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
 		if req.GetMessage().Get("MSH.12").String() != "2.7" {
 			t.Errorf("MSH.12 = %q, want 2.7", req.GetMessage().Get("MSH.12").String())
 		}
@@ -67,7 +67,7 @@ func TestEnd2EndBatchTwoMessages(t *testing.T) {
 	}
 	waitFor(t, listener.IsListening)
 
-	cli, _ := client.NewClient(client.ClientOptions{Host: "127.0.0.1", IPv4: ptr(true)})
+	cli, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "127.0.0.1", IPv4: ptr(true)})
 	outbound, err := cli.CreateConnection(client.ClientListenerOptions{Port: ptr(port)}, func(res *client.InboundResponse) error {
 		if res.GetMessage().Get("MSA.1").String() == "AA" {
 			if acks.Add(1) == 2 {
@@ -122,7 +122,7 @@ func TestEnd2EndTLS(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	listener, err := srv.CreateInbound(server.ListenerOptions{Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
+	listener, err := srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
 		if req.GetMessage().Get("MSH.12").String() != "2.7" {
 			t.Errorf("MSH.12 = %q, want 2.7", req.GetMessage().Get("MSH.12").String())
 		}
@@ -135,9 +135,10 @@ func TestEnd2EndTLS(t *testing.T) {
 
 	reject := false
 	cli, _ := client.NewClient(client.ClientOptions{
-		Host: "127.0.0.1",
-		IPv4: ptr(true),
-		TLS:  &client.TLSConfig{RejectUnauthorized: &reject},
+		Version: "2.7",
+		Host:    "127.0.0.1",
+		IPv4:    ptr(true),
+		TLS:     &client.TLSConfig{RejectUnauthorized: &reject},
 	})
 	outbound, err := cli.CreateConnection(client.ClientListenerOptions{Port: ptr(port)}, func(res *client.InboundResponse) error {
 		ackOK.Store(res.GetMessage().Get("MSA.1").String() == "AA")
@@ -170,7 +171,7 @@ func TestEnd2EndLargeData(t *testing.T) {
 	var sawPDF atomic.Bool
 
 	srv, _ := server.NewServer(&server.ServerOptions{BindAddress: ptr("127.0.0.1"), IPv4: ptr(true)})
-	listener, err := srv.CreateInbound(server.ListenerOptions{Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
+	listener, err := srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
 		m := req.GetMessage()
 		sawPDF.Store(m.Get("MSH.12").String() == "2.7" && m.Get("OBX.3.1").String() == "SOME-PDF")
 		return res.SendResponse("AA")
@@ -180,7 +181,7 @@ func TestEnd2EndLargeData(t *testing.T) {
 	}
 	waitFor(t, listener.IsListening)
 
-	cli, _ := client.NewClient(client.ClientOptions{Host: "127.0.0.1", IPv4: ptr(true)})
+	cli, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "127.0.0.1", IPv4: ptr(true)})
 	var ackOK atomic.Bool
 	outbound, err := cli.CreateConnection(client.ClientListenerOptions{Port: ptr(port)}, func(res *client.InboundResponse) error {
 		ackOK.Store(res.GetMessage().Get("MSA.1").String() == "AA")
@@ -251,7 +252,7 @@ func TestDualStackServerBoth(t *testing.T) {
 	port := freePort(t)
 
 	srv, _ := server.NewServer(&server.ServerOptions{IPv4: ptr(true), IPv6: ptr(true)})
-	listener, err := srv.CreateInbound(server.ListenerOptions{Port: ptr(port)}, func(_ *server.InboundRequest, res server.ResponseSender) error {
+	listener, err := srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(port)}, func(_ *server.InboundRequest, res server.ResponseSender) error {
 		return res.SendResponse("AA")
 	})
 	if err != nil {
@@ -268,7 +269,7 @@ func TestDualStackServerBoth(t *testing.T) {
 	} {
 		done := newEventWaiter()
 		var ackOK atomic.Bool
-		cli, _ := client.NewClient(client.ClientOptions{Host: c.host, IPv4: c.v4, IPv6: c.v6})
+		cli, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: c.host, IPv4: c.v4, IPv6: c.v6})
 		outbound, err := cli.CreateConnection(client.ClientListenerOptions{Port: ptr(port)}, func(res *client.InboundResponse) error {
 			ackOK.Store(res.GetMessage().Get("MSA.1").String() == "AA")
 			done.signal()
@@ -301,7 +302,7 @@ func TestDualStackHappyEyeballs(t *testing.T) {
 	var ackOK atomic.Bool
 
 	srv, _ := server.NewServer(&server.ServerOptions{BindAddress: ptr("127.0.0.1"), IPv4: ptr(true)})
-	listener, err := srv.CreateInbound(server.ListenerOptions{Port: ptr(port)}, func(_ *server.InboundRequest, res server.ResponseSender) error {
+	listener, err := srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(port)}, func(_ *server.InboundRequest, res server.ResponseSender) error {
 		return res.SendResponse("AA")
 	})
 	if err != nil {
@@ -309,7 +310,7 @@ func TestDualStackHappyEyeballs(t *testing.T) {
 	}
 	waitFor(t, listener.IsListening)
 
-	cli, _ := client.NewClient(client.ClientOptions{Host: "localhost", IPv4: ptr(true), IPv6: ptr(true)})
+	cli, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "localhost", IPv4: ptr(true), IPv6: ptr(true)})
 	outbound, err := cli.CreateConnection(client.ClientListenerOptions{Port: ptr(port), MaxConnectionAttempts: ptr(2)}, func(res *client.InboundResponse) error {
 		ackOK.Store(res.GetMessage().Get("MSA.1").String() == "AA")
 		done.signal()
@@ -344,7 +345,7 @@ func runLoopback(t *testing.T, bindHost, dialHost string, srvV4, srvV6, cliV4, c
 	if err != nil {
 		t.Fatal(err)
 	}
-	listener, err := srv.CreateInbound(server.ListenerOptions{Port: ptr(port)}, func(_ *server.InboundRequest, res server.ResponseSender) error {
+	listener, err := srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(port)}, func(_ *server.InboundRequest, res server.ResponseSender) error {
 		return res.SendResponse("AA")
 	})
 	if err != nil {
@@ -352,7 +353,7 @@ func runLoopback(t *testing.T, bindHost, dialHost string, srvV4, srvV6, cliV4, c
 	}
 	waitFor(t, listener.IsListening)
 
-	cli, _ := client.NewClient(client.ClientOptions{Host: dialHost, IPv4: cliV4, IPv6: cliV6})
+	cli, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: dialHost, IPv4: cliV4, IPv6: cliV6})
 	outbound, err := cli.CreateConnection(client.ClientListenerOptions{Port: ptr(port)}, func(res *client.InboundResponse) error {
 		ackOK.Store(res.GetMessage().Get("MSA.1").String() == "AA")
 		done.signal()

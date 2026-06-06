@@ -28,6 +28,7 @@ import (
 	"strings"
 
 	"github.com/Bugs5382/go-hl7/client/helpers"
+	"github.com/Bugs5382/go-hl7/client/hl7/metadata"
 	"github.com/Bugs5382/go-hl7/client/utils"
 )
 
@@ -145,6 +146,7 @@ func normalizeClientOptions(raw ClientOptions) (validatedClientOptions, error) {
 		retryHigh:                      intOr(raw.RetryHigh, defaultRetryHigh),
 		retryLow:                       intOr(raw.RetryLow, defaultRetryLow),
 		tls:                            raw.TLS,
+		version:                        raw.Version,
 	}
 
 	// Backward-compatible semantics: passing only one of ipv4/ipv6 explicitly
@@ -203,6 +205,16 @@ func normalizeClientOptions(raw ClientOptions) (validatedClientOptions, error) {
 	}
 	if err := utils.AssertNumber(float64(out.autoSelectFamilyAttemptTimeout), "autoSelectFamilyAttemptTimeout", 10, 60_000); err != nil {
 		return validatedClientOptions{}, err
+	}
+
+	// Version is required and must be one of the known HL7 versions. This pins
+	// the client to a single HL7 version; SendMessage rejects any message whose
+	// MSH.12 differs (an intentional divergence from node-hl7).
+	if out.version == "" {
+		return validatedClientOptions{}, helpers.NewHL7FatalError("version is not defined.")
+	}
+	if !metadata.IsKnownVersion(out.version) {
+		return validatedClientOptions{}, helpers.NewHL7FatalError("version is not a valid HL7 version.")
 	}
 
 	return out, nil
