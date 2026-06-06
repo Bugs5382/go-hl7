@@ -34,8 +34,8 @@ import (
 // and panics with the version's error message on failure. Go necessity: the spec
 // throws Error/TypeError; the messages are preserved verbatim so callers
 // matching on the message see identical behavior. v2.1 has no checkMSH (the
-// HL7_BASE.checkMSH throws "Not Implemented").
-func (b *HL7_BASE) CheckMSH(msh Props) bool {
+// Builder.checkMSH throws "Not Implemented").
+func (b *Builder) CheckMSH(msh Props) bool {
 	switch b.version {
 	case "2.1":
 		panic(helpers.NewHL7FatalError("Not Implemented"))

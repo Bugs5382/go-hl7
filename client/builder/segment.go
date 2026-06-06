@@ -27,8 +27,8 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/Bugs5382/go-hl7/client/declaration"
 	"github.com/Bugs5382/go-hl7/client/helpers"
+	"github.com/Bugs5382/go-hl7/client/internal/declaration"
 )
 
 // numericPathRe matches a fully numeric dotted path like "5" or "5.1".

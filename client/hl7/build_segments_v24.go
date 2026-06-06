@@ -27,12 +27,12 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 // GOL, IAM, OM1-OM6, PRB, PTH, TXA), introduced in v2.4. ECD (also v2.4) lives
 // in build_segments.go. Each is a validatorSetField sequence over the shared
 // base; the version guard rejects the segment on earlier versions just as
-// the HL7_BASE._buildXXX stub throws "Not Implemented". The OBR/ORC/PID
+// the Builder._buildXXX stub throws "Not Implemented". The OBR/ORC/PID
 // version extensions the spec adds in HL7_2_4 live in build_segments_v21.go.
 
 // BuildDRG builds a DRG (Diagnosis Related Group) segment (the
 // HL7_2_4._buildDRG). Chainable.
-func (b *HL7_BASE) BuildDRG(p Props) *HL7_BASE {
+func (b *Builder) BuildDRG(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.4")
 	s := spec("DRG")
@@ -51,7 +51,7 @@ func (b *HL7_BASE) BuildDRG(p Props) *HL7_BASE {
 
 // BuildGOL builds a GOL (Goal Detail) segment (the HL7_2_4._buildGOL).
 // Chainable.
-func (b *HL7_BASE) BuildGOL(p Props) *HL7_BASE {
+func (b *Builder) BuildGOL(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.4")
 	s := spec("GOL")
@@ -83,7 +83,7 @@ func (b *HL7_BASE) BuildGOL(p Props) *HL7_BASE {
 
 // BuildIAM builds an IAM (Patient Adverse Reaction Information) segment (the
 // HL7_2_4._buildIAM). Chainable.
-func (b *HL7_BASE) BuildIAM(p Props) *HL7_BASE {
+func (b *Builder) BuildIAM(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.4")
 	s := spec("IAM")
@@ -105,7 +105,7 @@ func (b *HL7_BASE) BuildIAM(p Props) *HL7_BASE {
 
 // BuildOM1 builds an OM1 (General Segment for Observation Definitions) (the
 // HL7_2_4._buildOM1). Chainable.
-func (b *HL7_BASE) BuildOM1(p Props) *HL7_BASE {
+func (b *Builder) BuildOM1(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.4")
 	s := spec("OM1")
@@ -163,7 +163,7 @@ func (b *HL7_BASE) BuildOM1(p Props) *HL7_BASE {
 
 // BuildOM2 builds an OM2 (Numeric Observation) segment (the
 // HL7_2_4._buildOM2). Chainable.
-func (b *HL7_BASE) BuildOM2(p Props) *HL7_BASE {
+func (b *Builder) BuildOM2(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.4")
 	s := spec("OM2")
@@ -184,7 +184,7 @@ func (b *HL7_BASE) BuildOM2(p Props) *HL7_BASE {
 
 // BuildOM3 builds an OM3 (Categorical Test/Observation) segment (the
 // HL7_2_4._buildOM3). Chainable.
-func (b *HL7_BASE) BuildOM3(p Props) *HL7_BASE {
+func (b *Builder) BuildOM3(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.4")
 	s := spec("OM3")
@@ -203,7 +203,7 @@ func (b *HL7_BASE) BuildOM3(p Props) *HL7_BASE {
 
 // BuildOM4 builds an OM4 (Observations Requiring Specimens) segment (the
 // HL7_2_4._buildOM4). Chainable.
-func (b *HL7_BASE) BuildOM4(p Props) *HL7_BASE {
+func (b *Builder) BuildOM4(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.4")
 	s := spec("OM4")
@@ -232,7 +232,7 @@ func (b *HL7_BASE) BuildOM4(p Props) *HL7_BASE {
 
 // BuildOM5 builds an OM5 (Observation Batteries) segment (the
 // HL7_2_4._buildOM5). Chainable.
-func (b *HL7_BASE) BuildOM5(p Props) *HL7_BASE {
+func (b *Builder) BuildOM5(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.4")
 	s := spec("OM5")
@@ -246,7 +246,7 @@ func (b *HL7_BASE) BuildOM5(p Props) *HL7_BASE {
 
 // BuildOM6 builds an OM6 (Observations Calculated from Other Observations)
 // segment (the HL7_2_4._buildOM6). Chainable.
-func (b *HL7_BASE) BuildOM6(p Props) *HL7_BASE {
+func (b *Builder) BuildOM6(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.4")
 	s := spec("OM6")
@@ -259,7 +259,7 @@ func (b *HL7_BASE) BuildOM6(p Props) *HL7_BASE {
 
 // BuildPRB builds a PRB (Problem Detail) segment (the HL7_2_4._buildPRB).
 // Chainable.
-func (b *HL7_BASE) BuildPRB(p Props) *HL7_BASE {
+func (b *Builder) BuildPRB(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.4")
 	s := spec("PRB")
@@ -296,7 +296,7 @@ func (b *HL7_BASE) BuildPRB(p Props) *HL7_BASE {
 
 // BuildPTH builds a PTH (Pathway) segment (the HL7_2_4._buildPTH).
 // Chainable.
-func (b *HL7_BASE) BuildPTH(p Props) *HL7_BASE {
+func (b *Builder) BuildPTH(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.4")
 	s := spec("PTH")
@@ -314,7 +314,7 @@ func (b *HL7_BASE) BuildPTH(p Props) *HL7_BASE {
 
 // BuildTXA builds a TXA (Transcription Document Header) segment (the
 // HL7_2_4._buildTXA). Chainable.
-func (b *HL7_BASE) BuildTXA(p Props) *HL7_BASE {
+func (b *Builder) BuildTXA(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.4")
 	s := spec("TXA")

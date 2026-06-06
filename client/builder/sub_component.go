@@ -24,8 +24,8 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
 import (
-	"github.com/Bugs5382/go-hl7/client/declaration"
 	"github.com/Bugs5382/go-hl7/client/helpers"
+	"github.com/Bugs5382/go-hl7/client/internal/declaration"
 )
 
 // SubComponent is the leaf value of the tree (the SubComponent). It

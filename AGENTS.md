@@ -20,18 +20,18 @@ func ptr[T any](v T) *T { return &v }
 
 | Import path | What you use it for | Key exports |
 |---|---|---|
-| `github.com/Bugs5382/go-hl7/client/hl7` | Typed, version-aware **message builders**. | `NewHL7_2_1` … `NewHL7_2_8`, `Props` (`= map[string]any`), `Options`, `BuildMSH`, `Build<SEG>` (`BuildPID`, `BuildEVN`, `BuildOBX`, `BuildORC`, `BuildOBR`, `BuildPV1`, `BuildNTE`, `BuildMSA`, `BuildERR`, …), `BuildSegment(name, props)`, `ToMessage() *builder.Message`, `String()`. |
+| `github.com/Bugs5382/go-hl7/client/hl7` | Typed, version-aware **message builders**. | `New(v Version, opts ...Options) *Builder`, `Version` + the `V2_1` … `V2_8` constants, `Builder`, `Props` (`= map[string]any`), `Options`, `BuildMSH`, `Build<SEG>` (`BuildPID`, `BuildEVN`, `BuildOBX`, `BuildORC`, `BuildOBR`, `BuildPV1`, `BuildNTE`, `BuildMSA`, `BuildERR`, …), `BuildSegment(name, props)`, `ToMessage() *builder.Message`, `String()`. |
 | `github.com/Bugs5382/go-hl7/client/builder` | The **wire message model** + parser. | `Message`, `Batch`, `FileBatch`; `NewMessage`, `NewBatch`, `NewFileBatch`; `MessageOptions`, `BatchOptions`, `FileOptions`; node API `Get(path)`, `Index(i)`, `Set(path, v)`, `SetIndex(i, v)`, `Exists(path)`, coercions `String/Int/Float/Bool/Date`. |
 | `github.com/Bugs5382/go-hl7/client/client` | The **outbound** TCP/MLLP client. | `NewClient`, `Client`, `Connection`, `ClientOptions`, `ClientListenerOptions`, `TLSConfig`, `InboundResponse`, `MessageItem`, `OutboundHandler`, `FallBackHandler`, `NotifyPendingCount`. |
 | `github.com/Bugs5382/go-hl7/client/modules` | The MLLP codec (rarely touched directly). | `MLLPCodec`, `NewMLLPCodec(returnChar string)`, `(*MLLPCodec).SendMessage(w io.Writer, msg string)`. |
 | `github.com/Bugs5382/go-hl7/server` | The **inbound** TCP/TLS listener. | `NewServer`, `Server`, `ServerOptions`, `ListenerOptions`, `TLSConfig`, `CreateInbound`, `Inbound`, `InboundRequest`, `ResponseSender`, `InboundHandler`, `MSHOverride`, `StringOverride`, `FuncOverride`. |
 | `github.com/Bugs5382/go-hl7/client/helpers` | Error sentinels for `errors.Is`. | `ErrFatal` (`HL7FatalError`, 500), `ErrParser` (`HL7ParserError`, 404), `ErrValidation` (`HL7ValidationError`, 404). |
-| `github.com/Bugs5382/go-hl7/client/hl7/metadata` | Generated spec metadata. | `SEGMENT_SPECS map[string]SegmentSpec`, `DATATYPE_SPECS`, `SegmentSpec`, `FieldSpec`, `IsKnownVersion(v string) bool`. |
-| `github.com/Bugs5382/go-hl7/client/hl7/tables` | Generated HL7 value tables. | `TABLES map[string]map[string][]string` (version → tableID → allowed codes). |
+| `github.com/Bugs5382/go-hl7/client/hl7/metadata` | Generated spec metadata. | `SegmentSpecs map[string]SegmentSpec`, `DataTypes map[string][]ComponentSpec`, `SegmentSpec`, `FieldSpec`, `IsKnownVersion(v string) bool`. |
+| `github.com/Bugs5382/go-hl7/client/hl7/tables` | Generated HL7 value tables. | `Tables map[string]map[string][]string` (version → tableID → allowed codes). |
 | `github.com/Bugs5382/go-hl7/client/utils` | Small helpers. | `CreateHL7Date(t time.Time, length string) string` (length `""`/`"8"`/`"12"`/`"14"`). |
 
 Version constructors (no implicit default — the constructor *is* the version selector):
-`NewHL7_2_1`, `NewHL7_2_2`, `NewHL7_2_3`, `NewHL7_2_3_1`, `NewHL7_2_4`, `NewHL7_2_5`, `NewHL7_2_5_1`, `NewHL7_2_6`, `NewHL7_2_7`, `NewHL7_2_7_1`, `NewHL7_2_8`. Each takes an optional `hl7.Options` (`hl7.NewHL7_2_5()` is valid).
+`New(V2_1)`, `New(V2_2)`, `New(V2_3)`, `New(V2_3_1)`, `New(V2_4)`, `New(V2_5)`, `New(V2_5_1)`, `New(V2_6)`, `New(V2_7)`, `New(V2_7_1)`, `New(V2_8)`. Each takes an optional `hl7.Options` (`hl7.New(hl7.V2_5)` is valid).
 
 ---
 
@@ -70,7 +70,7 @@ import (
 )
 
 func buildADT() *builder.Message {
-	b := hl7.NewHL7_2_7(). // version pinned by the constructor
+	b := hl7.New(hl7.V2_7). // version pinned by the constructor
 		BuildMSH(hl7.Props{ // MUST be first
 			"msh_3":  "MY_APP",
 			"msh_4":  "MY_FAC",
@@ -117,7 +117,7 @@ b.BuildPID(hl7.Props{
 Non-standard encoding chars (embedded in `MSH.1`/`MSH.2`, immutable after construction):
 
 ```go
-b := hl7.NewHL7_2_5(hl7.Options{
+b := hl7.New(hl7.V2_5, hl7.Options{
 	SeparatorField: "!", SeparatorComponent: "+", SeparatorSubComponent: "]",
 	SeparatorRepetition: "?", SeparatorEscape: "#",
 })

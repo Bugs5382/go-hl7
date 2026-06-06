@@ -297,12 +297,12 @@ func writeTables(outDir string, out map[string]map[string][]string) error {
 	var b strings.Builder
 	b.WriteString(genBanner)
 	b.WriteString("\npackage tables\n\n")
-	b.WriteString("// TABLES is the generated registry of HL7 value tables, keyed by HL7\n")
+	b.WriteString("// Tables is the generated registry of HL7 value tables, keyed by HL7\n")
 	b.WriteString("// version (\"2.8\") then numeric table id (\"0001\") to the ordered code list.\n")
 	b.WriteString("// HL7 table values differ by version, so enforcement stays version-aware.\n")
 	b.WriteString("// Only tables that carry a fixed value set are present; FieldSpec.Table and\n")
 	b.WriteString("// ComponentSpec.Table reference an entry here for hard-error enum validation.\n")
-	b.WriteString("var TABLES = map[string]map[string][]string{\n")
+	b.WriteString("var Tables = map[string]map[string][]string{\n")
 
 	for _, ver := range versions {
 		verTables := out[ver]

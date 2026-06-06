@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 import (
 	"strconv"
 
-	"github.com/Bugs5382/go-hl7/client/declaration"
+	"github.com/Bugs5382/go-hl7/client/internal/declaration"
 )
 
 // FieldRepetition is one repetition of a field (the FieldRepetition). Its

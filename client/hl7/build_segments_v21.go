@@ -34,13 +34,13 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 // dv formats a Date-typed override field at the standard message date length,
 // falling back to fallback. Shorthand for the `x instanceof Date ? setDate(x)
 // : fallback` idiom the spec repeats in every date field.
-func (b *HL7_BASE) dv(v any, fallback any) any { return b.dateField(v, b.opt.Date, fallback) }
+func (b *Builder) dv(v any, fallback any) any { return b.dateField(v, b.opt.Date, fallback) }
 
 // dv8 is dv at the fixed "8" (YYYYMMDD) length.
-func (b *HL7_BASE) dv8(v any, fallback any) any { return b.dateField(v, "8", fallback) }
+func (b *Builder) dv8(v any, fallback any) any { return b.dateField(v, "8", fallback) }
 
 // BuildACC builds an ACC (Accident) segment (the _buildACC). Chainable.
-func (b *HL7_BASE) BuildACC(p Props) *HL7_BASE {
+func (b *Builder) BuildACC(p Props) *Builder {
 	b.headerExists()
 	s := spec("ACC")
 	b.assertSegmentInVersion(s)
@@ -52,7 +52,7 @@ func (b *HL7_BASE) BuildACC(p Props) *HL7_BASE {
 }
 
 // BuildBLG builds a BLG (Billing) segment (the _buildBLG). Chainable.
-func (b *HL7_BASE) BuildBLG(p Props) *HL7_BASE {
+func (b *Builder) BuildBLG(p Props) *Builder {
 	b.headerExists()
 	s := spec("BLG")
 	b.assertSegmentInVersion(s)
@@ -64,7 +64,7 @@ func (b *HL7_BASE) BuildBLG(p Props) *HL7_BASE {
 }
 
 // BuildDG1 builds a DG1 (Diagnosis) segment (the _buildDG1). Chainable.
-func (b *HL7_BASE) BuildDG1(p Props) *HL7_BASE {
+func (b *Builder) BuildDG1(p Props) *Builder {
 	b.headerExists()
 	s := spec("DG1")
 	b.assertSegmentInVersion(s)
@@ -87,7 +87,7 @@ func (b *HL7_BASE) BuildDG1(p Props) *HL7_BASE {
 }
 
 // BuildDSC builds a DSC (Continuation Pointer) segment (the _buildDSC).
-func (b *HL7_BASE) BuildDSC(p Props) *HL7_BASE {
+func (b *Builder) BuildDSC(p Props) *Builder {
 	b.headerExists()
 	s := spec("DSC")
 	b.assertSegmentInVersion(s)
@@ -97,7 +97,7 @@ func (b *HL7_BASE) BuildDSC(p Props) *HL7_BASE {
 }
 
 // BuildERR builds an ERR (Error) segment (the _buildERR). Chainable.
-func (b *HL7_BASE) BuildERR(p Props) *HL7_BASE {
+func (b *Builder) BuildERR(p Props) *Builder {
 	b.headerExists()
 	s := spec("ERR")
 	b.assertSegmentInVersion(s)
@@ -107,7 +107,7 @@ func (b *HL7_BASE) BuildERR(p Props) *HL7_BASE {
 }
 
 // BuildEVN builds an EVN (Event Type) segment (the _buildEVN). Chainable.
-func (b *HL7_BASE) BuildEVN(p Props) *HL7_BASE {
+func (b *Builder) BuildEVN(p Props) *Builder {
 	b.headerExists()
 	s := spec("EVN")
 	b.assertSegmentInVersion(s)
@@ -120,7 +120,7 @@ func (b *HL7_BASE) BuildEVN(p Props) *HL7_BASE {
 }
 
 // BuildFT1 builds an FT1 (Financial Transaction) segment (the _buildFT1).
-func (b *HL7_BASE) BuildFT1(p Props) *HL7_BASE {
+func (b *Builder) BuildFT1(p Props) *Builder {
 	b.headerExists()
 	s := spec("FT1")
 	b.assertSegmentInVersion(s)
@@ -151,7 +151,7 @@ func (b *HL7_BASE) BuildFT1(p Props) *HL7_BASE {
 }
 
 // BuildGT1 builds a GT1 (Guarantor) segment (the _buildGT1). Chainable.
-func (b *HL7_BASE) BuildGT1(p Props) *HL7_BASE {
+func (b *Builder) BuildGT1(p Props) *Builder {
 	b.headerExists()
 	s := spec("GT1")
 	b.assertSegmentInVersion(s)
@@ -180,7 +180,7 @@ func (b *HL7_BASE) BuildGT1(p Props) *HL7_BASE {
 }
 
 // BuildIN1 builds an IN1 (Insurance) segment (the _buildIN1). Chainable.
-func (b *HL7_BASE) BuildIN1(p Props) *HL7_BASE {
+func (b *Builder) BuildIN1(p Props) *Builder {
 	b.headerExists()
 	s := spec("IN1")
 	b.assertSegmentInVersion(s)
@@ -198,7 +198,7 @@ func (b *HL7_BASE) BuildIN1(p Props) *HL7_BASE {
 }
 
 // BuildMRG builds an MRG (Merge Patient Info) segment (the _buildMRG).
-func (b *HL7_BASE) BuildMRG(p Props) *HL7_BASE {
+func (b *Builder) BuildMRG(p Props) *Builder {
 	b.headerExists()
 	s := spec("MRG")
 	b.assertSegmentInVersion(s)
@@ -210,7 +210,7 @@ func (b *HL7_BASE) BuildMRG(p Props) *HL7_BASE {
 }
 
 // BuildMSA builds an MSA (Acknowledgment) segment (the _buildMSA). Chainable.
-func (b *HL7_BASE) BuildMSA(p Props) *HL7_BASE {
+func (b *Builder) BuildMSA(p Props) *Builder {
 	b.headerExists()
 	s := spec("MSA")
 	b.assertSegmentInVersion(s)
@@ -223,7 +223,7 @@ func (b *HL7_BASE) BuildMSA(p Props) *HL7_BASE {
 }
 
 // BuildNK1 builds an NK1 (Next of Kin) segment (the _buildNK1). Chainable.
-func (b *HL7_BASE) BuildNK1(p Props) *HL7_BASE {
+func (b *Builder) BuildNK1(p Props) *Builder {
 	b.headerExists()
 	s := spec("NK1")
 	b.assertSegmentInVersion(s)
@@ -254,7 +254,7 @@ func (b *HL7_BASE) BuildNK1(p Props) *HL7_BASE {
 }
 
 // BuildNPU builds an NPU (Bed Status Update) segment (the _buildNPU).
-func (b *HL7_BASE) BuildNPU(p Props) *HL7_BASE {
+func (b *Builder) BuildNPU(p Props) *Builder {
 	b.headerExists()
 	s := spec("NPU")
 	b.assertSegmentInVersion(s)
@@ -265,7 +265,7 @@ func (b *HL7_BASE) BuildNPU(p Props) *HL7_BASE {
 }
 
 // BuildNSC builds an NSC (Network Change) segment (the _buildNSC). Chainable.
-func (b *HL7_BASE) BuildNSC(p Props) *HL7_BASE {
+func (b *Builder) BuildNSC(p Props) *Builder {
 	b.headerExists()
 	s := spec("NSC")
 	b.assertSegmentInVersion(s)
@@ -277,7 +277,7 @@ func (b *HL7_BASE) BuildNSC(p Props) *HL7_BASE {
 }
 
 // BuildNTE builds an NTE (Notes and Comments) segment (the _buildNTE).
-func (b *HL7_BASE) BuildNTE(p Props) *HL7_BASE {
+func (b *Builder) BuildNTE(p Props) *Builder {
 	b.headerExists()
 	s := spec("NTE")
 	b.assertSegmentInVersion(s)
@@ -289,7 +289,7 @@ func (b *HL7_BASE) BuildNTE(p Props) *HL7_BASE {
 }
 
 // BuildOBR builds an OBR (Observation Request) segment (the _buildOBR).
-func (b *HL7_BASE) BuildOBR(p Props) *HL7_BASE {
+func (b *Builder) BuildOBR(p Props) *Builder {
 	b.headerExists()
 	s := spec("OBR")
 	b.assertSegmentInVersion(s)
@@ -355,7 +355,7 @@ func (b *HL7_BASE) BuildOBR(p Props) *HL7_BASE {
 }
 
 // BuildOBX builds an OBX (Observation/Result) segment (the _buildOBX).
-func (b *HL7_BASE) BuildOBX(p Props) *HL7_BASE {
+func (b *Builder) BuildOBX(p Props) *Builder {
 	b.headerExists()
 	s := spec("OBX")
 	b.assertSegmentInVersion(s)
@@ -387,7 +387,7 @@ func (b *HL7_BASE) BuildOBX(p Props) *HL7_BASE {
 }
 
 // BuildORC builds an ORC (Common Order) segment (the _buildORC). Chainable.
-func (b *HL7_BASE) BuildORC(p Props) *HL7_BASE {
+func (b *Builder) BuildORC(p Props) *Builder {
 	b.headerExists()
 	s := spec("ORC")
 	b.assertSegmentInVersion(s)
@@ -435,7 +435,7 @@ func (b *HL7_BASE) BuildORC(p Props) *HL7_BASE {
 
 // BuildPID builds a PID (Patient Identification) segment (the _buildPID).
 // PID.11 (XAD) and PID.5 (XPN) accept composite-object inputs via the validator.
-func (b *HL7_BASE) BuildPID(p Props) *HL7_BASE {
+func (b *Builder) BuildPID(p Props) *Builder {
 	b.headerExists()
 	s := spec("PID")
 	b.assertSegmentInVersion(s)
@@ -503,7 +503,7 @@ func pickStrOrNil(p Props, keys ...string) any {
 }
 
 // BuildPR1 builds a PR1 (Procedures) segment (the _buildPR1). Chainable.
-func (b *HL7_BASE) BuildPR1(p Props) *HL7_BASE {
+func (b *Builder) BuildPR1(p Props) *Builder {
 	b.headerExists()
 	s := spec("PR1")
 	b.assertSegmentInVersion(s)
@@ -523,7 +523,7 @@ func (b *HL7_BASE) BuildPR1(p Props) *HL7_BASE {
 }
 
 // BuildPV1 builds a PV1 (Patient Visit) segment (the _buildPV1). Chainable.
-func (b *HL7_BASE) BuildPV1(p Props) *HL7_BASE {
+func (b *Builder) BuildPV1(p Props) *Builder {
 	b.headerExists()
 	s := spec("PV1")
 	b.assertSegmentInVersion(s)
@@ -588,7 +588,7 @@ func (b *HL7_BASE) BuildPV1(p Props) *HL7_BASE {
 }
 
 // BuildQRD builds a QRD (Query Definition) segment (the _buildQRD).
-func (b *HL7_BASE) BuildQRD(p Props) *HL7_BASE {
+func (b *Builder) BuildQRD(p Props) *Builder {
 	b.headerExists()
 	s := spec("QRD")
 	b.assertSegmentInVersion(s)
@@ -607,7 +607,7 @@ func (b *HL7_BASE) BuildQRD(p Props) *HL7_BASE {
 }
 
 // BuildQRF builds a QRF (Query Filter) segment (the _buildQRF). Chainable.
-func (b *HL7_BASE) BuildQRF(p Props) *HL7_BASE {
+func (b *Builder) BuildQRF(p Props) *Builder {
 	b.headerExists()
 	s := spec("QRF")
 	b.assertSegmentInVersion(s)
@@ -621,7 +621,7 @@ func (b *HL7_BASE) BuildQRF(p Props) *HL7_BASE {
 }
 
 // BuildRX1 builds an RX1 (Pharmacy/Treatment Order) segment (the _buildRX1).
-func (b *HL7_BASE) BuildRX1(p Props) *HL7_BASE {
+func (b *Builder) BuildRX1(p Props) *Builder {
 	b.headerExists()
 	s := spec("RX1")
 	b.assertSegmentInVersion(s)
@@ -652,7 +652,7 @@ func (b *HL7_BASE) BuildRX1(p Props) *HL7_BASE {
 }
 
 // BuildUB1 builds a UB1 (UB82 Data) segment (the _buildUB1). Chainable.
-func (b *HL7_BASE) BuildUB1(p Props) *HL7_BASE {
+func (b *Builder) BuildUB1(p Props) *Builder {
 	b.headerExists()
 	s := spec("UB1")
 	b.assertSegmentInVersion(s)
@@ -684,7 +684,7 @@ func (b *HL7_BASE) BuildUB1(p Props) *HL7_BASE {
 }
 
 // BuildURD builds a URD (Results/Update Definition) segment (the _buildURD).
-func (b *HL7_BASE) BuildURD(p Props) *HL7_BASE {
+func (b *Builder) BuildURD(p Props) *Builder {
 	b.headerExists()
 	s := spec("URD")
 	b.assertSegmentInVersion(s)
@@ -697,7 +697,7 @@ func (b *HL7_BASE) BuildURD(p Props) *HL7_BASE {
 }
 
 // BuildURS builds a URS (Unsolicited Selection) segment (the _buildURS).
-func (b *HL7_BASE) BuildURS(p Props) *HL7_BASE {
+func (b *Builder) BuildURS(p Props) *Builder {
 	b.headerExists()
 	s := spec("URS")
 	b.assertSegmentInVersion(s)

@@ -66,8 +66,8 @@ func TestBuildAllVersions(t *testing.T) {
 	useThisDate := time.Now()
 
 	t.Run("2.1", func(t *testing.T) {
-		base := func() *hl7.HL7_BASE {
-			b := hl7.NewHL7_2_1()
+		base := func() *hl7.Builder {
+			b := hl7.New(hl7.V2_1)
 			b.BuildMSH(hl7.Props{"msh_10": "12345", "msh_11": "T", "msh_7": useThisDate, "msh_9": "ACK"})
 			return b
 		}
@@ -106,7 +106,7 @@ func TestBuildAllVersions(t *testing.T) {
 	})
 
 	t.Run("2.2", func(t *testing.T) {
-		newB := func() *hl7.HL7_BASE { return hl7.NewHL7_2_2() }
+		newB := func() *hl7.Builder { return hl7.New(hl7.V2_2) }
 
 		t.Run("buildMSH produces a 2.2 base header", func(t *testing.T) {
 			b := newB()
@@ -148,7 +148,7 @@ func TestBuildAllVersions(t *testing.T) {
 	})
 
 	t.Run("2.3", func(t *testing.T) {
-		newB := func() *hl7.HL7_BASE { return hl7.NewHL7_2_3() }
+		newB := func() *hl7.Builder { return hl7.New(hl7.V2_3) }
 		t.Run("buildMSH produces a 2.3 base header", func(t *testing.T) {
 			b := newB()
 			b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "T", "msh_7": useThisDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
@@ -188,7 +188,7 @@ func TestBuildAllVersions(t *testing.T) {
 	})
 
 	t.Run("2.3.1", func(t *testing.T) {
-		newB := func() *hl7.HL7_BASE { return hl7.NewHL7_2_3_1() }
+		newB := func() *hl7.Builder { return hl7.New(hl7.V2_3_1) }
 		t.Run("buildMSH produces a 2.3.1 base header", func(t *testing.T) {
 			b := newB()
 			b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": useThisDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
@@ -208,7 +208,7 @@ func TestBuildAllVersions(t *testing.T) {
 	})
 
 	t.Run("2.4", func(t *testing.T) {
-		newB := func() *hl7.HL7_BASE { return hl7.NewHL7_2_4() }
+		newB := func() *hl7.Builder { return hl7.New(hl7.V2_4) }
 		t.Run("buildMSH auto-generates msh_9_3", func(t *testing.T) {
 			b := newB()
 			b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "T", "msh_7": useThisDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
@@ -242,31 +242,31 @@ func TestBuildAllVersions(t *testing.T) {
 	})
 
 	t.Run("2.5", func(t *testing.T) {
-		b := hl7.NewHL7_2_5()
+		b := hl7.New(hl7.V2_5)
 		b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "T", "msh_7": useThisDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 		contains(t, b.String(), `|ADT^A01^ADT_A01|CONTROL_ID|T|2.5`)
-		if !hl7.NewHL7_2_5().CheckMSH(hl7.Props{"msh_11_1": "P", "msh_9_1": "ORU", "msh_9_2": "R01"}) {
+		if !hl7.New(hl7.V2_5).CheckMSH(hl7.Props{"msh_11_1": "P", "msh_9_1": "ORU", "msh_9_2": "R01"}) {
 			t.Fatal("expected true")
 		}
 	})
 
 	t.Run("2.5.1", func(t *testing.T) {
-		b := hl7.NewHL7_2_5_1()
+		b := hl7.New(hl7.V2_5_1)
 		b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": useThisDate, "msh_9_1": "ADT", "msh_9_2": "A04"})
 		contains(t, b.String(), `|ADT^A04^ADT_A04|CONTROL_ID|P|2.5.1`)
 	})
 
 	t.Run("2.6", func(t *testing.T) {
-		b := hl7.NewHL7_2_6()
+		b := hl7.New(hl7.V2_6)
 		b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "D", "msh_7": useThisDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 		contains(t, b.String(), `|ADT^A01^ADT_A01|CONTROL_ID|D|2.6`)
-		b2 := hl7.NewHL7_2_6()
+		b2 := hl7.New(hl7.V2_6)
 		b2.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_3": "SRCSYS", "msh_5": "TGTSYS", "msh_7": useThisDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 		contains(t, b2.String(), "|SRCSYS||TGTSYS|")
 	})
 
 	t.Run("2.7", func(t *testing.T) {
-		newB := func() *hl7.HL7_BASE { return hl7.NewHL7_2_7() }
+		newB := func() *hl7.Builder { return hl7.New(hl7.V2_7) }
 		t.Run("buildMSH produces a 2.7 base header", func(t *testing.T) {
 			b := newB()
 			b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": useThisDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
@@ -290,16 +290,16 @@ func TestBuildAllVersions(t *testing.T) {
 	})
 
 	t.Run("2.7.1", func(t *testing.T) {
-		b := hl7.NewHL7_2_7_1()
+		b := hl7.New(hl7.V2_7_1)
 		b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": useThisDate, "msh_9_1": "ORM", "msh_9_2": "O01"})
 		contains(t, b.String(), `|ORM^O01^ORM_O01|CONTROL_ID|P|2.7.1`)
-		b2 := hl7.NewHL7_2_7_1()
+		b2 := hl7.New(hl7.V2_7_1)
 		b2.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_11_2": "R", "msh_7": useThisDate, "msh_9_1": "ORM", "msh_9_2": "O01"})
 		contains(t, b2.String(), "|P^R|2.7.1")
 	})
 
 	t.Run("2.8", func(t *testing.T) {
-		newB := func() *hl7.HL7_BASE { return hl7.NewHL7_2_8() }
+		newB := func() *hl7.Builder { return hl7.New(hl7.V2_8) }
 		t.Run("buildMSH produces a 2.8 base header", func(t *testing.T) {
 			b := newB()
 			b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": useThisDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
@@ -329,7 +329,7 @@ func TestBuildAllVersions(t *testing.T) {
 }
 
 func TestBuildMSHRejectsSecond(t *testing.T) {
-	b := hl7.NewHL7_2_1()
+	b := hl7.New(hl7.V2_1)
 	b.BuildMSH(hl7.Props{"msh_10": "12345", "msh_11": "T", "msh_9": "ACK"})
 	expectThrows(t, "You can only have one MSH Header per HL7 Message.", func() {
 		b.BuildMSH(hl7.Props{"msh_10": "12345", "msh_11": "T", "msh_9": "ACK"})
@@ -337,7 +337,7 @@ func TestBuildMSHRejectsSecond(t *testing.T) {
 }
 
 func TestBuildADDCannotFollowMSH(t *testing.T) {
-	b := hl7.NewHL7_2_1()
+	b := hl7.New(hl7.V2_1)
 	b.BuildMSH(hl7.Props{"msh_10": "12345", "msh_11": "T", "msh_9": "ACK"})
 	expectThrows(t, "This segment must not follow a MSH, BHS, or FHS", func() {
 		b.BuildADD(hl7.Props{"add_1": "Fail cause you can't have this after MSH"})

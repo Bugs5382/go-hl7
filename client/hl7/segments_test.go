@@ -35,12 +35,12 @@ import (
 
 // These tests mirror the hl7.segments.test.ts: the v2.1 typed segment
 // builders, the v2.4 PID extension, the per-version MSH branches, v2.7 IPC/ISD,
-// v2.8 STZ, and the HL7_BASE common helpers.
+// v2.8 STZ, and the Builder common helpers.
 
 var segDate = time.Date(2024, 1, 15, 10, 20, 30, 0, time.UTC)
 
-func v21() *hl7.HL7_BASE {
-	b := hl7.NewHL7_2_1()
+func v21() *hl7.Builder {
+	b := hl7.New(hl7.V2_1)
 	b.On("error", func(string) {})
 	b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11": "T", "msh_7": segDate, "msh_9": "ACK"})
 	return b
@@ -201,13 +201,13 @@ func TestHL721SegmentBuilders(t *testing.T) {
 		b.BuildSTZ(hl7.Props{"stz_1": "x"})
 	})
 	t.Run("headerExists guards before buildMSH", func(t *testing.T) {
-		fresh := hl7.NewHL7_2_1()
+		fresh := hl7.New(hl7.V2_1)
 		expectThrows(t, "MSH Header", func() { fresh.BuildEVN(hl7.Props{"evn_1": "A01"}) })
 	})
 }
 
 func TestHL724PIDExtension(t *testing.T) {
-	b := hl7.NewHL7_2_4()
+	b := hl7.New(hl7.V2_4)
 	b.On("error", func(string) {})
 	b.BuildMSH(hl7.Props{"msh_10": "X", "msh_11_1": "P", "msh_7": segDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 	b.BuildPID(hl7.Props{"pid_3": "MRN1", "pid_31": "Y", "pid_32": "AL", "pid_33": segDate, "pid_37": "MRN2", "pid_5": "DOE^JANE"})
@@ -216,15 +216,15 @@ func TestHL724PIDExtension(t *testing.T) {
 
 func TestVersionMSHBranches(t *testing.T) {
 	cases := []struct {
-		newB func(...hl7.Options) *hl7.HL7_BASE
+		newB func() *hl7.Builder
 		want string
 	}{
-		{hl7.NewHL7_2_5, "|2.5"},
-		{hl7.NewHL7_2_5_1, "|2.5.1"},
-		{hl7.NewHL7_2_6, "|2.6"},
-		{hl7.NewHL7_2_7, "|2.7"},
-		{hl7.NewHL7_2_7_1, "|2.7.1"},
-		{hl7.NewHL7_2_8, "|2.8"},
+		{func() *hl7.Builder { return hl7.New(hl7.V2_5) }, "|2.5"},
+		{func() *hl7.Builder { return hl7.New(hl7.V2_5_1) }, "|2.5.1"},
+		{func() *hl7.Builder { return hl7.New(hl7.V2_6) }, "|2.6"},
+		{func() *hl7.Builder { return hl7.New(hl7.V2_7) }, "|2.7"},
+		{func() *hl7.Builder { return hl7.New(hl7.V2_7_1) }, "|2.7.1"},
+		{func() *hl7.Builder { return hl7.New(hl7.V2_8) }, "|2.8"},
 	}
 	for _, c := range cases {
 		b := c.newB()
@@ -240,8 +240,8 @@ func TestVersionMSHBranches(t *testing.T) {
 }
 
 func TestHL727IPCISD(t *testing.T) {
-	mk := func() *hl7.HL7_BASE {
-		b := hl7.NewHL7_2_7()
+	mk := func() *hl7.Builder {
+		b := hl7.New(hl7.V2_7)
 		b.On("error", func(string) {})
 		b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": segDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 		return b
@@ -259,7 +259,7 @@ func TestHL727IPCISD(t *testing.T) {
 }
 
 func TestHL728STZ(t *testing.T) {
-	b := hl7.NewHL7_2_8()
+	b := hl7.New(hl7.V2_8)
 	b.On("error", func(string) {})
 	b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": segDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 	b.BuildSTZ(hl7.Props{"stz_1": "STM", "stz_2": "DRT", "stz_3": "30MIN"})
@@ -268,11 +268,11 @@ func TestHL728STZ(t *testing.T) {
 
 func TestBaseCommonHelpers(t *testing.T) {
 	t.Run("setDate uses now without args", func(t *testing.T) {
-		b := hl7.NewHL7_2_7()
+		b := hl7.New(hl7.V2_7)
 		matches(t, b.SetDate(time.Time{}, "14"), `^\d{14}$`)
 	})
 	t.Run("setDate honors length option", func(t *testing.T) {
-		b := hl7.NewHL7_2_7()
+		b := hl7.New(hl7.V2_7)
 		if got := b.SetDate(segDate, "8"); got != "20240115" {
 			t.Fatalf("got %q", got)
 		}
@@ -284,11 +284,11 @@ func TestBaseCommonHelpers(t *testing.T) {
 		}
 	})
 	t.Run("checkMSH on base 2.1 throws Not Implemented", func(t *testing.T) {
-		b := hl7.NewHL7_2_1()
+		b := hl7.New(hl7.V2_1)
 		expectThrows(t, "Not Implemented", func() { b.CheckMSH(hl7.Props{}) })
 	})
 	t.Run("checkMSH on 2.8 delegates to 2.7 checks", func(t *testing.T) {
-		b := hl7.NewHL7_2_8()
+		b := hl7.New(hl7.V2_8)
 		if !b.CheckMSH(hl7.Props{"msh_11_1": "P", "msh_9_1": "ADT", "msh_9_2": "A01"}) {
 			t.Fatal("expected true")
 		}

@@ -52,10 +52,10 @@ type inboundStats struct {
 // frames inbound HL7 with a per-socket MLLP codec, parses message/batch/file
 // bodies, and dispatches each to the handler. It mirrors the reference's
 // Inbound (an EventEmitter) over the same event names via the embedded
-// eventEmitter: listen, client.connect, client.close, client.error, data.raw,
+// EventEmitter: listen, client.connect, client.close, client.error, data.raw,
 // data.error, error, response.sent.
 type Inbound struct {
-	eventEmitter
+	EventEmitter
 	handler InboundHandler
 	main    *Server
 	opt     srvutils.ValidatedListenerOptions

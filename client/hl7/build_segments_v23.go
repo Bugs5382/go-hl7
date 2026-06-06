@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 // These BuildXXX methods port the HL7_2_3 typed segment builders (the
 // scheduling/clinical-study/provider segments introduced in v2.3). Each is a
 // validatorSetField sequence over the shared base; the version guard rejects
-// the segment on earlier versions just as the HL7_BASE._buildXXX stub
+// the segment on earlier versions just as the Builder._buildXXX stub
 // throws "Not Implemented". The NK1/OBR/OBX/ORC/PID version extensions the spec
 // adds in HL7_2_3 live in build_segments_v21.go, gated by the usage catalog.
 
@@ -37,7 +37,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 // BuildAIG builds an AIG (Appointment Information - General Resource) segment
 // (the HL7_2_3._buildAIG). Chainable.
-func (b *HL7_BASE) BuildAIG(p Props) *HL7_BASE {
+func (b *Builder) BuildAIG(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.3")
 	s := spec("AIG")
@@ -62,7 +62,7 @@ func (b *HL7_BASE) BuildAIG(p Props) *HL7_BASE {
 
 // BuildAIL builds an AIL (Appointment Information - Location Resource) segment
 // (the HL7_2_3._buildAIL). Chainable.
-func (b *HL7_BASE) BuildAIL(p Props) *HL7_BASE {
+func (b *Builder) BuildAIL(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.3")
 	s := spec("AIL")
@@ -85,7 +85,7 @@ func (b *HL7_BASE) BuildAIL(p Props) *HL7_BASE {
 
 // BuildAIP builds an AIP (Appointment Information - Personnel Resource) segment
 // (the HL7_2_3._buildAIP). Chainable.
-func (b *HL7_BASE) BuildAIP(p Props) *HL7_BASE {
+func (b *Builder) BuildAIP(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.3")
 	s := spec("AIP")
@@ -108,7 +108,7 @@ func (b *HL7_BASE) BuildAIP(p Props) *HL7_BASE {
 
 // BuildAIS builds an AIS (Appointment Information - Service) segment (the
 // HL7_2_3._buildAIS). Chainable.
-func (b *HL7_BASE) BuildAIS(p Props) *HL7_BASE {
+func (b *Builder) BuildAIS(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.3")
 	s := spec("AIS")
@@ -129,7 +129,7 @@ func (b *HL7_BASE) BuildAIS(p Props) *HL7_BASE {
 
 // BuildAPR builds an APR (Appointment Preferences) segment (the
 // HL7_2_3._buildAPR). Chainable.
-func (b *HL7_BASE) BuildAPR(p Props) *HL7_BASE {
+func (b *Builder) BuildAPR(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.3")
 	s := spec("APR")
@@ -145,7 +145,7 @@ func (b *HL7_BASE) BuildAPR(p Props) *HL7_BASE {
 
 // BuildCSP builds a CSP (Clinical Study Phase) segment (the
 // HL7_2_3._buildCSP). Chainable.
-func (b *HL7_BASE) BuildCSP(p Props) *HL7_BASE {
+func (b *Builder) BuildCSP(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.3")
 	s := spec("CSP")
@@ -160,7 +160,7 @@ func (b *HL7_BASE) BuildCSP(p Props) *HL7_BASE {
 
 // BuildCSR builds a CSR (Clinical Study Registration) segment (the
 // HL7_2_3._buildCSR). Chainable.
-func (b *HL7_BASE) BuildCSR(p Props) *HL7_BASE {
+func (b *Builder) BuildCSR(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.3")
 	s := spec("CSR")
@@ -187,7 +187,7 @@ func (b *HL7_BASE) BuildCSR(p Props) *HL7_BASE {
 
 // BuildCSS builds a CSS (Clinical Study Data Schedule) segment (the
 // HL7_2_3._buildCSS). Chainable.
-func (b *HL7_BASE) BuildCSS(p Props) *HL7_BASE {
+func (b *Builder) BuildCSS(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.3")
 	s := spec("CSS")
@@ -201,7 +201,7 @@ func (b *HL7_BASE) BuildCSS(p Props) *HL7_BASE {
 
 // BuildCTD builds a CTD (Contact Data) segment (the HL7_2_3._buildCTD).
 // Chainable.
-func (b *HL7_BASE) BuildCTD(p Props) *HL7_BASE {
+func (b *Builder) BuildCTD(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.3")
 	s := spec("CTD")
@@ -219,7 +219,7 @@ func (b *HL7_BASE) BuildCTD(p Props) *HL7_BASE {
 
 // BuildPCR builds a PCR (Possible Causal Relationship) segment (the
 // HL7_2_3._buildPCR). Chainable.
-func (b *HL7_BASE) BuildPCR(p Props) *HL7_BASE {
+func (b *Builder) BuildPCR(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.3")
 	s := spec("PCR")
@@ -253,7 +253,7 @@ func (b *HL7_BASE) BuildPCR(p Props) *HL7_BASE {
 
 // BuildPD1 builds a PD1 (Patient Additional Demographic) segment (the
 // HL7_2_3._buildPD1). Chainable.
-func (b *HL7_BASE) BuildPD1(p Props) *HL7_BASE {
+func (b *Builder) BuildPD1(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.3")
 	s := spec("PD1")
@@ -276,7 +276,7 @@ func (b *HL7_BASE) BuildPD1(p Props) *HL7_BASE {
 
 // BuildPRA builds a PRA (Practitioner Detail) segment (the
 // HL7_2_3._buildPRA). Chainable.
-func (b *HL7_BASE) BuildPRA(p Props) *HL7_BASE {
+func (b *Builder) BuildPRA(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.3")
 	s := spec("PRA")
@@ -295,7 +295,7 @@ func (b *HL7_BASE) BuildPRA(p Props) *HL7_BASE {
 
 // BuildPRD builds a PRD (Provider Data) segment (the HL7_2_3._buildPRD).
 // Chainable.
-func (b *HL7_BASE) BuildPRD(p Props) *HL7_BASE {
+func (b *Builder) BuildPRD(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.3")
 	s := spec("PRD")
@@ -315,7 +315,7 @@ func (b *HL7_BASE) BuildPRD(p Props) *HL7_BASE {
 
 // BuildPSH builds a PSH (Product Summary Header) segment (the
 // HL7_2_3._buildPSH). Chainable.
-func (b *HL7_BASE) BuildPSH(p Props) *HL7_BASE {
+func (b *Builder) BuildPSH(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.3")
 	s := spec("PSH")
@@ -340,7 +340,7 @@ func (b *HL7_BASE) BuildPSH(p Props) *HL7_BASE {
 
 // BuildRDF builds an RDF (Table Row Definition) segment (the
 // HL7_2_3._buildRDF). Chainable.
-func (b *HL7_BASE) BuildRDF(p Props) *HL7_BASE {
+func (b *Builder) BuildRDF(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.3")
 	s := spec("RDF")
@@ -353,7 +353,7 @@ func (b *HL7_BASE) BuildRDF(p Props) *HL7_BASE {
 
 // BuildRDT builds an RDT (Table Row Data) segment (the HL7_2_3._buildRDT).
 // Chainable.
-func (b *HL7_BASE) BuildRDT(p Props) *HL7_BASE {
+func (b *Builder) BuildRDT(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.3")
 	s := spec("RDT")
@@ -365,7 +365,7 @@ func (b *HL7_BASE) BuildRDT(p Props) *HL7_BASE {
 
 // BuildRGS builds an RGS (Resource Group) segment (the HL7_2_3._buildRGS).
 // Chainable.
-func (b *HL7_BASE) BuildRGS(p Props) *HL7_BASE {
+func (b *Builder) BuildRGS(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.3")
 	s := spec("RGS")
@@ -378,7 +378,7 @@ func (b *HL7_BASE) BuildRGS(p Props) *HL7_BASE {
 }
 
 // BuildROL builds a ROL (Role) segment (the HL7_2_3._buildROL). Chainable.
-func (b *HL7_BASE) BuildROL(p Props) *HL7_BASE {
+func (b *Builder) BuildROL(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.3")
 	s := spec("ROL")
@@ -397,7 +397,7 @@ func (b *HL7_BASE) BuildROL(p Props) *HL7_BASE {
 
 // BuildSCH builds an SCH (Scheduling Activity Information) segment (the
 // HL7_2_3._buildSCH). Chainable.
-func (b *HL7_BASE) BuildSCH(p Props) *HL7_BASE {
+func (b *Builder) BuildSCH(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.3")
 	s := spec("SCH")
@@ -433,7 +433,7 @@ func (b *HL7_BASE) BuildSCH(p Props) *HL7_BASE {
 
 // BuildVAR builds a VAR (Variance) segment (the HL7_2_3._buildVAR).
 // Chainable.
-func (b *HL7_BASE) BuildVAR(p Props) *HL7_BASE {
+func (b *Builder) BuildVAR(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.3")
 	s := spec("VAR")

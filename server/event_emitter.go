@@ -29,12 +29,12 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import "sync"
 
-// eventEmitter is the server package's minimal On/Once/emit EventEmitter, which
+// EventEmitter is the server package's minimal On/Once/emit EventEmitter, which
 // Server, Inbound, and SendResponse all embed. Same documented Go adaptation as
 // the client package: string event names, handlers take a variadic []any, and
 // it is concurrency-safe so per-socket data goroutines and user subscriptions
 // can race.
-type eventEmitter struct {
+type EventEmitter struct {
 	mu        sync.Mutex
 	listeners map[string][]*emitterHandler
 }
@@ -45,7 +45,7 @@ type emitterHandler struct {
 }
 
 // On registers handler for the named event (the on).
-func (e *eventEmitter) On(name string, handler func(args ...any)) *eventEmitter {
+func (e *EventEmitter) On(name string, handler func(args ...any)) *EventEmitter {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	if e.listeners == nil {
@@ -56,7 +56,7 @@ func (e *eventEmitter) On(name string, handler func(args ...any)) *eventEmitter 
 }
 
 // Once registers a one-shot handler (the once).
-func (e *eventEmitter) Once(name string, handler func(args ...any)) *eventEmitter {
+func (e *EventEmitter) Once(name string, handler func(args ...any)) *EventEmitter {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	if e.listeners == nil {
@@ -68,7 +68,7 @@ func (e *eventEmitter) Once(name string, handler func(args ...any)) *eventEmitte
 
 // RemoveAllListeners drops all handlers, or those for a single event (the
 // removeAllListeners).
-func (e *eventEmitter) RemoveAllListeners(name ...string) *eventEmitter {
+func (e *EventEmitter) RemoveAllListeners(name ...string) *EventEmitter {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	if len(name) == 0 {
@@ -83,7 +83,7 @@ func (e *eventEmitter) RemoveAllListeners(name ...string) *eventEmitter {
 
 // emit fires every handler for the named event with args, stripping one-shots
 // (the emit). Handlers run unlocked so re-entrant subscription is safe.
-func (e *eventEmitter) emit(name string, args ...any) bool {
+func (e *EventEmitter) emit(name string, args ...any) bool {
 	e.mu.Lock()
 	if e.listeners == nil {
 		e.mu.Unlock()

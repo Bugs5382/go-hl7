@@ -26,12 +26,12 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 // These BuildXXX methods port the HL7_2_5 typed segment builders (SFT,
 // SPM) and HL7_2_6 typed segment builders (BPX, BTX, ITM, IVT, REL). Each is a
 // validatorSetField sequence over the shared base; the version guard rejects
-// the segment on earlier versions just as the HL7_BASE._buildXXX stub throws
+// the segment on earlier versions just as the Builder._buildXXX stub throws
 // "Not Implemented".
 
 // BuildSFT builds an SFT (Software Segment) (the HL7_2_5._buildSFT).
 // Introduced in v2.5. Chainable.
-func (b *HL7_BASE) BuildSFT(p Props) *HL7_BASE {
+func (b *Builder) BuildSFT(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.5")
 	s := spec("SFT")
@@ -48,7 +48,7 @@ func (b *HL7_BASE) BuildSFT(p Props) *HL7_BASE {
 
 // BuildSPM builds an SPM (Specimen) segment (the HL7_2_5._buildSPM).
 // Introduced in v2.5. Chainable.
-func (b *HL7_BASE) BuildSPM(p Props) *HL7_BASE {
+func (b *Builder) BuildSPM(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.5")
 	s := spec("SPM")
@@ -86,7 +86,7 @@ func (b *HL7_BASE) BuildSPM(p Props) *HL7_BASE {
 
 // BuildBPX builds a BPX (Blood Product Dispense Status) segment (the
 // HL7_2_6._buildBPX). Introduced in v2.6. Chainable.
-func (b *HL7_BASE) BuildBPX(p Props) *HL7_BASE {
+func (b *Builder) BuildBPX(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.6")
 	s := spec("BPX")
@@ -114,7 +114,7 @@ func (b *HL7_BASE) BuildBPX(p Props) *HL7_BASE {
 
 // BuildBTX builds a BTX (Blood Product Transfusion/Disposition) segment (the
 // HL7_2_6._buildBTX). Introduced in v2.6. Chainable.
-func (b *HL7_BASE) BuildBTX(p Props) *HL7_BASE {
+func (b *Builder) BuildBTX(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.6")
 	s := spec("BTX")
@@ -142,7 +142,7 @@ func (b *HL7_BASE) BuildBTX(p Props) *HL7_BASE {
 
 // BuildITM builds an ITM (Material Item) segment (the HL7_2_6._buildITM).
 // Introduced in v2.6. Chainable.
-func (b *HL7_BASE) BuildITM(p Props) *HL7_BASE {
+func (b *Builder) BuildITM(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.6")
 	s := spec("ITM")
@@ -191,7 +191,7 @@ func (b *HL7_BASE) BuildITM(p Props) *HL7_BASE {
 
 // BuildIVT builds an IVT (Material Location) segment (the
 // HL7_2_6._buildIVT). Introduced in v2.6. Chainable.
-func (b *HL7_BASE) BuildIVT(p Props) *HL7_BASE {
+func (b *Builder) BuildIVT(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.6")
 	s := spec("IVT")
@@ -227,7 +227,7 @@ func (b *HL7_BASE) BuildIVT(p Props) *HL7_BASE {
 
 // BuildREL builds a REL (Clinical Relationship Segment) (the
 // HL7_2_6._buildREL). Introduced in v2.6. Chainable.
-func (b *HL7_BASE) BuildREL(p Props) *HL7_BASE {
+func (b *Builder) BuildREL(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.6")
 	s := spec("REL")

@@ -38,7 +38,7 @@ import (
 // TypeScript-only construct; its Go mirror is the runtime version rejection
 // (covered by the segment-specs tests).
 
-func ecdHeader(b *hl7.HL7_BASE) {
+func ecdHeader(b *hl7.Builder) {
 	b.On("error", func(string) {})
 	b.BuildMSH(hl7.Props{
 		"msh_10": "X", "msh_11_1": "P",
@@ -49,14 +49,14 @@ func ecdHeader(b *hl7.HL7_BASE) {
 
 func TestECDPerVersion(t *testing.T) {
 	t.Run("v2.4 accepts ecd_4", func(t *testing.T) {
-		b := hl7.NewHL7_2_4()
+		b := hl7.New(hl7.V2_4)
 		ecdHeader(b)
 		b.BuildECD(hl7.Props{"ecd_1": "1", "ecd_2": "RC", "ecd_4": "20260101"})
 		contains(t, b.String(), "ECD|1|RC||20260101")
 	})
 
 	t.Run("v2.6 accepts ecd_4 but warns deprecated", func(t *testing.T) {
-		b := hl7.NewHL7_2_6()
+		b := hl7.New(hl7.V2_6)
 		var warned string
 		b.On("warning", func(m string) { warned += m })
 		ecdHeader(b)
@@ -68,7 +68,7 @@ func TestECDPerVersion(t *testing.T) {
 	})
 
 	t.Run("v2.8 rejects ecd_4 with a hard error", func(t *testing.T) {
-		b := hl7.NewHL7_2_8()
+		b := hl7.New(hl7.V2_8)
 		ecdHeader(b)
 		expectThrows(t, "", func() {
 			b.BuildECD(hl7.Props{"ecd_1": "1", "ecd_2": "RC", "ecd_4": "20260101"})
@@ -76,7 +76,7 @@ func TestECDPerVersion(t *testing.T) {
 	})
 
 	t.Run("v2.8 succeeds when ecd_4 is omitted", func(t *testing.T) {
-		b := hl7.NewHL7_2_8()
+		b := hl7.New(hl7.V2_8)
 		ecdHeader(b)
 		b.BuildECD(hl7.Props{"ecd_1": "1", "ecd_2": "RC"})
 		contains(t, b.String(), "ECD|1|RC")
@@ -86,7 +86,7 @@ func TestECDPerVersion(t *testing.T) {
 	})
 
 	t.Run("required ECD.1 unset throws", func(t *testing.T) {
-		b := hl7.NewHL7_2_4()
+		b := hl7.New(hl7.V2_4)
 		ecdHeader(b)
 		expectThrows(t, "", func() { b.BuildECD(hl7.Props{"ecd_2": "RC"}) })
 	})

@@ -1,5 +1,5 @@
 // Package hl7 is the spec-driven, per-version HL7 v2 message builder. It mirrors
-// the hl7/ tree: the HL7_BASE base builder, the per-version HL7_2_x
+// the hl7/ tree: the Builder base builder, the per-version HL7_2_x
 // classes (a 2.1 -> 2.8 inheritance chain), the spec-driven field validator
 // keyed off the generated metadata catalog, and the composite-object field
 // assembly. The base builder writes into a builder.Message and toString()

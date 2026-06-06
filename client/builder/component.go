@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 import (
 	"strconv"
 
-	"github.com/Bugs5382/go-hl7/client/declaration"
+	"github.com/Bugs5382/go-hl7/client/internal/declaration"
 )
 
 // Component is one component of a field repetition (the Component). Its

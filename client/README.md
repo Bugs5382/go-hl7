@@ -16,10 +16,10 @@ import (
 ## ✨ Features
 
 - ⚡ **Zero runtime dependencies** — fast, small, easy to audit (standard library only).
-- 🧱 **Typed segment builders** — `NewHL7_2_1` through `NewHL7_2_8`, with `BuildMSH`, `BuildPID`, `BuildEVN`, `BuildOBX`, `BuildORC`, … all the segments you actually use.
-- 🧮 **Per-version field availability** — every segment carries an HL7 v2 usage code per version (R/O/B/W/D/X). Withdrawn fields error, deprecated (B) fields warn, segments that didn't exist in your version are rejected. The full catalogue is exported as `metadata.SEGMENT_SPECS`.
-- 📑 **Version-aware HL7 value tables** — the **complete** set of HL7-defined value tables ships with the library (generated from Caristix, no runtime network), keyed by version. Every table-bound field and composite component is validated against the value set for your version, so an out-of-table code is a hard `HL7ValidationError` — and a code valid in one version can be rejected in another. Tables with no fixed value set for a version are not enforced. Exported as `tables.TABLES`.
-- 🔗 **Chainable builders** — every `Build*` returns the builder, so you can compose `hl7.NewHL7_2_8().BuildMSH(...).BuildPID(...).String()` top‑to‑bottom.
+- 🧱 **Typed segment builders** — `New(V2_1)` through `New(V2_8)`, with `BuildMSH`, `BuildPID`, `BuildEVN`, `BuildOBX`, `BuildORC`, … all the segments you actually use.
+- 🧮 **Per-version field availability** — every segment carries an HL7 v2 usage code per version (R/O/B/W/D/X). Withdrawn fields error, deprecated (B) fields warn, segments that didn't exist in your version are rejected. The full catalogue is exported as `metadata.SegmentSpecs`.
+- 📑 **Version-aware HL7 value tables** — the **complete** set of HL7-defined value tables ships with the library (generated from Caristix, no runtime network), keyed by version. Every table-bound field and composite component is validated against the value set for your version, so an out-of-table code is a hard `HL7ValidationError` — and a code valid in one version can be rejected in another. Tables with no fixed value set for a version are not enforced. Exported as `tables.Tables`.
+- 🔗 **Chainable builders** — every `Build*` returns the builder, so you can compose `hl7.New(hl7.V2_8).BuildMSH(...).BuildPID(...).String()` top‑to‑bottom.
 - 🧰 **`BuildSegment(name, props)`** — universal spec‑driven builder for the long tail of segments when a hand‑tuned method isn't available.
 - 🧬 **Typed composite inputs** — composite fields accept either a `^`‑delimited string or a typed component object (a `map[string]any`). Per‑component length, required, withdrawn, and not‑supported rules are enforced.
 - 🔁 **Auto reconnect & retry** — exponential backoff, configurable attempt cap.
@@ -70,7 +70,7 @@ func ptr[T any](v T) *T { return &v }
 
 func main() {
 	// 1) Build an ADT^A01. Every Build* returns the builder, so you can chain.
-	msg := hl7.NewHL7_2_5().
+	msg := hl7.New(hl7.V2_5).
 		BuildMSH(hl7.Props{
 			"msh_3":  "MY_APP",
 			"msh_4":  "MY_FAC",
@@ -113,7 +113,7 @@ The class‑based builder validates segment fields against the complete, version
 
 ```mermaid
 flowchart LR
-    A[hl7.NewHL7_2_x] --> B[BuildMSH<br/>required first]
+    A["hl7.New(version)"] --> B[BuildMSH<br/>required first]
     B --> C[BuildEVN<br/>BuildPID<br/>BuildOBR<br/>BuildOBX<br/>BuildORC<br/>BuildPV1<br/>...]
     C --> D[ToMessage / String]
     D --> E[ ✉️ Message ready to send]
@@ -124,7 +124,7 @@ flowchart LR
 ```go
 import "github.com/Bugs5382/go-hl7/client/hl7"
 
-b := hl7.NewHL7_2_5(hl7.Options{
+b := hl7.New(hl7.V2_5, hl7.Options{
 	// Optional: override the default date format.
 	// "8" = YYYYMMDD, "12" = YYYYMMDDHHMM, "14" = YYYYMMDDHHMMSS (default).
 	Date: "14",
@@ -134,7 +134,7 @@ b := hl7.NewHL7_2_5(hl7.Options{
 })
 ```
 
-The constructors are `NewHL7_2_1`, `NewHL7_2_2`, `NewHL7_2_3`, `NewHL7_2_3_1`, `NewHL7_2_4`, `NewHL7_2_5`, `NewHL7_2_5_1`, `NewHL7_2_6`, `NewHL7_2_7`, `NewHL7_2_7_1`, and `NewHL7_2_8`. There is **no implicit default** — you select the spec version by which constructor you call, and that version drives every field‑usage check. `Options` is optional (`hl7.NewHL7_2_5()` is valid).
+`New` takes a `Version` constant: `V2_1`, `V2_2`, `V2_3`, `V2_3_1`, `V2_4`, `V2_5`, `V2_5_1`, `V2_6`, `V2_7`, `V2_7_1`, or `V2_8`. There is **no implicit default** — you select the spec version by the constant you pass, and that version drives every field‑usage check. `Options` is optional (`hl7.New(hl7.V2_5)` is valid).
 
 ### Step 2 — Build MSH (always first)
 
@@ -273,7 +273,7 @@ msg.Get("PV1.7").SetIndex(0, "Jones")  // 0-based child position (the Index/SetI
 Defaults are the HL7 standard: `|` field, `^` component, `&` sub‑component, `~` repetition, `\` escape. To send through a system that uses non‑standard delimiters, set them once on the builder options:
 
 ```go
-b := hl7.NewHL7_2_5(hl7.Options{
+b := hl7.New(hl7.V2_5, hl7.Options{
 	SeparatorField:        "!",
 	SeparatorComponent:    "+",
 	SeparatorSubComponent: "]",
@@ -561,7 +561,7 @@ conn.On("data.raw", func(args ...any) { fmt.Println("📥", args[0]) })
 | `data.raw` | `string` | The full de‑framed payload, before parsing. |
 | `data.error` | `error` | A frame couldn't be parsed. |
 
-The typed builders (`*hl7.HL7_BASE`) expose their own `On("error", func(string))` and `On("warning", func(string))` for soft validation findings (collected unless `HardError` is set).
+The typed builders (`*hl7.Builder`) expose their own `On("error", func(string))` and `On("warning", func(string))` for soft validation findings (collected unless `HardError` is set).
 
 ---
 

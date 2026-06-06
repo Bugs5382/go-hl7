@@ -33,15 +33,15 @@ import (
 // v2.3 typed segment builders, including the version-gated OBR/OBX/ORC/PID/PV1
 // extensions and the new scheduling/clinical-study/provider segments.
 
-func v22() *hl7.HL7_BASE {
-	b := hl7.NewHL7_2_2()
+func v22() *hl7.Builder {
+	b := hl7.New(hl7.V2_2)
 	b.On("error", func(string) {})
 	b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11": "P", "msh_7": segDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 	return b
 }
 
-func v23() *hl7.HL7_BASE {
-	b := hl7.NewHL7_2_3()
+func v23() *hl7.Builder {
+	b := hl7.New(hl7.V2_3)
 	b.On("error", func(string) {})
 	b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": segDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 	return b
@@ -163,7 +163,7 @@ func TestHL723SegmentBuilders(t *testing.T) {
 		contains(t, v23().String(), "|2.3")
 	})
 	t.Run("buildMSH with msh_11_2 processing mode", func(t *testing.T) {
-		c := hl7.NewHL7_2_3()
+		c := hl7.New(hl7.V2_3)
 		c.On("error", func(string) {})
 		c.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_11_2": "A", "msh_7": segDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 		contains(t, c.String(), "|P^A|")

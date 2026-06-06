@@ -66,7 +66,7 @@ import (
 
 func main() {
 	// Every Build* returns the builder, so you can compose top-to-bottom.
-	b := hl7.NewHL7_2_5().
+	b := hl7.New(hl7.V2_5).
 		BuildMSH(hl7.Props{
 			"msh_3":  "MY_APP",
 			"msh_4":  "MY_FAC",
@@ -104,7 +104,7 @@ import (
 func ptr[T any](v T) *T { return &v }
 
 func main() {
-	msg := hl7.NewHL7_2_5().
+	msg := hl7.New(hl7.V2_5).
 		BuildMSH(hl7.Props{"msh_9": "ADT^A01", "msh_10": "MSG00001", "msh_11": "P"}).
 		ToMessage()
 
@@ -155,9 +155,9 @@ func main() {
 
 ## ✨ What's covered
 
-- 🧱 **Typed builders** for HL7 2.1 → 2.8 (`hl7.NewHL7_2_5`, `hl7.NewHL7_2_7`, `hl7.NewHL7_2_8`, …) with field validation against HL7 tables.
+- 🧱 **Typed builders** for HL7 2.1 → 2.8 (`hl7.New(hl7.V2_5)`, `hl7.New(hl7.V2_7)`, `hl7.New(hl7.V2_8)`, …) with field validation against HL7 tables.
 - 🧮 **Per-version field availability** — every segment is backed by a `SegmentSpec` carrying R/O/B/W/D/X usage codes per HL7 version. The builder rejects withdrawn fields, warns on backward‑compatibility ones, and refuses segments that didn't exist in the chosen version (e.g. `ECD` before v2.4).
-- 🔗 **Chainable build methods** — every `Build*` returns the builder, so `hl7.NewHL7_2_8().BuildMSH(...).BuildPID(...).String()` Just Works™.
+- 🔗 **Chainable build methods** — every `Build*` returns the builder, so `hl7.New(hl7.V2_8).BuildMSH(...).BuildPID(...).String()` Just Works™.
 - 🧰 **`BuildSegment(name, props)`** — universal spec‑driven builder for the long tail of segments when a hand‑tuned typed method isn't available.
 - 🧬 **Typed composite inputs** — composite fields like `PID.11` accept either a `^`‑delimited string *or* a typed component object (a `map[string]any`). The runtime composer joins components with `^`, trims trailing empties, and validates each piece (R/W/X/length) per the spec.
 - 📦 **Batches & file batches** with BHS/FHS framing.

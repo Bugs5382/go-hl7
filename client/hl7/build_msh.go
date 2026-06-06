@@ -62,7 +62,7 @@ func pickStr(p Props, keys ...string) string {
 // dateField resolves a Date-typed prop: a time.Time formats at length, anything
 // else passes through, and an absent value yields fallback. It mirrors the
 // `x instanceof Date && !isNaN ? setDate(x, len) : fallback` idiom.
-func (b *HL7_BASE) dateField(v any, length string, fallback any) any {
+func (b *Builder) dateField(v any, length string, fallback any) any {
 	if t, ok := v.(time.Time); ok && !t.IsZero() {
 		return b.SetDate(t, length)
 	}
@@ -87,7 +87,7 @@ func dateRule() *ValidationRule { return &ValidationRule{Type: ruleDate, HasType
 // BuildMSH builds the MSH header, enforcing the single-MSH rule and dispatching
 // the per-version framing (the buildMSH -> version _buildMSH). Returns the
 // receiver for chaining.
-func (b *HL7_BASE) BuildMSH(properties Props) *HL7_BASE {
+func (b *Builder) BuildMSH(properties Props) *Builder {
 	b.buildMSHGuard()
 	switch b.version {
 	case "2.1":
@@ -109,11 +109,11 @@ func (b *HL7_BASE) BuildMSH(properties Props) *HL7_BASE {
 }
 
 // mshSeparators returns the MSH.1/2 separator string from the options.
-func (b *HL7_BASE) mshSeparators() string {
+func (b *Builder) mshSeparators() string {
 	return b.opt.SeparatorComponent + b.opt.SeparatorRepetition + b.opt.SeparatorEscape + b.opt.SeparatorSubComponent
 }
 
-func (b *HL7_BASE) mshCommonHead(properties Props, recvFacMax int) {
+func (b *Builder) mshCommonHead(properties Props, recvFacMax int) {
 	b.segment = mustAddSegment(b.message, "MSH")
 	if len(b.opt.SeparatorComponent) != 1 {
 		panic(helpers.NewHL7ValidationError("Separator Component has to be a single character."))
@@ -126,7 +126,7 @@ func (b *HL7_BASE) mshCommonHead(properties Props, recvFacMax int) {
 }
 
 // buildMSH21 ports the HL7_2_1._buildMSH (MSH.9 single field, MSH.11 P/T).
-func (b *HL7_BASE) buildMSH21(properties Props) {
+func (b *Builder) buildMSH21(properties Props) {
 	b.segment = mustAddSegment(b.message, "MSH")
 	if len(b.opt.SeparatorComponent) != 1 {
 		panic(helpers.NewHL7ValidationError("Separator Component has to be a single character."))
@@ -145,7 +145,7 @@ func (b *HL7_BASE) buildMSH21(properties Props) {
 }
 
 // buildMSH22 ports the HL7_2_2._buildMSH (MSH.9 splits to 9.1/9.2).
-func (b *HL7_BASE) buildMSH22(properties Props) {
+func (b *Builder) buildMSH22(properties Props) {
 	b.mshCommonHead(properties, 20)
 	b.validatorSetValue("7", b.dateField(pick(properties, "msh_7"), b.opt.Date, b.SetDate(time.Now(), b.opt.Date)), &ValidationRule{Required: true, Type: ruleDate, HasType: true})
 	b.validatorSetValue("8", pick(properties, "msh_8"), &ValidationRule{Length: lenMinMax(1, 40)})
@@ -157,7 +157,7 @@ func (b *HL7_BASE) buildMSH22(properties Props) {
 }
 
 // buildMSH23 ports the HL7_2_3._buildMSH (11 splits to 11.1/11.2, +13-18).
-func (b *HL7_BASE) buildMSH23(properties Props) {
+func (b *Builder) buildMSH23(properties Props) {
 	b.mshCommonHead(properties, 20)
 	b.validatorSetValue("7", b.dateField(pick(properties, "msh_7"), b.opt.Date, b.SetDate(time.Now(), b.opt.Date)), &ValidationRule{Required: true, Type: ruleDate, HasType: true})
 	b.validatorSetValue("8", pick(properties, "msh_8"), &ValidationRule{Length: lenMinMax(1, 40)})
@@ -178,7 +178,7 @@ func (b *HL7_BASE) buildMSH23(properties Props) {
 }
 
 // buildMSH24 ports the HL7_2_4._buildMSH (adds MSH.9.3, 11.2 incl T).
-func (b *HL7_BASE) buildMSH24(properties Props) {
+func (b *Builder) buildMSH24(properties Props) {
 	b.mshCommonHead(properties, 20)
 	b.validatorSetValue("7", b.dateField(pick(properties, "msh_7"), b.opt.Date, b.SetDate(time.Now(), b.opt.Date)), &ValidationRule{Required: true, Type: ruleDate, HasType: true})
 	b.validatorSetValue("8", pick(properties, "msh_8"), &ValidationRule{Length: lenMinMax(1, 40)})
@@ -194,7 +194,7 @@ func (b *HL7_BASE) buildMSH24(properties Props) {
 }
 
 // buildMSH27 ports the HL7_2_7._buildMSH (227-char fields, MSH.10 max 199).
-func (b *HL7_BASE) buildMSH27(properties Props) {
+func (b *Builder) buildMSH27(properties Props) {
 	b.segment = mustAddSegment(b.message, "MSH")
 	if len(b.opt.SeparatorComponent) != 1 {
 		panic(helpers.NewHL7ValidationError("Separator Component has to be a single character."))

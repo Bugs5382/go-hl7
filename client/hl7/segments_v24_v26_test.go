@@ -34,29 +34,29 @@ import (
 // extensions), the v2.5 SFT/SPM builders, v2.5.1 inheritance, and the v2.6
 // BPX/BTX/ITM/IVT/REL builders.
 
-func v24() *hl7.HL7_BASE {
-	b := hl7.NewHL7_2_4()
+func v24() *hl7.Builder {
+	b := hl7.New(hl7.V2_4)
 	b.On("error", func(string) {})
 	b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": segDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 	return b
 }
 
-func v25() *hl7.HL7_BASE {
-	b := hl7.NewHL7_2_5()
+func v25() *hl7.Builder {
+	b := hl7.New(hl7.V2_5)
 	b.On("error", func(string) {})
 	b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": segDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 	return b
 }
 
-func v251() *hl7.HL7_BASE {
-	b := hl7.NewHL7_2_5_1()
+func v251() *hl7.Builder {
+	b := hl7.New(hl7.V2_5_1)
 	b.On("error", func(string) {})
 	b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": segDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 	return b
 }
 
-func v26() *hl7.HL7_BASE {
-	b := hl7.NewHL7_2_6()
+func v26() *hl7.Builder {
+	b := hl7.New(hl7.V2_6)
 	b.On("error", func(string) {})
 	b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": segDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 	return b

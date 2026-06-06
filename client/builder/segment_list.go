@@ -23,7 +23,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-import "github.com/Bugs5382/go-hl7/client/declaration"
+import "github.com/Bugs5382/go-hl7/client/internal/declaration"
 
 // SegmentList wraps one or more segments of the same name so callers can
 // iterate even when there is a single match (the SegmentList).

@@ -27,10 +27,10 @@ import "sync"
 
 // Client is the main entry point: it holds the remote-server connection
 // defaults and opens per-port Connections. It mirrors the Client, which
-// extends EventEmitter (here via the embedded eventEmitter); the "limitExceeded"
+// extends EventEmitter (here via the embedded EventEmitter); the "limitExceeded"
 // event is re-emitted from connections.
 type Client struct {
-	eventEmitter
+	EventEmitter
 	// connections holds every Connection created off this client (the
 	// _connections).
 	connections []*Connection

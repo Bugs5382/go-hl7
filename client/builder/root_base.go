@@ -27,7 +27,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/Bugs5382/go-hl7/client/declaration"
+	"github.com/Bugs5382/go-hl7/client/internal/declaration"
 	"github.com/Bugs5382/go-hl7/client/utils"
 )
 

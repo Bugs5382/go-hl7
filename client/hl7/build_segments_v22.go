@@ -29,7 +29,7 @@ import "fmt"
 // (AL1, MFE, MFI, ODS, ODT, RXA, RXD, RXE, RXG, RXO, RXR, STF, UB2). Each is a
 // validatorSetField sequence over the shared base; the segment did not exist
 // before v2.2, so the version guard rejects it on earlier versions just as
-// the HL7_BASE._buildXXX stub throws "Not Implemented". The OBR/OBX/ORC/PV1
+// the Builder._buildXXX stub throws "Not Implemented". The OBR/OBX/ORC/PV1
 // version extensions the spec adds in HL7_2_2 live in build_segments_v21.go, gated
 // by the usage catalog.
 
@@ -53,7 +53,7 @@ func jsStringOr(v any) string {
 
 // BuildAL1 builds an AL1 (Allergy Information) segment (the HL7_2_2._buildAL1).
 // Introduced in v2.2. Chainable.
-func (b *HL7_BASE) BuildAL1(p Props) *HL7_BASE {
+func (b *Builder) BuildAL1(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.2")
 	s := spec("AL1")
@@ -70,7 +70,7 @@ func (b *HL7_BASE) BuildAL1(p Props) *HL7_BASE {
 
 // BuildMFE builds an MFE (Master File Entry) segment (the HL7_2_2._buildMFE).
 // Chainable.
-func (b *HL7_BASE) BuildMFE(p Props) *HL7_BASE {
+func (b *Builder) BuildMFE(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.2")
 	s := spec("MFE")
@@ -85,7 +85,7 @@ func (b *HL7_BASE) BuildMFE(p Props) *HL7_BASE {
 
 // BuildMFI builds an MFI (Master File Identification) segment (the
 // HL7_2_2._buildMFI). Chainable.
-func (b *HL7_BASE) BuildMFI(p Props) *HL7_BASE {
+func (b *Builder) BuildMFI(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.2")
 	s := spec("MFI")
@@ -102,7 +102,7 @@ func (b *HL7_BASE) BuildMFI(p Props) *HL7_BASE {
 
 // BuildODS builds an ODS (Dietary Orders) segment (the HL7_2_2._buildODS).
 // Chainable.
-func (b *HL7_BASE) BuildODS(p Props) *HL7_BASE {
+func (b *Builder) BuildODS(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.2")
 	s := spec("ODS")
@@ -117,7 +117,7 @@ func (b *HL7_BASE) BuildODS(p Props) *HL7_BASE {
 
 // BuildODT builds an ODT (Diet Tray Instructions) segment (the
 // HL7_2_2._buildODT). Chainable.
-func (b *HL7_BASE) BuildODT(p Props) *HL7_BASE {
+func (b *Builder) BuildODT(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.2")
 	s := spec("ODT")
@@ -131,7 +131,7 @@ func (b *HL7_BASE) BuildODT(p Props) *HL7_BASE {
 
 // BuildRXA builds an RXA (Pharmacy/Treatment Administration) segment (the
 // HL7_2_2._buildRXA). Chainable.
-func (b *HL7_BASE) BuildRXA(p Props) *HL7_BASE {
+func (b *Builder) BuildRXA(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.2")
 	s := spec("RXA")
@@ -154,7 +154,7 @@ func (b *HL7_BASE) BuildRXA(p Props) *HL7_BASE {
 
 // BuildRXD builds an RXD (Pharmacy/Treatment Dispense) segment (the
 // HL7_2_2._buildRXD). Chainable.
-func (b *HL7_BASE) BuildRXD(p Props) *HL7_BASE {
+func (b *Builder) BuildRXD(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.2")
 	s := spec("RXD")
@@ -180,7 +180,7 @@ func (b *HL7_BASE) BuildRXD(p Props) *HL7_BASE {
 
 // BuildRXE builds an RXE (Pharmacy/Treatment Encoded Order) segment (the
 // HL7_2_2._buildRXE). Chainable.
-func (b *HL7_BASE) BuildRXE(p Props) *HL7_BASE {
+func (b *Builder) BuildRXE(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.2")
 	s := spec("RXE")
@@ -215,7 +215,7 @@ func (b *HL7_BASE) BuildRXE(p Props) *HL7_BASE {
 
 // BuildRXG builds an RXG (Pharmacy/Treatment Give) segment (the
 // HL7_2_2._buildRXG). Chainable.
-func (b *HL7_BASE) BuildRXG(p Props) *HL7_BASE {
+func (b *Builder) BuildRXG(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.2")
 	s := spec("RXG")
@@ -242,7 +242,7 @@ func (b *HL7_BASE) BuildRXG(p Props) *HL7_BASE {
 
 // BuildRXO builds an RXO (Pharmacy/Treatment Order) segment (the
 // HL7_2_2._buildRXO). Chainable.
-func (b *HL7_BASE) BuildRXO(p Props) *HL7_BASE {
+func (b *Builder) BuildRXO(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.2")
 	s := spec("RXO")
@@ -270,7 +270,7 @@ func (b *HL7_BASE) BuildRXO(p Props) *HL7_BASE {
 
 // BuildRXR builds an RXR (Pharmacy/Treatment Route) segment (the
 // HL7_2_2._buildRXR). Chainable.
-func (b *HL7_BASE) BuildRXR(p Props) *HL7_BASE {
+func (b *Builder) BuildRXR(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.2")
 	s := spec("RXR")
@@ -285,7 +285,7 @@ func (b *HL7_BASE) BuildRXR(p Props) *HL7_BASE {
 
 // BuildSTF builds an STF (Staff Identification) segment (the
 // HL7_2_2._buildSTF). Chainable.
-func (b *HL7_BASE) BuildSTF(p Props) *HL7_BASE {
+func (b *Builder) BuildSTF(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.2")
 	s := spec("STF")
@@ -310,7 +310,7 @@ func (b *HL7_BASE) BuildSTF(p Props) *HL7_BASE {
 
 // BuildUB2 builds a UB2 (UB92 Data) segment (the HL7_2_2._buildUB2).
 // Chainable.
-func (b *HL7_BASE) BuildUB2(p Props) *HL7_BASE {
+func (b *Builder) BuildUB2(p Props) *Builder {
 	b.headerExists()
 	b.notImplementedBefore("2.2")
 	s := spec("UB2")

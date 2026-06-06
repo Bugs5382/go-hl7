@@ -35,13 +35,13 @@ import (
 // testBuilder mirrors the usage-codes test's TestBuilder: a v2.6 builder with a
 // no-op "error" listener and a helper that lazily creates the synthetic segment
 // before invoking the spec-driven validator.
-func newTestBuilder() *HL7_BASE {
+func newTestBuilder() *Builder {
 	b := newVersion("2.6", nil)
 	b.On("error", func(string) {})
 	return b
 }
 
-func (b *HL7_BASE) callSetField(spec metadata.SegmentSpec, num int, value any) []string {
+func (b *Builder) callSetField(spec metadata.SegmentSpec, num int, value any) []string {
 	if b.segment == nil || b.segment.Name() != spec.Name {
 		b.segment = mustAddSegment(b.message, spec.Name)
 	}

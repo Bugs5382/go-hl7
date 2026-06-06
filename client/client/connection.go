@@ -34,8 +34,8 @@ import (
 	"time"
 
 	"github.com/Bugs5382/go-hl7/client/builder"
-	"github.com/Bugs5382/go-hl7/client/declaration"
 	"github.com/Bugs5382/go-hl7/client/helpers"
+	"github.com/Bugs5382/go-hl7/client/internal/declaration"
 	"github.com/Bugs5382/go-hl7/client/modules"
 	"github.com/Bugs5382/go-hl7/client/utils"
 )
@@ -51,11 +51,11 @@ type connectionStats struct {
 // auto-reconnects with exponential backoff, serializes sends on the ACK when
 // waitAck is set, and queues messages while disconnected. It mirrors the reference's
 // Connection (an EventEmitter) over the same event names via the embedded
-// eventEmitter: connect, close, connection, open, connecting, client.sent,
+// EventEmitter: connect, close, connection, open, connecting, client.sent,
 // client.acknowledged, client.error, client.timeout, client.pending,
 // client.limitExceeded, data.raw, data.error.
 type Connection struct {
-	eventEmitter
+	EventEmitter
 
 	handler OutboundHandler
 	main    *Client

@@ -30,7 +30,7 @@ import "github.com/Bugs5382/go-hl7/client/hl7/tables"
 // value set for that version. HL7 table values differ by version, so lookup is
 // version-aware; this is the Go bridge to the generated tables registry.
 func codeTable(version, id string) []string {
-	if v, ok := tables.TABLES[version]; ok {
+	if v, ok := tables.Tables[version]; ok {
 		return v[id]
 	}
 	return nil
@@ -39,6 +39,6 @@ func codeTable(version, id string) []string {
 // codeTable returns the value table for an id resolved against the builder's
 // active HL7 version. Builders use this so a single shared segment builder stays
 // version-correct.
-func (b *HL7_BASE) codeTable(id string) []string {
+func (b *Builder) codeTable(id string) []string {
 	return codeTable(b.version, id)
 }

@@ -5,7 +5,7 @@
 ## 🧾 Table of Contents
 
 1. [The big picture](#-the-big-picture)
-2. [Pick a version (`NewHL7_2_x`)](#-pick-a-version-newhl7_2_x)
+2. [Pick a version (`New`)](#-pick-a-version-new)
 3. [Build the MSH (always first)](#-build-the-msh-always-first)
 4. [Build the rest of your segments](#-build-the-rest-of-your-segments)
 5. [Per-version field availability (usage codes)](#-per-version-field-availability-usage-codes)
@@ -26,13 +26,13 @@
 
 ```mermaid
 flowchart LR
-    A[hl7.NewHL7_2_x] -- BuildMSH<br/>required first --> B[builder]
+    A["hl7.New(version)"] -- BuildMSH<br/>required first --> B[builder]
     B --> C[BuildEVN, BuildPID, BuildOBR, BuildOBX, …]
     C --> D[builder.ToMessage]
     D --> E["📨 Message — send / mutate / serialize"]
 ```
 
-- **`hl7.NewHL7_2_x`** — the version-specific builder constructor (`NewHL7_2_3`, `NewHL7_2_5`, `NewHL7_2_7`, `NewHL7_2_8`). Every version returns a `*hl7.HL7_BASE` configured for that spec, exposing the segments that exist in that version.
+- **`hl7.New(version)`** — the builder constructor; pass a `Version` constant (`hl7.V2_3`, `hl7.V2_5`, `hl7.V2_7`, `hl7.V2_8`, …). It returns a `*hl7.Builder` configured for that spec, exposing the segments that exist in that version.
 - **`BuildMSH(props)`** — must be called first. Anything else panics with `HL7FatalError("MSH Header must be built first.")`.
 - **`Build<SEG>(props)`** — every other segment has a typed builder, and each returns the builder for chaining.
 - **`ToMessage()`** — returns a real `*builder.Message` you can keep editing or send straight to `conn.SendMessage(...)`.
@@ -44,12 +44,12 @@ flowchart LR
 
 ---
 
-## 🎯 Pick a version (`NewHL7_2_x`)
+## 🎯 Pick a version (`New`)
 
 ```go
 import "github.com/Bugs5382/go-hl7/client/hl7"
 
-builder := hl7.NewHL7_2_5(hl7.Options{
+builder := hl7.New(hl7.V2_5, hl7.Options{
     // Date format used when a time.Time is passed to a Build* method.
     // "8" → YYYYMMDD, "12" → YYYYMMDDHHMM, "14" → YYYYMMDDHHMMSS (default).
     Date: "14",
@@ -60,16 +60,16 @@ builder := hl7.NewHL7_2_5(hl7.Options{
 })
 ```
 
-The constructors are `NewHL7_2_1`, `NewHL7_2_2`, `NewHL7_2_3`, `NewHL7_2_3_1`, `NewHL7_2_4`, `NewHL7_2_5`, `NewHL7_2_5_1`, `NewHL7_2_6`, `NewHL7_2_7`, `NewHL7_2_7_1`, and `NewHL7_2_8`. There is **no implicit default** — you select the spec version by which constructor you call, and that version drives every field‑usage check. `Options` is optional (`hl7.NewHL7_2_5()` is valid).
+`New` takes a `Version` constant: `V2_1`, `V2_2`, `V2_3`, `V2_3_1`, `V2_4`, `V2_5`, `V2_5_1`, `V2_6`, `V2_7`, `V2_7_1`, or `V2_8`. There is **no implicit default** — you select the spec version by the constant you pass, and that version drives every field‑usage check. `Options` is optional (`hl7.New(hl7.V2_5)` is valid).
 
-| Version | Constructor | Notable additions |
+| Version | Selector | Notable additions |
 |---|---|---|
-| 2.1 | `NewHL7_2_1` | The minimal baseline. Composite `MSH.9.3` is **not** allowed. |
-| 2.2 | `NewHL7_2_2` | Adds AL1 (allergy) and other segments. |
-| 2.3 | `NewHL7_2_3` | Adds DG1, IN2, GT1 enhancements, ROL, etc. |
-| 2.3.1 / 2.4 | `NewHL7_2_3_1`, `NewHL7_2_4` | `MSH.9.3` becomes optional / composite‑allowed. |
-| 2.5 → 2.7.1 | `NewHL7_2_5`, `NewHL7_2_5_1`, `NewHL7_2_6`, `NewHL7_2_7`, `NewHL7_2_7_1` | Adds SFT, SPM, and many other segments. |
-| 2.8 | `NewHL7_2_8` | Latest supported. Inherits the full 2.7.1 surface. |
+| 2.1 | `New(V2_1)` | The minimal baseline. Composite `MSH.9.3` is **not** allowed. |
+| 2.2 | `New(V2_2)` | Adds AL1 (allergy) and other segments. |
+| 2.3 | `New(V2_3)` | Adds DG1, IN2, GT1 enhancements, ROL, etc. |
+| 2.3.1 / 2.4 | `New(V2_3_1)`, `New(V2_4)` | `MSH.9.3` becomes optional / composite‑allowed. |
+| 2.5 → 2.7.1 | `New(V2_5)`, `New(V2_5_1)`, `New(V2_6)`, `New(V2_7)`, `New(V2_7_1)` | Adds SFT, SPM, and many other segments. |
+| 2.8 | `New(V2_8)` | Latest supported. Inherits the full 2.7.1 surface. |
 
 ---
 
@@ -187,7 +187,7 @@ The canonical example — `ECD.4 Requested Completion Time`:
 | 2.7 / 2.7.1 / 2.8 | W | `HL7ValidationError("Field ECD.4 is withdrawn in HL7 v2.7…")`. |
 
 ```go
-b := hl7.NewHL7_2_8()
+b := hl7.New(hl7.V2_8)
 b.On("warning", func(m string) { fmt.Println("⚠️", m) })
 
 b.BuildMSH(hl7.Props{"msh_9": "ADT^A01", "msh_10": "X", "msh_11": "P"})
@@ -199,17 +199,17 @@ b.BuildECD(hl7.Props{"ecd_1": "1", "ecd_2": "RC^Pause^HL70368", "ecd_3": "Y"})
 b.BuildECD(hl7.Props{"ecd_1": "2", "ecd_2": "RC^Resume^HL70368", "ecd_4": "20240101"})
 
 // 💥 panics — ECD didn't exist before v2.4.
-hl7.NewHL7_2_3_1().BuildECD(hl7.Props{"ecd_1": "1"}) // "Segment ECD is not part of HL7 v2.3.1"
+hl7.New(hl7.V2_3_1).BuildECD(hl7.Props{"ecd_1": "1"}) // "Segment ECD is not part of HL7 v2.3.1"
 ```
 
 ### Inspecting the spec at runtime
 
-The full catalogue is exported as `metadata.SEGMENT_SPECS` so you can introspect, pretty-print, or build your own UI/codegen on top of it:
+The full catalogue is exported as `metadata.SegmentSpecs` so you can introspect, pretty-print, or build your own UI/codegen on top of it:
 
 ```go
 import "github.com/Bugs5382/go-hl7/client/hl7/metadata"
 
-ecd := metadata.SEGMENT_SPECS["ECD"]
+ecd := metadata.SegmentSpecs["ECD"]
 fmt.Println(ecd.Versions)
 // → [2.4 2.5 2.5.1 2.6 2.7 2.7.1 2.8]
 
@@ -226,7 +226,7 @@ For composite HL7 data types (`XAD`, `XPN`, `CE`, `CWE`, `CX`, `EI`, `HD`, …),
 
 ```go
 var pid11 metadata.FieldSpec
-for _, f := range metadata.SEGMENT_SPECS["PID"].Fields {
+for _, f := range metadata.SegmentSpecs["PID"].Fields {
     if f.Num == 11 {
         pid11 = f
         break
@@ -252,7 +252,7 @@ Primitive types (`ST`, `NM`, `ID`, `DTM`, `SI`, …) have no `Components`.
 A composite field may also be given as a `map[string]any` of its components. The composer joins them with `^`, trims trailing empties, and validates each component against its spec (R required, W/X rejected, max-length checked):
 
 ```go
-b := hl7.NewHL7_2_8()
+b := hl7.New(hl7.V2_8)
 b.BuildMSH(hl7.Props{"msh_9": "ADT^A01", "msh_10": "X", "msh_11": "P"})
 
 // Style A — typed object (composer handles the `^` joining + validation)
@@ -297,11 +297,11 @@ b.BuildPID(hl7.Props{
 })
 ```
 
-The full component layout for any composite type is exposed at runtime via `metadata.DATA_TYPES`:
+The full component layout for any composite type is exposed at runtime via `metadata.DataTypes`:
 
 ```go
-metadata.DATA_TYPES["XAD"] // → []metadata.ComponentSpec for XAD
-metadata.DATA_TYPES["CWE"] // → []metadata.ComponentSpec for CWE
+metadata.DataTypes["XAD"] // → []metadata.ComponentSpec for XAD
+metadata.DataTypes["CWE"] // → []metadata.ComponentSpec for CWE
 ```
 
 > 🛠️ The metadata is generated from Caristix and committed to the repo. End users make zero network calls — the data ships pre-baked.
@@ -314,7 +314,7 @@ Every `Build*` method returns the builder itself, so you can chain or stay imper
 
 ```go
 // Chained — concise, reads top-to-bottom.
-wire := hl7.NewHL7_2_8().
+wire := hl7.New(hl7.V2_8).
     BuildMSH(hl7.Props{"msh_9": "ADT^A01", "msh_10": "MSG1", "msh_11": "P"}).
     BuildEVN(hl7.Props{"evn_1": "A01"}).
     BuildPID(hl7.Props{"pid_3": "MRN1", "pid_5": "DOE^JANE"}).
@@ -323,7 +323,7 @@ wire := hl7.NewHL7_2_8().
     String()
 
 // Imperative — easier to interleave with branching/conditionals.
-b := hl7.NewHL7_2_8()
+b := hl7.New(hl7.V2_8)
 b.BuildMSH(hl7.Props{"msh_9": "ADT^A01", "msh_10": "MSG1", "msh_11": "P"})
 if event != "" {
     b.BuildEVN(hl7.Props{"evn_1": event})
@@ -332,7 +332,7 @@ b.BuildPID(hl7.Props{"pid_3": mrn, "pid_5": name})
 wire2 := b.String()
 ```
 
-Chaining always returns `*hl7.HL7_BASE`, so version-introduced segments (e.g. `BuildECD` on `NewHL7_2_4` and later) remain callable mid-chain.
+Chaining always returns `*hl7.Builder`, so version-introduced segments (e.g. `BuildECD` on `New(V2_4)` and later) remain callable mid-chain.
 
 ---
 
@@ -341,7 +341,7 @@ Chaining always returns `*hl7.HL7_BASE`, so version-introduced segments (e.g. `B
 The hand‑tuned `Build<NAME>` typed methods cover the segments with a dedicated interface. For the long tail (~187 segments total in the spec, including obscure ones like `ABS`, `ADJ`, `AFF`, `BPO`, `MFA`, `MFR`, `OBP`, `PEX`, `PSL`, `RXC`, `SAC`, `SLR`, `SUR`, `UAC`, …), use `BuildSegment(name, props)` — a universal chainable builder driven by the same `SegmentSpec` metadata, with full R/O/B/W/D/X enforcement.
 
 ```go
-b := hl7.NewHL7_2_8().
+b := hl7.New(hl7.V2_8).
     BuildMSH(hl7.Props{"msh_9": "ADT^A01", "msh_10": "X", "msh_11": "P"}).
     // Use the typed method when you have one.
     BuildPID(hl7.Props{"pid_3": "MRN1", "pid_5": "DOE^JANE"}).
@@ -436,7 +436,7 @@ Pass a `time.Time` (or omit and let the builder pick "now"). The builder formats
 | `"14"` (default) | `YYYYMMDDHHMMSS` | `20240101093015` |
 
 ```go
-builder := hl7.NewHL7_2_5(hl7.Options{Date: "8"})
+builder := hl7.New(hl7.V2_5, hl7.Options{Date: "8"})
 builder.BuildEVN(hl7.Props{"evn_1": "A01", "evn_2": time.Now()})
 // EVN|A01|20240101
 ```
@@ -458,7 +458,7 @@ Defaults — the HL7 standard:
 Override on the builder options (they're embedded in `MSH.1`/`MSH.2` and **cannot** be changed via `Set()`):
 
 ```go
-builder := hl7.NewHL7_2_5(hl7.Options{
+builder := hl7.New(hl7.V2_5, hl7.Options{
     SeparatorField:        "!",
     SeparatorComponent:    "+",
     SeparatorSubComponent: "]",
@@ -569,7 +569,7 @@ import (
 )
 
 func createADT_A01(mrn, name, ctrlID string) *builder.Message {
-    return hl7.NewHL7_2_5().
+    return hl7.New(hl7.V2_5).
         BuildMSH(hl7.Props{
             "msh_3":  "MY_APP",
             "msh_4":  "MY_FAC",
@@ -616,7 +616,7 @@ func tryBuild() (err error) {
             }
         }
     }()
-    hl7.NewHL7_2_5().
+    hl7.New(hl7.V2_5).
         BuildMSH(hl7.Props{"msh_9": "ADT^A01", "msh_10": "X", "msh_11": "P"}).
         BuildPID(hl7.Props{"pid_8": "Q"}) // not in TABLE_0001
     return nil

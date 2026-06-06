@@ -33,7 +33,7 @@ import (
 // spec returns a registered SegmentSpec by name, panicking when absent (the
 // per-version builders reference compile-time-known specs).
 func spec(name string) metadata.SegmentSpec {
-	s, ok := metadata.SEGMENT_SPECS[name]
+	s, ok := metadata.SegmentSpecs[name]
 	if !ok {
 		panic(helpers.NewHL7ValidationError("Unknown HL7 segment " + name))
 	}
@@ -42,30 +42,30 @@ func spec(name string) metadata.SegmentSpec {
 
 // notImplementedBefore panics with HL7FatalError("Not Implemented") when the
 // current version predates the version that introduced a typed builder. It
-// mirrors the HL7_BASE._buildXXX stubs: a segment-builder method is only
+// mirrors the Builder._buildXXX stubs: a segment-builder method is only
 // defined from the version that introduced the segment onward, so on an earlier
 // version the call falls through to the base stub that throws.
-func (b *HL7_BASE) notImplementedBefore(introduced string) {
+func (b *Builder) notImplementedBefore(introduced string) {
 	if compareVersions(b.version, introduced) < 0 {
 		panic(helpers.NewHL7FatalError("Not Implemented"))
 	}
 }
 
 // setField is shorthand for validatorSetField with an optional override rule.
-func (b *HL7_BASE) setField(s metadata.SegmentSpec, num int, value any, rule *ValidationRule) {
+func (b *Builder) setField(s metadata.SegmentSpec, num int, value any, rule *ValidationRule) {
 	b.validatorSetField(s, num, value, rule)
 }
 
 // BuildSegment builds any segment by name from its generated spec (the
 // buildSegment). Chainable.
-func (b *HL7_BASE) BuildSegment(name string, properties Props) *HL7_BASE {
+func (b *Builder) BuildSegment(name string, properties Props) *Builder {
 	b.buildSegmentGeneric(name, properties)
 	return b
 }
 
 // BuildADD builds an ADD (Addendum) segment (the buildADD). It must not
 // follow MSH/BHS/FHS. Chainable.
-func (b *HL7_BASE) BuildADD(properties Props) *HL7_BASE {
+func (b *Builder) BuildADD(properties Props) *Builder {
 	b.headerExists()
 	last := b.message.GetLastSegment()
 	if last != nil && (last.Name() == "BHS" || last.Name() == "FHS" || last.Name() == "MSH") {
@@ -82,7 +82,7 @@ func (b *HL7_BASE) BuildADD(properties Props) *HL7_BASE {
 
 // BuildNCK builds an NCK (System Clock) segment with the version-appropriate
 // timestamp (the buildNCK + _buildNCK). Chainable.
-func (b *HL7_BASE) BuildNCK() *HL7_BASE {
+func (b *Builder) BuildNCK() *Builder {
 	b.headerExists()
 	if b.message.TotalSegment("NCK") > 0 {
 		panic(helpers.NewHL7FatalError("You can only have one NCK segment per HL7 Message."))
@@ -111,7 +111,7 @@ func (b *HL7_BASE) BuildNCK() *HL7_BASE {
 }
 
 // BuildNST builds an NST (Statistics) segment (the _buildNST). Chainable.
-func (b *HL7_BASE) BuildNST(properties Props) *HL7_BASE {
+func (b *Builder) BuildNST(properties Props) *Builder {
 	b.headerExists()
 	b.startSegment("NST")
 	b.validatorSetValue("1", pick(properties, "nst_1"), &ValidationRule{Required: true})
@@ -122,7 +122,7 @@ func (b *HL7_BASE) BuildNST(properties Props) *HL7_BASE {
 }
 
 // BuildDSP builds a DSP (Display Data) segment (the _buildDSP). Chainable.
-func (b *HL7_BASE) BuildDSP(properties Props) *HL7_BASE {
+func (b *Builder) BuildDSP(properties Props) *Builder {
 	b.headerExists()
 	b.startSegment("DSP")
 
@@ -152,10 +152,10 @@ func (b *HL7_BASE) BuildDSP(properties Props) *HL7_BASE {
 // inherited through 2.8). ECD did not exist before v2.4; the version assertion
 // and per-version usage codes (ECD.4: O in 2.4-2.5.1, B in 2.6-2.7.1, W in 2.8
 // and withdrawn already in 2.7) are enforced by the validator. Chainable.
-func (b *HL7_BASE) BuildECD(properties Props) *HL7_BASE {
+func (b *Builder) BuildECD(properties Props) *Builder {
 	b.headerExists()
 	// the spec exposes buildECD only from HL7_2_4 onward; earlier versions fall
-	// through to the HL7_BASE._buildECD stub that throws "Not Implemented".
+	// through to the Builder._buildECD stub that throws "Not Implemented".
 	b.notImplementedBefore("2.4")
 	s := spec("ECD")
 	b.assertSegmentInVersion(s)

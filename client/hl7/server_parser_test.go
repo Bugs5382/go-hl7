@@ -38,7 +38,7 @@ import (
 // an HL7_2_1 ACK that swaps the inbound MSH routing fields and echoes MSH.10.
 func createAckMessage(t *testing.T, ackType string, message *builder.Message) *builder.Message {
 	t.Helper()
-	messageBuild := hl7.NewHL7_2_1()
+	messageBuild := hl7.New(hl7.V2_1)
 	messageBuild.BuildMSH(hl7.Props{
 		"msh_10": "12345",
 		"msh_11": "T",

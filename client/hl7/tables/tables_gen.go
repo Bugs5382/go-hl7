@@ -25,12 +25,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-// TABLES is the generated registry of HL7 value tables, keyed by HL7
+// Tables is the generated registry of HL7 value tables, keyed by HL7
 // version ("2.8") then numeric table id ("0001") to the ordered code list.
 // HL7 table values differ by version, so enforcement stays version-aware.
 // Only tables that carry a fixed value set are present; FieldSpec.Table and
 // ComponentSpec.Table reference an entry here for hard-error enum validation.
-var TABLES = map[string]map[string][]string{
+var Tables = map[string]map[string][]string{
 	"2.1": {
 		"0001":            {"F", "M", "O", "U"},
 		"0002":            {"A", "D", "M", "S", "W"},

@@ -36,18 +36,18 @@ import (
 // validation error. This goes beyond the original hand-wired tables: the full
 // HL7-defined set generated from Caristix is enforced.
 
-func tblMSH(b *hl7.HL7_BASE, props hl7.Props) *hl7.HL7_BASE {
+func tblMSH(b *hl7.Builder, props hl7.Props) *hl7.Builder {
 	b.On("error", func(string) {})
 	b.BuildMSH(props)
 	return b
 }
 
-func v21WithMSH() *hl7.HL7_BASE {
-	return tblMSH(hl7.NewHL7_2_1(), hl7.Props{"msh_10": "X", "msh_11": "P", "msh_7": time.Now(), "msh_9": "ACK"})
+func v21WithMSH() *hl7.Builder {
+	return tblMSH(hl7.New(hl7.V2_1), hl7.Props{"msh_10": "X", "msh_11": "P", "msh_7": time.Now(), "msh_9": "ACK"})
 }
 
-func v28WithMSH() *hl7.HL7_BASE {
-	return tblMSH(hl7.NewHL7_2_8(), hl7.Props{"msh_10": "X", "msh_11_1": "P", "msh_7": time.Now(), "msh_9_1": "ADT", "msh_9_2": "A01"})
+func v28WithMSH() *hl7.Builder {
+	return tblMSH(hl7.New(hl7.V2_8), hl7.Props{"msh_10": "X", "msh_11_1": "P", "msh_7": time.Now(), "msh_9_1": "ADT", "msh_9_2": "A01"})
 }
 
 func TestTableEnforcementVersionAware(t *testing.T) {

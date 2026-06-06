@@ -45,7 +45,7 @@ func specHeader() hl7.Props {
 
 func TestBuildSegmentGeneric(t *testing.T) {
 	t.Run("v2.4 builds ECD with required fields", func(t *testing.T) {
-		b := hl7.NewHL7_2_4()
+		b := hl7.New(hl7.V2_4)
 		b.On("error", func(string) {})
 		b.BuildMSH(specHeader())
 		b.BuildSegment("ECD", hl7.Props{"ecd_1": "1", "ecd_2": "RC"})
@@ -53,7 +53,7 @@ func TestBuildSegmentGeneric(t *testing.T) {
 	})
 
 	t.Run("v2.4 to v2.8 chained build with multiple segments", func(t *testing.T) {
-		b := hl7.NewHL7_2_8()
+		b := hl7.New(hl7.V2_8)
 		b.On("error", func(string) {})
 		out := b.BuildMSH(specHeader()).BuildSegment("ECD", hl7.Props{"ecd_1": "1", "ecd_2": "RC"}).String()
 		contains(t, out, "MSH|")
@@ -61,7 +61,7 @@ func TestBuildSegmentGeneric(t *testing.T) {
 	})
 
 	t.Run("v2.8 rejects ECD.4 (W) via buildSegment", func(t *testing.T) {
-		b := hl7.NewHL7_2_8()
+		b := hl7.New(hl7.V2_8)
 		b.On("error", func(string) {})
 		b.BuildMSH(specHeader())
 		expectThrows(t, "", func() {
@@ -70,7 +70,7 @@ func TestBuildSegmentGeneric(t *testing.T) {
 	})
 
 	t.Run("v2.3.1 rejects ECD entirely (segment not in version)", func(t *testing.T) {
-		b := hl7.NewHL7_2_3_1()
+		b := hl7.New(hl7.V2_3_1)
 		b.On("error", func(string) {})
 		b.BuildMSH(specHeader())
 		expectThrows(t, "not part of HL7 v2.3.1", func() {
@@ -79,7 +79,7 @@ func TestBuildSegmentGeneric(t *testing.T) {
 	})
 
 	t.Run("v2.1 rejects ECD entirely (introduced in v2.4)", func(t *testing.T) {
-		b := hl7.NewHL7_2_1()
+		b := hl7.New(hl7.V2_1)
 		b.On("error", func(string) {})
 		b.BuildMSH(hl7.Props{
 			"msh_10": "X", "msh_11": "T", "msh_3": "APP", "msh_5": "RECV_APP",
@@ -91,21 +91,21 @@ func TestBuildSegmentGeneric(t *testing.T) {
 	})
 
 	t.Run("buildSegment refuses unknown segment names", func(t *testing.T) {
-		b := hl7.NewHL7_2_8()
+		b := hl7.New(hl7.V2_8)
 		b.On("error", func(string) {})
 		b.BuildMSH(specHeader())
 		expectThrows(t, "Unknown HL7 segment", func() { b.BuildSegment("XYZ", hl7.Props{}) })
 	})
 
 	t.Run("buildSegment refuses MSH", func(t *testing.T) {
-		b := hl7.NewHL7_2_8()
+		b := hl7.New(hl7.V2_8)
 		b.On("error", func(string) {})
 		b.BuildMSH(specHeader())
 		expectThrows(t, "Use buildMSH", func() { b.BuildSegment("MSH", hl7.Props{}) })
 	})
 
 	t.Run("buildSegment is chainable (returns this)", func(t *testing.T) {
-		b := hl7.NewHL7_2_4()
+		b := hl7.New(hl7.V2_4)
 		b.On("error", func(string) {})
 		b.BuildMSH(specHeader())
 		rv := b.BuildSegment("ECD", hl7.Props{"ecd_1": "1", "ecd_2": "RC"})
@@ -115,7 +115,7 @@ func TestBuildSegmentGeneric(t *testing.T) {
 	})
 
 	t.Run("v2.6 emits B warning for ECD.4", func(t *testing.T) {
-		b := hl7.NewHL7_2_6()
+		b := hl7.New(hl7.V2_6)
 		var warned string
 		b.On("warning", func(m string) { warned += m })
 		b.On("error", func(string) {})
@@ -127,7 +127,7 @@ func TestBuildSegmentGeneric(t *testing.T) {
 	})
 
 	t.Run("v2.7 rejects ECD.4 (W) — withdrawn earlier than v2.8", func(t *testing.T) {
-		b := hl7.NewHL7_2_7()
+		b := hl7.New(hl7.V2_7)
 		b.On("error", func(string) {})
 		b.BuildMSH(specHeader())
 		expectThrows(t, "withdrawn in HL7 v2.7", func() {
@@ -136,7 +136,7 @@ func TestBuildSegmentGeneric(t *testing.T) {
 	})
 
 	t.Run("buildSegment accepts numeric-string keys", func(t *testing.T) {
-		b := hl7.NewHL7_2_4()
+		b := hl7.New(hl7.V2_4)
 		b.On("error", func(string) {})
 		b.BuildMSH(specHeader())
 		b.BuildSegment("ECD", hl7.Props{"1": "1", "2": "RC"})

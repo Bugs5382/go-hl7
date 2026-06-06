@@ -56,9 +56,9 @@ type ResponseSender interface {
 // SendResponse builds and sends an ACK back to the client. It folds the
 // BaseSendResponse and SendResponse into one type: the base codec/socket/ack
 // accessors plus sendResponse/sendCustomResponse and the ACK builder. It is an
-// EventEmitter (response.sent) via the embedded eventEmitter.
+// EventEmitter (response.sent) via the embedded EventEmitter.
 type SendResponse struct {
-	eventEmitter
+	EventEmitter
 	ack          *builder.Message
 	codec        *modules.MLLPCodec
 	message      *builder.Message

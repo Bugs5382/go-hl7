@@ -51,9 +51,9 @@ var StringOverride = utils.StringOverride
 var FuncOverride = utils.FuncOverride
 
 // Server starts listeners on network addresses. It mirrors the reference's
-// Server (an EventEmitter) via the embedded eventEmitter.
+// Server (an EventEmitter) via the embedded EventEmitter.
 type Server struct {
-	eventEmitter
+	EventEmitter
 	opt utils.NormalizedServerOptions
 }
 

@@ -28,7 +28,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Bugs5382/go-hl7/client/declaration"
+	"github.com/Bugs5382/go-hl7/client/internal/declaration"
 )
 
 // valueNode carries a keyed leaf value (the ValueNode). It overrides the
