@@ -56,6 +56,7 @@ flowchart LR
 | 🧱 **[Builder](builder/index.md)** | Construct standardized HL7 messages with the class‑based `hl7.HL7_2_x` builders — versions, MSH-first ordering, usage codes, composites, batches, and validation. |
 | 🧬 **[Segments](segments/index.md)** | The full compatibility matrix of every supported segment across HL7 v2.1 → v2.8, plus a per‑segment cheat‑sheet and Caristix links. |
 | 🔌 **[Client](client/index.md)** | Connect to a remote HL7 server (with a **required**, single‑set HL7 version), send messages, handle ACKs, configure TLS/mTLS, and offload the queue (Redis, RabbitMQ). |
+| 🗄️ **[Durable Queue](durable-queue/index.md)** | Back the pluggable outbound queue with a database so queued messages survive a restart — PostgreSQL worked example, with MongoDB and MySQL on the same hooks. |
 | 🔍 **[Parser](parser/index.md)** | Turn raw HL7 strings (single message, batch, or file) back into `builder.Message` objects. |
 | 🏥 **Server docs** | If you also need to **receive** HL7, jump to the [server pages](../server/index.md). |
 
