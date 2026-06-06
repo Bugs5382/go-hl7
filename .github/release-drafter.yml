@@ -18,8 +18,11 @@
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-name-template: 'v$RESOLVED_VERSION'
-tag-template: 'v$RESOLVED_VERSION'
+# Pinned to v1.0.0 for the first release: release-drafter's resolver does not honor a major
+# (breaking) label on a repo with no prior tag (release-drafter/release-drafter#1630), so the
+# version is fixed here until v1.0.0 ships. After the first release, restore 'v$RESOLVED_VERSION'.
+name-template: 'v1.0.0'
+tag-template: 'v1.0.0'
 template: |
   # What Changed 👀
 
@@ -27,58 +30,49 @@ template: |
 
   # Extra
 
-  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
-# v7 config: version resolution is carried by each category's semver-increment
-# (and standalone type: version-resolver entries); the highest matching increment wins.
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v1.0.0
 categories:
   - title: 💥 Breaking Changes
-    semver-increment: major
-    when:
-      label: breaking
+    labels:
+      - breaking
   - title: 🚀 Features
-    semver-increment: minor
-    when:
-      label: enhancement
+    labels:
+      - enhancement
   - title: 🐛 Bug Fixes
-    semver-increment: patch
-    when:
-      label: bug
+    labels:
+      - bug
   - title: ⚠️ Changes
-    semver-increment: patch
-    when:
-      label: changed
+    labels:
+      - changed
   - title: ⛔️ Deprecated
-    semver-increment: patch
-    when:
-      label: deprecated
+    labels:
+      - deprecated
   - title: 🗑 Removed
-    semver-increment: patch
-    when:
-      label: removed
+    labels:
+      - removed
   - title: 🔐 Security
-    semver-increment: patch
-    when:
-      label: security
+    labels:
+      - security
   - title: 📄 Documentation
-    semver-increment: patch
-    when:
-      label: documentation
+    labels:
+      - documentation
   - title: 🧩 Dependency Updates
-    semver-increment: patch
-    when:
-      label: dependencies
+    labels:
+      - dependencies
     collapse-after: 5
-  - title: Other Changes
-  - type: version-resolver
-    semver-increment: patch
-    when:
-      label: fix
-  - type: version-resolver
-    semver-increment: patch
-    when:
-      label: refactor
-  - type: pre-exclude
-    when:
-      label: skip-changelog
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 change-title-escapes: '\<*_&'
+version-resolver:
+  major:
+    labels:
+      - 'breaking'
+  minor:
+    labels:
+      - 'enhancement'
+  patch:
+    labels:
+      - 'fix'
+      - 'refactor'
+  default: patch
+exclude-labels:
+  - skip-changelog
