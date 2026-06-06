@@ -1,0 +1,17 @@
+# local-only, never committed
+plan/
+.claude/
+
+# Go
+/bin/
+*.test
+*.out
+coverage.out
+
+# node tooling (husky/commitlint)
+node_modules/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
