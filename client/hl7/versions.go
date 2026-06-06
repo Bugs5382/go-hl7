@@ -23,6 +23,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+import (
+	"fmt"
+
+	"github.com/Bugs5382/go-hl7/client/helpers"
+)
+
 // The builder spans the 2.1 -> 2.8 spec range. Most field-level differences are
 // driven by the per-version usage catalog the validator already consults
 // (validatorSetField reads b.version), so the shared segment builders live on
@@ -68,6 +74,14 @@ func optsOf(opts []Options) Options {
 	return Options{}
 }
 
+// knownVersions is the set of spec versions New accepts. An unknown version is
+// recorded onto the builder so it surfaces at ToMessage/Err rather than building
+// against a spec that does not exist.
+var knownVersions = map[Version]bool{
+	V2_1: true, V2_2: true, V2_3: true, V2_3_1: true, V2_4: true,
+	V2_5: true, V2_5_1: true, V2_6: true, V2_7: true, V2_7_1: true, V2_8: true,
+}
+
 func newVersion(version string, opts []Options) *Builder {
 	b := &Builder{}
 	b.initBase(opts)
@@ -77,5 +91,14 @@ func newVersion(version string, opts []Options) *Builder {
 }
 
 // New constructs a Builder for the given HL7 spec version, e.g.
-// hl7.New(hl7.V2_5). ECD is introduced at V2_4.
-func New(v Version, opts ...Options) *Builder { return newVersion(string(v), opts) }
+// hl7.New(hl7.V2_5). ECD is introduced at V2_4. An unrecognized version does not
+// fail New itself; the builder records an HL7ValidationError that the first
+// Build* call short-circuits on and ToMessage/Err returns.
+func New(v Version, opts ...Options) *Builder {
+	b := newVersion(string(v), opts)
+	if !knownVersions[v] {
+		b.fail(helpers.NewHL7ValidationError(
+			fmt.Sprintf("Unknown HL7 version %q — use one of the hl7.V2_x constants", string(v))))
+	}
+	return b
+}

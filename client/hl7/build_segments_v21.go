@@ -41,10 +41,13 @@ func (b *Builder) dv8(v any, fallback any) any { return b.dateField(v, "8", fall
 
 // BuildACC builds an ACC (Accident) segment (the _buildACC). Chainable.
 func (b *Builder) BuildACC(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("ACC")
+	s := b.spec("ACC")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "ACC")
+	b.segment = b.mustAddSegment("ACC")
 	b.setField(s, 1, b.dv(pick(p, "acc_1", "timeStamp"), ""), &ValidationRule{Length: lenMinMax(8, 19), Type: ruleDate, HasType: true})
 	b.setField(s, 2, pick(p, "acc_2", "accidentCode"), &ValidationRule{Length: lenExact(2)})
 	b.setField(s, 3, pick(p, "acc_3", "accidentLocation"), &ValidationRule{Length: lenMinMax(1, 25)})
@@ -53,10 +56,13 @@ func (b *Builder) BuildACC(p Props) *Builder {
 
 // BuildBLG builds a BLG (Billing) segment (the _buildBLG). Chainable.
 func (b *Builder) BuildBLG(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("BLG")
+	s := b.spec("BLG")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "BLG")
+	b.segment = b.mustAddSegment("BLG")
 	b.setField(s, 1, pick(p, "blg_1", "billingWhenToCharge"), &ValidationRule{AllowedValues: b.codeTable("0100"), Length: lenMinMax(1, 15)})
 	b.setField(s, 2, pick(p, "blg_2", "billingChargeType"), &ValidationRule{Length: lenExact(2)})
 	b.setField(s, 3, pick(p, "blg_3", "billingAccountId"), &ValidationRule{Length: lenMinMax(1, 25)})
@@ -65,10 +71,13 @@ func (b *Builder) BuildBLG(p Props) *Builder {
 
 // BuildDG1 builds a DG1 (Diagnosis) segment (the _buildDG1). Chainable.
 func (b *Builder) BuildDG1(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("DG1")
+	s := b.spec("DG1")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "DG1")
+	b.segment = b.mustAddSegment("DG1")
 	b.setField(s, 1, pick(p, "dg1_1", "diagnosisId"), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "dg1_2", "diagnosisCodingMethod"), &ValidationRule{Length: lenMinMax(1, 2)})
 	b.setField(s, 3, pick(p, "dg1_3", "diagnosisCode"), &ValidationRule{Length: lenMinMax(1, 8)})
@@ -88,30 +97,39 @@ func (b *Builder) BuildDG1(p Props) *Builder {
 
 // BuildDSC builds a DSC (Continuation Pointer) segment (the _buildDSC).
 func (b *Builder) BuildDSC(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("DSC")
+	s := b.spec("DSC")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "DSC")
+	b.segment = b.mustAddSegment("DSC")
 	b.setField(s, 1, pick(p, "dsc_1", "continuationPointer"), &ValidationRule{Length: lenMinMax(1, 60)})
 	return b
 }
 
 // BuildERR builds an ERR (Error) segment (the _buildERR). Chainable.
 func (b *Builder) BuildERR(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("ERR")
+	s := b.spec("ERR")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "ERR")
+	b.segment = b.mustAddSegment("ERR")
 	b.setField(s, 1, pick(p, "err_1", "errorIdAndLocation"), &ValidationRule{Length: lenMinMax(1, 80)})
 	return b
 }
 
 // BuildEVN builds an EVN (Event Type) segment (the _buildEVN). Chainable.
 func (b *Builder) BuildEVN(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("EVN")
+	s := b.spec("EVN")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "EVN")
+	b.segment = b.mustAddSegment("EVN")
 	b.setField(s, 1, pick(p, "evn_1"), &ValidationRule{AllowedValues: b.codeTable("0003")})
 	b.setField(s, 2, b.dv(pick(p, "evn_2"), b.SetDate(timeNow(), b.opt.Date)), dateRule())
 	b.setField(s, 3, b.dv(pick(p, "evn_3"), ""), dateRule())
@@ -121,10 +139,13 @@ func (b *Builder) BuildEVN(p Props) *Builder {
 
 // BuildFT1 builds an FT1 (Financial Transaction) segment (the _buildFT1).
 func (b *Builder) BuildFT1(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("FT1")
+	s := b.spec("FT1")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "FT1")
+	b.segment = b.mustAddSegment("FT1")
 	b.setField(s, 1, pick(p, "ft1_1"), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "ft1_2"), &ValidationRule{Length: lenMinMax(1, 12)})
 	b.setField(s, 3, pick(p, "ft1_3"), &ValidationRule{Length: lenMinMax(1, 5)})
@@ -152,10 +173,13 @@ func (b *Builder) BuildFT1(p Props) *Builder {
 
 // BuildGT1 builds a GT1 (Guarantor) segment (the _buildGT1). Chainable.
 func (b *Builder) BuildGT1(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("GT1")
+	s := b.spec("GT1")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "GT1")
+	b.segment = b.mustAddSegment("GT1")
 	b.setField(s, 1, pick(p, "gt1_1"), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "gt1_2"), &ValidationRule{Length: lenMinMax(1, 12)})
 	b.setField(s, 3, pick(p, "gt1_3"), &ValidationRule{Length: lenMinMax(1, 5)})
@@ -181,10 +205,13 @@ func (b *Builder) BuildGT1(p Props) *Builder {
 
 // BuildIN1 builds an IN1 (Insurance) segment (the _buildIN1). Chainable.
 func (b *Builder) BuildIN1(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("IN1")
+	s := b.spec("IN1")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "IN1")
+	b.segment = b.mustAddSegment("IN1")
 	for i := 1; i <= 44; i++ {
 		key := "in1_" + itoa(i)
 		switch i {
@@ -199,10 +226,13 @@ func (b *Builder) BuildIN1(p Props) *Builder {
 
 // BuildMRG builds an MRG (Merge Patient Info) segment (the _buildMRG).
 func (b *Builder) BuildMRG(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("MRG")
+	s := b.spec("MRG")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "MRG")
+	b.segment = b.mustAddSegment("MRG")
 	b.setField(s, 1, pick(p, "mrg_1"), &ValidationRule{Length: lenMinMax(1, 16)})
 	b.setField(s, 2, pick(p, "mrg_2"), &ValidationRule{Length: lenMinMax(1, 16)})
 	b.setField(s, 3, pick(p, "mrg_3"), &ValidationRule{Length: lenMinMax(1, 20)})
@@ -211,10 +241,13 @@ func (b *Builder) BuildMRG(p Props) *Builder {
 
 // BuildMSA builds an MSA (Acknowledgment) segment (the _buildMSA). Chainable.
 func (b *Builder) BuildMSA(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("MSA")
+	s := b.spec("MSA")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "MSA")
+	b.segment = b.mustAddSegment("MSA")
 	b.setField(s, 1, pick(p, "msa_1"), &ValidationRule{AllowedValues: b.codeTable("0008")})
 	for i := 2; i <= 5; i++ {
 		b.setField(s, i, pick(p, "msa_"+itoa(i)), nil)
@@ -224,10 +257,13 @@ func (b *Builder) BuildMSA(p Props) *Builder {
 
 // BuildNK1 builds an NK1 (Next of Kin) segment (the _buildNK1). Chainable.
 func (b *Builder) BuildNK1(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("NK1")
+	s := b.spec("NK1")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "NK1")
+	b.segment = b.mustAddSegment("NK1")
 	for i := 1; i <= 5; i++ {
 		b.setField(s, i, pick(p, "nk1_"+itoa(i)), nil)
 	}
@@ -255,10 +291,13 @@ func (b *Builder) BuildNK1(p Props) *Builder {
 
 // BuildNPU builds an NPU (Bed Status Update) segment (the _buildNPU).
 func (b *Builder) BuildNPU(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("NPU")
+	s := b.spec("NPU")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "NPU")
+	b.segment = b.mustAddSegment("NPU")
 	b.setField(s, 1, pick(p, "npu_1"), nil)
 	b.setField(s, 2, pick(p, "npu_2"), &ValidationRule{AllowedValues: b.codeTable("0116")})
 	return b
@@ -266,10 +305,13 @@ func (b *Builder) BuildNPU(p Props) *Builder {
 
 // BuildNSC builds an NSC (Network Change) segment (the _buildNSC). Chainable.
 func (b *Builder) BuildNSC(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("NSC")
+	s := b.spec("NSC")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "NSC")
+	b.segment = b.mustAddSegment("NSC")
 	for i := 1; i <= 9; i++ {
 		b.setField(s, i, pick(p, "nsc_"+itoa(i)), nil)
 	}
@@ -278,10 +320,13 @@ func (b *Builder) BuildNSC(p Props) *Builder {
 
 // BuildNTE builds an NTE (Notes and Comments) segment (the _buildNTE).
 func (b *Builder) BuildNTE(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("NTE")
+	s := b.spec("NTE")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "NTE")
+	b.segment = b.mustAddSegment("NTE")
 	b.setField(s, 1, pick(p, "nte_1"), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "nte_2", "sourceOfComment"), &ValidationRule{Length: lenMinMax(1, 8)})
 	b.setField(s, 3, pick(p, "nte_3", "comment"), &ValidationRule{Length: lenMinMax(1, 65536)})
@@ -290,10 +335,13 @@ func (b *Builder) BuildNTE(p Props) *Builder {
 
 // BuildOBR builds an OBR (Observation Request) segment (the _buildOBR).
 func (b *Builder) BuildOBR(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("OBR")
+	s := b.spec("OBR")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "OBR")
+	b.segment = b.mustAddSegment("OBR")
 	b.setField(s, 1, pick(p, "obr_1"), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "obr_2", "placerOrderNumber"), &ValidationRule{Length: lenMinMax(1, 75)})
 	b.setField(s, 3, pick(p, "obr_3", "fillerOrderNumber"), &ValidationRule{Length: lenMinMax(1, 75)})
@@ -356,10 +404,13 @@ func (b *Builder) BuildOBR(p Props) *Builder {
 
 // BuildOBX builds an OBX (Observation/Result) segment (the _buildOBX).
 func (b *Builder) BuildOBX(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("OBX")
+	s := b.spec("OBX")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "OBX")
+	b.segment = b.mustAddSegment("OBX")
 	b.setField(s, 1, pick(p, "obx_1"), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "obx_2", "valueType"), &ValidationRule{AllowedValues: b.codeTable("0125"), Length: lenMinMax(1, 3)})
 	b.setField(s, 3, pick(p, "obx_3", "observationIdentifier"), &ValidationRule{Length: lenMinMax(1, 80)})
@@ -388,10 +439,13 @@ func (b *Builder) BuildOBX(p Props) *Builder {
 
 // BuildORC builds an ORC (Common Order) segment (the _buildORC). Chainable.
 func (b *Builder) BuildORC(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("ORC")
+	s := b.spec("ORC")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "ORC")
+	b.segment = b.mustAddSegment("ORC")
 	b.setField(s, 1, pick(p, "orc_1", "orderControl"), &ValidationRule{AllowedValues: b.codeTable("0119"), Length: lenMinMax(1, 2)})
 	b.setField(s, 2, pick(p, "orc_2", "placerOrderNumber"), &ValidationRule{Length: lenMinMax(1, 75)})
 	b.setField(s, 3, pick(p, "orc_3", "fillerOrderNumber"), &ValidationRule{Length: lenMinMax(1, 75)})
@@ -436,10 +490,13 @@ func (b *Builder) BuildORC(p Props) *Builder {
 // BuildPID builds a PID (Patient Identification) segment (the _buildPID).
 // PID.11 (XAD) and PID.5 (XPN) accept composite-object inputs via the validator.
 func (b *Builder) BuildPID(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("PID")
+	s := b.spec("PID")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "PID")
+	b.segment = b.mustAddSegment("PID")
 	b.setField(s, 1, pick(p, "pid_1"), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "pid_2", "patientIdExternal"), &ValidationRule{Length: lenMinMax(1, 16)})
 	b.setField(s, 3, pick(p, "pid_3", "patientIdInternal"), &ValidationRule{Length: lenMinMax(1, 20)})
@@ -504,10 +561,13 @@ func pickStrOrNil(p Props, keys ...string) any {
 
 // BuildPR1 builds a PR1 (Procedures) segment (the _buildPR1). Chainable.
 func (b *Builder) BuildPR1(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("PR1")
+	s := b.spec("PR1")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "PR1")
+	b.segment = b.mustAddSegment("PR1")
 	b.setField(s, 1, pick(p, "pr1_1"), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "pr1_2", "procedureCodingMethod"), &ValidationRule{Length: lenMinMax(1, 2)})
 	b.setField(s, 3, pick(p, "pr1_3", "procedureCode"), &ValidationRule{Length: lenMinMax(1, 10)})
@@ -524,10 +584,13 @@ func (b *Builder) BuildPR1(p Props) *Builder {
 
 // BuildPV1 builds a PV1 (Patient Visit) segment (the _buildPV1). Chainable.
 func (b *Builder) BuildPV1(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("PV1")
+	s := b.spec("PV1")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "PV1")
+	b.segment = b.mustAddSegment("PV1")
 	b.setField(s, 1, pick(p, "pv1_1"), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "pv1_2", "patientClass"), &ValidationRule{AllowedValues: b.codeTable("0004"), Length: lenExact(1)})
 	b.setField(s, 3, pick(p, "pv1_3", "assignedPatientLocation"), &ValidationRule{Length: lenMinMax(1, 12)})
@@ -589,10 +652,13 @@ func (b *Builder) BuildPV1(p Props) *Builder {
 
 // BuildQRD builds a QRD (Query Definition) segment (the _buildQRD).
 func (b *Builder) BuildQRD(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("QRD")
+	s := b.spec("QRD")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "QRD")
+	b.segment = b.mustAddSegment("QRD")
 	b.setField(s, 1, b.dv(pick(p, "qrd_1", "queryDateTime"), ""), dateRule())
 	b.setField(s, 2, pick(p, "qrd_2", "queryFormatCode"), &ValidationRule{Length: lenExact(1)})
 	b.setField(s, 3, pick(p, "qrd_3", "queryPriority"), &ValidationRule{Length: lenExact(1)})
@@ -608,10 +674,13 @@ func (b *Builder) BuildQRD(p Props) *Builder {
 
 // BuildQRF builds a QRF (Query Filter) segment (the _buildQRF). Chainable.
 func (b *Builder) BuildQRF(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("QRF")
+	s := b.spec("QRF")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "QRF")
+	b.segment = b.mustAddSegment("QRF")
 	b.setField(s, 1, pick(p, "qrf_1", "whereSubjectFilter"), &ValidationRule{Length: lenMinMax(1, 20)})
 	b.setField(s, 2, b.dv(pick(p, "qrf_2", "whenDataStartDateTime"), ""), dateRule())
 	b.setField(s, 3, b.dv(pick(p, "qrf_3", "whenDataEndDateTime"), ""), dateRule())
@@ -622,10 +691,13 @@ func (b *Builder) BuildQRF(p Props) *Builder {
 
 // BuildRX1 builds an RX1 (Pharmacy/Treatment Order) segment (the _buildRX1).
 func (b *Builder) BuildRX1(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("RX1")
+	s := b.spec("RX1")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "RX1")
+	b.segment = b.mustAddSegment("RX1")
 	b.setField(s, 1, pick(p, "rx1_1"), &ValidationRule{Length: lenMinMax(1, 40)})
 	b.setField(s, 2, pick(p, "rx1_2", "giveCode"), &ValidationRule{Length: lenMinMax(1, 100)})
 	b.setField(s, 3, pick(p, "rx1_3", "giveAmountMinimum"), &ValidationRule{Length: lenMinMax(1, 20)})
@@ -653,10 +725,13 @@ func (b *Builder) BuildRX1(p Props) *Builder {
 
 // BuildUB1 builds a UB1 (UB82 Data) segment (the _buildUB1). Chainable.
 func (b *Builder) BuildUB1(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("UB1")
+	s := b.spec("UB1")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "UB1")
+	b.segment = b.mustAddSegment("UB1")
 	b.setField(s, 1, pick(p, "ub1_1"), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "ub1_2", "bloodDeductible"), &ValidationRule{Length: lenMinMax(1, 1)})
 	b.setField(s, 3, pick(p, "ub1_3", "bloodFurnishedPints"), &ValidationRule{Length: lenMinMax(1, 2)})
@@ -685,10 +760,13 @@ func (b *Builder) BuildUB1(p Props) *Builder {
 
 // BuildURD builds a URD (Results/Update Definition) segment (the _buildURD).
 func (b *Builder) BuildURD(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("URD")
+	s := b.spec("URD")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "URD")
+	b.segment = b.mustAddSegment("URD")
 	b.setField(s, 1, b.dv(pick(p, "urd_1", "ruDateTime"), ""), dateRule())
 	b.setField(s, 2, pick(p, "urd_2", "reportPriority"), &ValidationRule{Length: lenExact(1)})
 	b.setField(s, 3, pick(p, "urd_3", "ruWhoSubjectDefinition"), &ValidationRule{Length: lenMinMax(1, 20)})
@@ -698,10 +776,13 @@ func (b *Builder) BuildURD(p Props) *Builder {
 
 // BuildURS builds a URS (Unsolicited Selection) segment (the _buildURS).
 func (b *Builder) BuildURS(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	s := spec("URS")
+	s := b.spec("URS")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "URS")
+	b.segment = b.mustAddSegment("URS")
 	b.setField(s, 1, pick(p, "urs_1", "ruWhereSubjectDefinition"), &ValidationRule{Length: lenMinMax(1, 20)})
 	b.setField(s, 2, b.dv(pick(p, "urs_2"), ""), dateRule())
 	b.setField(s, 3, b.dv(pick(p, "urs_3"), ""), dateRule())

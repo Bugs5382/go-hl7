@@ -62,8 +62,8 @@ func TestTableEnforcementVersionAware(t *testing.T) {
 
 	t.Run("same code absent in 2.1 is rejected", func(t *testing.T) {
 		b := v21WithMSH()
-		expectThrows(t, "must be one of", func() {
-			b.BuildOBX(hl7.Props{"obx_1": "1", "obx_2": "NM", "obx_3": "GLU^Glucose^L", "obx_5": "98", "obx_11": "F"})
+		expectError(t, "must be one of", func() error {
+			return b.BuildOBX(hl7.Props{"obx_1": "1", "obx_2": "NM", "obx_3": "GLU^Glucose^L", "obx_5": "98", "obx_11": "F"}).Err()
 		})
 	})
 
@@ -83,8 +83,8 @@ func TestTableEnforcementSpotChecks(t *testing.T) {
 	})
 	t.Run("0001 sex invalid", func(t *testing.T) {
 		b := v21WithMSH()
-		expectThrows(t, "must be one of", func() {
-			b.BuildPID(hl7.Props{"pid_3": "MRN1", "pid_5": "DOE^JANE", "pid_8": "Z"})
+		expectError(t, "must be one of", func() error {
+			return b.BuildPID(hl7.Props{"pid_3": "MRN1", "pid_5": "DOE^JANE", "pid_8": "Z"}).Err()
 		})
 	})
 
@@ -96,16 +96,16 @@ func TestTableEnforcementSpotChecks(t *testing.T) {
 	})
 	t.Run("0003 event type invalid", func(t *testing.T) {
 		b := v21WithMSH()
-		expectThrows(t, "must be one of", func() {
-			b.BuildEVN(hl7.Props{"evn_1": "ZZZ"})
+		expectError(t, "must be one of", func() error {
+			return b.BuildEVN(hl7.Props{"evn_1": "ZZZ"}).Err()
 		})
 	})
 
 	// 0125 Value Type on OBX.2.
 	t.Run("0125 value type invalid", func(t *testing.T) {
 		b := v28WithMSH()
-		expectThrows(t, "must be one of", func() {
-			b.BuildOBX(hl7.Props{"obx_1": "1", "obx_2": "NOTATYPE", "obx_5": "x", "obx_11": "F"})
+		expectError(t, "must be one of", func() error {
+			return b.BuildOBX(hl7.Props{"obx_1": "1", "obx_2": "NOTATYPE", "obx_5": "x", "obx_11": "F"}).Err()
 		})
 	})
 }
@@ -124,11 +124,11 @@ func TestTableEnforcementComponentLevel(t *testing.T) {
 
 	t.Run("component table value invalid is rejected", func(t *testing.T) {
 		b := v28WithMSH()
-		expectThrows(t, "must be one of", func() {
-			b.BuildPID(hl7.Props{
+		expectError(t, "must be one of", func() error {
+			return b.BuildPID(hl7.Props{
 				"pid_3": "MRN1", "pid_5": "DOE^JANE",
 				"pid_11": map[string]any{"streetAddress": "123 Elm St", "city": "Springfield", "addressType": "ZZ"},
-			})
+			}).Err()
 		})
 	})
 }

@@ -97,21 +97,21 @@ func TestCompositeObjectInputs(t *testing.T) {
 
 	t.Run("max-length violation on a component is rejected", func(t *testing.T) {
 		b := compositeBuilder()
-		expectThrows(t, "", func() {
-			b.BuildPID(hl7.Props{
+		expectError(t, "", func() error {
+			return b.BuildPID(hl7.Props{
 				"pid_11": map[string]any{"country": "UNITED_STATES_OF_AMERICA", "streetAddress": "123 Elm St"},
 				"pid_3":  "MRN1", "pid_5": "DOE^JANE",
-			})
+			}).Err()
 		})
 	})
 
 	t.Run("withdrawn component (W) is rejected when set", func(t *testing.T) {
 		b := compositeBuilder()
-		expectThrows(t, "withdrawn", func() {
-			b.BuildPID(hl7.Props{
+		expectError(t, "withdrawn", func() error {
+			return b.BuildPID(hl7.Props{
 				"pid_3": "MRN1",
 				"pid_5": map[string]any{"xpn_1": "DOE", "xpn_10": "shouldNotSet", "xpn_2": "JANE"},
-			})
+			}).Err()
 		})
 	})
 

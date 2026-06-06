@@ -88,6 +88,9 @@ func dateRule() *ValidationRule { return &ValidationRule{Type: ruleDate, HasType
 // the per-version framing (the buildMSH -> version _buildMSH). Returns the
 // receiver for chaining.
 func (b *Builder) BuildMSH(properties Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.buildMSHGuard()
 	switch b.version {
 	case "2.1":
@@ -114,9 +117,10 @@ func (b *Builder) mshSeparators() string {
 }
 
 func (b *Builder) mshCommonHead(properties Props, recvFacMax int) {
-	b.segment = mustAddSegment(b.message, "MSH")
+	b.segment = b.mustAddSegment("MSH")
 	if len(b.opt.SeparatorComponent) != 1 {
-		panic(helpers.NewHL7ValidationError("Separator Component has to be a single character."))
+		b.fail(helpers.NewHL7ValidationError("Separator Component has to be a single character."))
+		return
 	}
 	b.validatorSetValue("1", b.mshSeparators(), &ValidationRule{Length: lenExact(4), Required: true})
 	b.validatorSetValue("3", pick(properties, "msh_3", "sendingApplication"), &ValidationRule{Length: lenMinMax(1, 15)})
@@ -127,9 +131,10 @@ func (b *Builder) mshCommonHead(properties Props, recvFacMax int) {
 
 // buildMSH21 ports the HL7_2_1._buildMSH (MSH.9 single field, MSH.11 P/T).
 func (b *Builder) buildMSH21(properties Props) {
-	b.segment = mustAddSegment(b.message, "MSH")
+	b.segment = b.mustAddSegment("MSH")
 	if len(b.opt.SeparatorComponent) != 1 {
-		panic(helpers.NewHL7ValidationError("Separator Component has to be a single character."))
+		b.fail(helpers.NewHL7ValidationError("Separator Component has to be a single character."))
+		return
 	}
 	b.validatorSetValue("1", b.mshSeparators(), &ValidationRule{Length: lenExact(4), Required: true})
 	b.validatorSetValue("3", pick(properties, "msh_3", "sendingApplication"), &ValidationRule{Length: lenMinMax(1, 15)})
@@ -195,9 +200,10 @@ func (b *Builder) buildMSH24(properties Props) {
 
 // buildMSH27 ports the HL7_2_7._buildMSH (227-char fields, MSH.10 max 199).
 func (b *Builder) buildMSH27(properties Props) {
-	b.segment = mustAddSegment(b.message, "MSH")
+	b.segment = b.mustAddSegment("MSH")
 	if len(b.opt.SeparatorComponent) != 1 {
-		panic(helpers.NewHL7ValidationError("Separator Component has to be a single character."))
+		b.fail(helpers.NewHL7ValidationError("Separator Component has to be a single character."))
+		return
 	}
 	b.validatorSetValue("1", b.mshSeparators(), &ValidationRule{Length: lenExact(4), Required: true})
 	b.validatorSetValue("3", pick(properties, "msh_3", "sendingApplication"), &ValidationRule{Length: lenMinMax(1, 227)})

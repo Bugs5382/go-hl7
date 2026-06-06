@@ -64,8 +64,8 @@ func TestBuildSegmentGeneric(t *testing.T) {
 		b := hl7.New(hl7.V2_8)
 		b.On("error", func(string) {})
 		b.BuildMSH(specHeader())
-		expectThrows(t, "", func() {
-			b.BuildSegment("ECD", hl7.Props{"ecd_1": "1", "ecd_2": "RC", "ecd_4": "20260101"})
+		expectError(t, "", func() error {
+			return b.BuildSegment("ECD", hl7.Props{"ecd_1": "1", "ecd_2": "RC", "ecd_4": "20260101"}).Err()
 		})
 	})
 
@@ -73,8 +73,8 @@ func TestBuildSegmentGeneric(t *testing.T) {
 		b := hl7.New(hl7.V2_3_1)
 		b.On("error", func(string) {})
 		b.BuildMSH(specHeader())
-		expectThrows(t, "not part of HL7 v2.3.1", func() {
-			b.BuildSegment("ECD", hl7.Props{"ecd_1": "1"})
+		expectError(t, "not part of HL7 v2.3.1", func() error {
+			return b.BuildSegment("ECD", hl7.Props{"ecd_1": "1"}).Err()
 		})
 	})
 
@@ -85,8 +85,8 @@ func TestBuildSegmentGeneric(t *testing.T) {
 			"msh_10": "X", "msh_11": "T", "msh_3": "APP", "msh_5": "RECV_APP",
 			"msh_7": time.Date(2024, 1, 15, 10, 20, 30, 0, time.UTC), "msh_9": "ACK",
 		})
-		expectThrows(t, "not part of HL7 v2.1", func() {
-			b.BuildSegment("ECD", hl7.Props{"ecd_1": "1"})
+		expectError(t, "not part of HL7 v2.1", func() error {
+			return b.BuildSegment("ECD", hl7.Props{"ecd_1": "1"}).Err()
 		})
 	})
 
@@ -94,14 +94,14 @@ func TestBuildSegmentGeneric(t *testing.T) {
 		b := hl7.New(hl7.V2_8)
 		b.On("error", func(string) {})
 		b.BuildMSH(specHeader())
-		expectThrows(t, "Unknown HL7 segment", func() { b.BuildSegment("XYZ", hl7.Props{}) })
+		expectError(t, "Unknown HL7 segment", func() error { return b.BuildSegment("XYZ", hl7.Props{}).Err() })
 	})
 
 	t.Run("buildSegment refuses MSH", func(t *testing.T) {
 		b := hl7.New(hl7.V2_8)
 		b.On("error", func(string) {})
 		b.BuildMSH(specHeader())
-		expectThrows(t, "Use buildMSH", func() { b.BuildSegment("MSH", hl7.Props{}) })
+		expectError(t, "Use buildMSH", func() error { return b.BuildSegment("MSH", hl7.Props{}).Err() })
 	})
 
 	t.Run("buildSegment is chainable (returns this)", func(t *testing.T) {
@@ -130,8 +130,8 @@ func TestBuildSegmentGeneric(t *testing.T) {
 		b := hl7.New(hl7.V2_7)
 		b.On("error", func(string) {})
 		b.BuildMSH(specHeader())
-		expectThrows(t, "withdrawn in HL7 v2.7", func() {
-			b.BuildSegment("ECD", hl7.Props{"ecd_1": "1", "ecd_2": "RC", "ecd_4": "20260101"})
+		expectError(t, "withdrawn in HL7 v2.7", func() error {
+			return b.BuildSegment("ECD", hl7.Props{"ecd_1": "1", "ecd_2": "RC", "ecd_4": "20260101"}).Err()
 		})
 	})
 

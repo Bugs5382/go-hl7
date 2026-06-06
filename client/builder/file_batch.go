@@ -89,15 +89,17 @@ func (f *FileBatch) AddMessage(message *Message) {
 }
 
 // AddBatch adds a Batch to the file batch (the batch branch of the
-// FileBatch.add). It panics with HL7ParserError when messages were already
-// added individually, mirroring the throw.
-func (f *FileBatch) AddBatch(batch *Batch) {
+// FileBatch.add). It returns an HL7ParserError when messages were already added
+// individually, since an MSH may not sit both inside a batch and loose in the
+// same file.
+func (f *FileBatch) AddBatch(batch *Batch) error {
 	f.setDirty()
 	if f.messagesCount >= 1 {
-		panic(helpers.NewHL7ParserError("Unable to add a batch segment, since there is already messages added individually."))
+		return helpers.NewHL7ParserError("Unable to add a batch segment, since there is already messages added individually.")
 	}
 	f.batchCount = f.batchCount + 1
 	f.children = append(f.childrenOf(), batch)
+	return nil
 }
 
 // CreateFile writes the framed bytes to disk under the configured Location

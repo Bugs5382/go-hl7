@@ -47,8 +47,10 @@ func v23() *hl7.Builder {
 	return b
 }
 
-// tryBuild runs fn, swallowing any builder validation panic (mirrors the
-// try/catch around the coverage-only segment scenarios).
+// tryBuild runs fn for its side effects only. The coverage-only segment
+// scenarios may record a validation error on their (discarded) builder; we
+// don't assert on it here, we just exercise the code path. The recover stays as
+// a guard in case a path still panics on genuine programmer misuse.
 func tryBuild(fn func()) {
 	defer func() { _ = recover() }()
 	fn()

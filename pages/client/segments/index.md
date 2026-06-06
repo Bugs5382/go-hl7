@@ -23,7 +23,7 @@ Every segment is exposed by `*hl7.Builder` as a public `Build<SEGNAME>(props)` m
 - 🔁 — same segment was extended in this version (more fields). The library uses the most recent definition automatically when you instantiate that version's constructor.
 - All segments are inherited downstream — once a segment first appears in version V, every later version up to `New(V2_8)` also supports it.
 
-> 💡 **Tip:** Always start the message with `BuildMSH(...)`. Calling any other `Build*` first panics with `HL7FatalError("MSH Header must be built first.")`.
+> 💡 **Tip:** Always start the message with `BuildMSH(...)`. Calling any other `Build*` first records `HL7FatalError("MSH Header must be built first.")`, which surfaces from `ToMessage()`/`Err()`.
 
 ---
 
@@ -64,7 +64,7 @@ builder.
     BuildSegment("ADJ", hl7.Props{ /* … */ })
 ```
 
-Field-level enforcement is identical to the typed methods: required fields throw if missing, withdrawn fields throw if set, deprecated (B) fields warn but still serialize. See the [Validation & errors section](../builder/index.md#-validation--errors) in the builder docs for the full per-code behavior.
+Field-level enforcement is identical to the typed methods: required fields record an error if missing, withdrawn fields record an error if set, deprecated (B) fields warn but still serialize. See the [Validation & errors section](../builder/index.md#-validation--errors) in the builder docs for the full per-code behavior.
 
 ---
 
@@ -94,7 +94,7 @@ b28.BuildOBX(hl7.Props{"obx_2": "NM", /* … */}) // ✅ NM is a v2.8 value type
 
 b21 := hl7.New(hl7.V2_1)
 b21.BuildMSH(/* … */)
-b21.BuildOBX(hl7.Props{"obx_2": "NM", /* … */}) // ❌ panics: Field 2 must be one of: AD, CK, FT, PN, ST, TM, TS, TX
+b21.BuildOBX(hl7.Props{"obx_2": "NM", /* … */}) // ❌ records an error: Field 2 must be one of: AD, CK, FT, PN, ST, TM, TS, TX
 ```
 
 ### Hard error, no lenient mode

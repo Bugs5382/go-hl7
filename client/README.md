@@ -70,7 +70,7 @@ func ptr[T any](v T) *T { return &v }
 
 func main() {
 	// 1) Build an ADT^A01. Every Build* returns the builder, so you can chain.
-	msg := hl7.New(hl7.V2_5).
+	msg, err := hl7.New(hl7.V2_5).
 		BuildMSH(hl7.Props{
 			"msh_3":  "MY_APP",
 			"msh_4":  "MY_FAC",
@@ -87,6 +87,9 @@ func main() {
 			"pid_8": "F",
 		}).
 		ToMessage()
+	if err != nil {
+		panic(err) // the first validation failure in the chain
+	}
 
 	// 2) Open a persistent connection and send it.
 	c, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "127.0.0.1"})
@@ -115,7 +118,7 @@ The class‑based builder validates segment fields against the complete, version
 flowchart LR
     A["hl7.New(version)"] --> B[BuildMSH<br/>required first]
     B --> C[BuildEVN<br/>BuildPID<br/>BuildOBR<br/>BuildOBX<br/>BuildORC<br/>BuildPV1<br/>...]
-    C --> D[ToMessage / String]
+    C --> D["ToMessage (msg, err) / String"]
     D --> E[ ✉️ Message ready to send]
 ```
 
@@ -128,8 +131,8 @@ b := hl7.New(hl7.V2_5, hl7.Options{
 	// Optional: override the default date format.
 	// "8" = YYYYMMDD, "12" = YYYYMMDDHHMM, "14" = YYYYMMDDHHMMSS (default).
 	Date: "14",
-	// Optional: HardError makes validation issues panic immediately
-	// instead of being collected and emitted as "error" events.
+	// Optional: HardError promotes soft validation issues to a recorded
+	// error immediately, instead of collecting them as "error" events.
 	HardError: true,
 })
 ```
@@ -150,7 +153,7 @@ b.BuildMSH(hl7.Props{
 })
 ```
 
-> ⚠️ Calling any other `Build*` method before `BuildMSH` panics with `HL7FatalError("MSH Header must be built first.")`. Calling `BuildMSH` twice panics with `HL7FatalError("You can only have one MSH Header per HL7 Message.")`.
+> ⚠️ Calling any other `Build*` method before `BuildMSH` records `HL7FatalError("MSH Header must be built first.")` and short-circuits the rest of the chain. Calling `BuildMSH` twice records `HL7FatalError("You can only have one MSH Header per HL7 Message.")`. Either way, the error comes back from `ToMessage()`/`Err()`.
 
 `Props` is `map[string]any`. It accepts the spec property keys (`msh_3`, `pid_5`, `obx_5`, …), bare field numbers as strings (`"3"`), human‑friendly aliases on MSH (`sendingApplication`, `receivingFacility`, …), and — for composite fields — a typed component object (see below). Values may be `string`, `int`, `time.Time`, or a `map[string]any` composite.
 
@@ -243,8 +246,11 @@ Component keys are resolved by numeric position (`"1"`), by a trailing `_<num>` 
 ### Step 4 — Convert
 
 ```go
-msg := b.ToMessage()  // returns a *builder.Message
-text := b.String()    // returns the HL7 text
+msg, err := b.ToMessage()  // (*builder.Message, error) — err is the first validation failure
+if err != nil {
+	// handle the bad input; msg is the partial tree built so far
+}
+text := b.String()         // the HL7 text built so far
 ```
 
 The resulting MSH for the example above:
@@ -258,10 +264,13 @@ OBX|1|TX|NOTE^Discharge Note^L||Patient stable, discharged home.||||||F
 
 ### 🛠️ Direct edits with `msg.Set(...)`
 
-`ToMessage()` returns a real `builder.Message` you can keep mutating after the builder is done — useful for fields the builder doesn't surface:
+`ToMessage()` returns a real `builder.Message` (alongside the first build error) you can keep mutating after the builder is done — useful for fields the builder doesn't surface:
 
 ```go
-msg := b.ToMessage()
+msg, err := b.ToMessage()
+if err != nil {
+	return err
+}
 msg.Set("PID.13", "555-0100")          // home phone, dotted path
 msg.Get("PV1.7").SetIndex(0, "Jones")  // 0-based child position (the Index/SetIndex split)
 ```
@@ -607,7 +616,7 @@ conn, _ := c.CreateConnection(
 
 ## 🧯 Errors
 
-Constructors and senders return `error`; the spec‑driven builders and some structural reads panic with a typed error. The error hierarchy is in the `helpers` package and is matchable with `errors.Is`:
+Constructors and senders return `error`; the spec‑driven builders accumulate the first failure and return it from `ToMessage()`/`Err()` (and `CheckMSH` returns its error directly). Only genuine programmer misuse — undefined `InboundRequest` accessors and abstract node stubs — still panics. The error hierarchy is in the `helpers` package and is matchable with `errors.Is`:
 
 ```go
 import (
@@ -628,7 +637,7 @@ if errors.Is(err, helpers.ErrParser) {
 | `helpers.ErrParser` | `HL7ParserError` (404) | A parser failure. |
 | `helpers.ErrValidation` | `HL7ValidationError` (404) | A spec‑driven field‑validation failure. |
 
-Because the typed builders panic on hard validation failures (the Go analog of the spec's `throw`), wrap a builder run in `recover` if you need to turn those into errors at a boundary.
+The typed builders record hard validation failures (the Go analog of the spec's `throw`) onto the builder. Check `b.ToMessage()`'s error — or `b.Err()` mid-chain — to handle them at a boundary; no `recover` needed.
 
 ---
 

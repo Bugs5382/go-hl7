@@ -33,11 +33,14 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 // BuildDRG builds a DRG (Diagnosis Related Group) segment (the
 // HL7_2_4._buildDRG). Chainable.
 func (b *Builder) BuildDRG(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.4")
-	s := spec("DRG")
+	s := b.spec("DRG")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "DRG")
+	b.segment = b.mustAddSegment("DRG")
 	b.setField(s, 1, pick(p, "drg_1"), &ValidationRule{Length: lenMinMax(1, 250)})
 	b.setField(s, 2, b.dv(pick(p, "drg_2"), ""), dateRule())
 	b.setField(s, 3, pick(p, "drg_3"), &ValidationRule{AllowedValues: []string{"Y", "N"}, Length: lenExact(1)})
@@ -52,11 +55,14 @@ func (b *Builder) BuildDRG(p Props) *Builder {
 // BuildGOL builds a GOL (Goal Detail) segment (the HL7_2_4._buildGOL).
 // Chainable.
 func (b *Builder) BuildGOL(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.4")
-	s := spec("GOL")
+	s := b.spec("GOL")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "GOL")
+	b.segment = b.mustAddSegment("GOL")
 	b.setField(s, 1, pick(p, "gol_1"), &ValidationRule{AllowedValues: []string{"AD", "CO", "DE", "LI", "UC", "UN"}})
 	b.setField(s, 2, b.dv(pick(p, "gol_2"), ""), dateRule())
 	b.setField(s, 3, pick(p, "gol_3"), &ValidationRule{Length: lenMinMax(1, 250)})
@@ -84,11 +90,14 @@ func (b *Builder) BuildGOL(p Props) *Builder {
 // BuildIAM builds an IAM (Patient Adverse Reaction Information) segment (the
 // HL7_2_4._buildIAM). Chainable.
 func (b *Builder) BuildIAM(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.4")
-	s := spec("IAM")
+	s := b.spec("IAM")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "IAM")
+	b.segment = b.mustAddSegment("IAM")
 	b.setField(s, 1, jsStringOr(pick(p, "iam_1")), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "iam_2"), &ValidationRule{Length: lenMinMax(1, 250)})
 	b.setField(s, 3, pick(p, "iam_3"), &ValidationRule{Length: lenMinMax(1, 250)})
@@ -106,11 +115,14 @@ func (b *Builder) BuildIAM(p Props) *Builder {
 // BuildOM1 builds an OM1 (General Segment for Observation Definitions) (the
 // HL7_2_4._buildOM1). Chainable.
 func (b *Builder) BuildOM1(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.4")
-	s := spec("OM1")
+	s := b.spec("OM1")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "OM1")
+	b.segment = b.mustAddSegment("OM1")
 	b.setField(s, 1, jsStringOr(pick(p, "om1_1")), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "om1_2"), &ValidationRule{Length: lenMinMax(1, 250)})
 	b.setField(s, 3, pick(p, "om1_3"), &ValidationRule{Length: lenMinMax(1, 12)})
@@ -164,11 +176,14 @@ func (b *Builder) BuildOM1(p Props) *Builder {
 // BuildOM2 builds an OM2 (Numeric Observation) segment (the
 // HL7_2_4._buildOM2). Chainable.
 func (b *Builder) BuildOM2(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.4")
-	s := spec("OM2")
+	s := b.spec("OM2")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "OM2")
+	b.segment = b.mustAddSegment("OM2")
 	b.setField(s, 1, jsStringOr(pick(p, "om2_1")), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "om2_2"), &ValidationRule{Length: lenMinMax(1, 250)})
 	b.setField(s, 3, pick(p, "om2_3"), &ValidationRule{Length: lenMinMax(1, 10)})
@@ -185,11 +200,14 @@ func (b *Builder) BuildOM2(p Props) *Builder {
 // BuildOM3 builds an OM3 (Categorical Test/Observation) segment (the
 // HL7_2_4._buildOM3). Chainable.
 func (b *Builder) BuildOM3(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.4")
-	s := spec("OM3")
+	s := b.spec("OM3")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "OM3")
+	b.segment = b.mustAddSegment("OM3")
 	b.setField(s, 1, jsStringOr(pick(p, "om3_1")), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "om3_2"), &ValidationRule{Length: lenMinMax(1, 250)})
 	b.setField(s, 3, pick(p, "om3_3"), &ValidationRule{Length: lenMinMax(1, 250)})
@@ -204,11 +222,14 @@ func (b *Builder) BuildOM3(p Props) *Builder {
 // BuildOM4 builds an OM4 (Observations Requiring Specimens) segment (the
 // HL7_2_4._buildOM4). Chainable.
 func (b *Builder) BuildOM4(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.4")
-	s := spec("OM4")
+	s := b.spec("OM4")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "OM4")
+	b.segment = b.mustAddSegment("OM4")
 	b.setField(s, 1, jsStringOr(pick(p, "om4_1")), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "om4_2"), &ValidationRule{Length: lenMinMax(1, 1)})
 	b.setField(s, 3, pick(p, "om4_3"), &ValidationRule{Length: lenMinMax(1, 60)})
@@ -233,11 +254,14 @@ func (b *Builder) BuildOM4(p Props) *Builder {
 // BuildOM5 builds an OM5 (Observation Batteries) segment (the
 // HL7_2_4._buildOM5). Chainable.
 func (b *Builder) BuildOM5(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.4")
-	s := spec("OM5")
+	s := b.spec("OM5")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "OM5")
+	b.segment = b.mustAddSegment("OM5")
 	b.setField(s, 1, jsStringOr(pick(p, "om5_1")), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "om5_2"), &ValidationRule{Length: lenMinMax(1, 250)})
 	b.setField(s, 3, pick(p, "om5_3"), &ValidationRule{Length: lenMinMax(1, 250)})
@@ -247,11 +271,14 @@ func (b *Builder) BuildOM5(p Props) *Builder {
 // BuildOM6 builds an OM6 (Observations Calculated from Other Observations)
 // segment (the HL7_2_4._buildOM6). Chainable.
 func (b *Builder) BuildOM6(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.4")
-	s := spec("OM6")
+	s := b.spec("OM6")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "OM6")
+	b.segment = b.mustAddSegment("OM6")
 	b.setField(s, 1, jsStringOr(pick(p, "om6_1")), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "om6_2"), &ValidationRule{Length: lenMinMax(1, 10240)})
 	return b
@@ -260,11 +287,14 @@ func (b *Builder) BuildOM6(p Props) *Builder {
 // BuildPRB builds a PRB (Problem Detail) segment (the HL7_2_4._buildPRB).
 // Chainable.
 func (b *Builder) BuildPRB(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.4")
-	s := spec("PRB")
+	s := b.spec("PRB")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "PRB")
+	b.segment = b.mustAddSegment("PRB")
 	b.setField(s, 1, pick(p, "prb_1"), &ValidationRule{AllowedValues: []string{"AD", "CO", "DE", "LI", "UC", "UN"}})
 	b.setField(s, 2, b.dv(pick(p, "prb_2"), ""), dateRule())
 	b.setField(s, 3, pick(p, "prb_3"), &ValidationRule{Length: lenMinMax(1, 250)})
@@ -297,11 +327,14 @@ func (b *Builder) BuildPRB(p Props) *Builder {
 // BuildPTH builds a PTH (Pathway) segment (the HL7_2_4._buildPTH).
 // Chainable.
 func (b *Builder) BuildPTH(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.4")
-	s := spec("PTH")
+	s := b.spec("PTH")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "PTH")
+	b.segment = b.mustAddSegment("PTH")
 	b.setField(s, 1, pick(p, "pth_1"), &ValidationRule{AllowedValues: []string{"AD", "DE", "LI", "UN"}})
 	b.setField(s, 2, pick(p, "pth_2"), &ValidationRule{Length: lenMinMax(1, 250)})
 	b.setField(s, 3, pick(p, "pth_3"), &ValidationRule{Length: lenMinMax(1, 60)})
@@ -315,11 +348,14 @@ func (b *Builder) BuildPTH(p Props) *Builder {
 // BuildTXA builds a TXA (Transcription Document Header) segment (the
 // HL7_2_4._buildTXA). Chainable.
 func (b *Builder) BuildTXA(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.4")
-	s := spec("TXA")
+	s := b.spec("TXA")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "TXA")
+	b.segment = b.mustAddSegment("TXA")
 	b.setField(s, 1, jsStringOr(pick(p, "txa_1")), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "txa_2"), &ValidationRule{Length: lenMinMax(1, 30)})
 	b.setField(s, 3, pick(p, "txa_3"), &ValidationRule{Length: lenMinMax(1, 2)})

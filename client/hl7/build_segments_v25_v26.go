@@ -32,11 +32,14 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 // BuildSFT builds an SFT (Software Segment) (the HL7_2_5._buildSFT).
 // Introduced in v2.5. Chainable.
 func (b *Builder) BuildSFT(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.5")
-	s := spec("SFT")
+	s := b.spec("SFT")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "SFT")
+	b.segment = b.mustAddSegment("SFT")
 	b.setField(s, 1, pick(p, "sft_1"), &ValidationRule{Length: lenMinMax(1, 567)})
 	b.setField(s, 2, pick(p, "sft_2"), &ValidationRule{Length: lenMinMax(1, 15)})
 	b.setField(s, 3, pick(p, "sft_3"), &ValidationRule{Length: lenMinMax(1, 20)})
@@ -49,11 +52,14 @@ func (b *Builder) BuildSFT(p Props) *Builder {
 // BuildSPM builds an SPM (Specimen) segment (the HL7_2_5._buildSPM).
 // Introduced in v2.5. Chainable.
 func (b *Builder) BuildSPM(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.5")
-	s := spec("SPM")
+	s := b.spec("SPM")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "SPM")
+	b.segment = b.mustAddSegment("SPM")
 	b.setField(s, 1, jsStringOr(pick(p, "spm_1")), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "spm_2"), &ValidationRule{Length: lenMinMax(1, 80)})
 	b.setField(s, 3, pick(p, "spm_3"), &ValidationRule{Length: lenMinMax(1, 80)})
@@ -87,11 +93,14 @@ func (b *Builder) BuildSPM(p Props) *Builder {
 // BuildBPX builds a BPX (Blood Product Dispense Status) segment (the
 // HL7_2_6._buildBPX). Introduced in v2.6. Chainable.
 func (b *Builder) BuildBPX(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.6")
-	s := spec("BPX")
+	s := b.spec("BPX")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "BPX")
+	b.segment = b.mustAddSegment("BPX")
 	b.setField(s, 1, jsStringOr(pick(p, "bpx_1")), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "bpx_2"), &ValidationRule{Length: lenMinMax(1, 250)})
 	b.setField(s, 3, pick(p, "bpx_3"), &ValidationRule{Length: lenMinMax(1, 1)})
@@ -115,11 +124,14 @@ func (b *Builder) BuildBPX(p Props) *Builder {
 // BuildBTX builds a BTX (Blood Product Transfusion/Disposition) segment (the
 // HL7_2_6._buildBTX). Introduced in v2.6. Chainable.
 func (b *Builder) BuildBTX(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.6")
-	s := spec("BTX")
+	s := b.spec("BTX")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "BTX")
+	b.segment = b.mustAddSegment("BTX")
 	b.setField(s, 1, jsStringOr(pick(p, "btx_1")), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "btx_2"), &ValidationRule{Length: lenMinMax(1, 22)})
 	b.setField(s, 3, pick(p, "btx_3"), &ValidationRule{Length: lenMinMax(1, 250)})
@@ -143,11 +155,14 @@ func (b *Builder) BuildBTX(p Props) *Builder {
 // BuildITM builds an ITM (Material Item) segment (the HL7_2_6._buildITM).
 // Introduced in v2.6. Chainable.
 func (b *Builder) BuildITM(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.6")
-	s := spec("ITM")
+	s := b.spec("ITM")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "ITM")
+	b.segment = b.mustAddSegment("ITM")
 	b.setField(s, 1, pick(p, "itm_1"), &ValidationRule{Length: lenMinMax(1, 250)})
 	b.setField(s, 2, pick(p, "itm_2"), &ValidationRule{Length: lenMinMax(1, 999)})
 	b.setField(s, 3, pick(p, "itm_3"), &ValidationRule{AllowedValues: []string{"A", "I", "P"}})
@@ -192,11 +207,14 @@ func (b *Builder) BuildITM(p Props) *Builder {
 // BuildIVT builds an IVT (Material Location) segment (the
 // HL7_2_6._buildIVT). Introduced in v2.6. Chainable.
 func (b *Builder) BuildIVT(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.6")
-	s := spec("IVT")
+	s := b.spec("IVT")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "IVT")
+	b.segment = b.mustAddSegment("IVT")
 	b.setField(s, 1, jsStringOr(pick(p, "ivt_1")), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "ivt_2"), &ValidationRule{Length: lenMinMax(1, 250)})
 	b.setField(s, 3, pick(p, "ivt_3"), &ValidationRule{Length: lenMinMax(1, 999)})
@@ -228,11 +246,14 @@ func (b *Builder) BuildIVT(p Props) *Builder {
 // BuildREL builds a REL (Clinical Relationship Segment) (the
 // HL7_2_6._buildREL). Introduced in v2.6. Chainable.
 func (b *Builder) BuildREL(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.6")
-	s := spec("REL")
+	s := b.spec("REL")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "REL")
+	b.segment = b.mustAddSegment("REL")
 	b.setField(s, 1, jsStringOr(pick(p, "rel_1")), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "rel_2"), &ValidationRule{Length: lenMinMax(1, 250)})
 	b.setField(s, 3, pick(p, "rel_3"), &ValidationRule{Length: lenMinMax(1, 60)})

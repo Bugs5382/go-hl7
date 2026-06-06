@@ -90,6 +90,22 @@ type Builder struct {
 	// EventEmitter; this is a minimal On(event, handler) over the same event names.
 	errorHandlers   []func(string)
 	warningHandlers []func(string)
+
+	// err holds the first validation failure seen while building. Every Build*
+	// method short-circuits when it is set, so the first error wins and stops
+	// further building; ToMessage and Err surface it to the caller. The values
+	// are the typed helpers errors (HL7ValidationError/HL7FatalError), so they
+	// stay errors.Is-able through ErrValidation / ErrFatal.
+	err error
+}
+
+// fail records the first build error and returns true when a failure is already
+// pending, so the validation helpers can short-circuit with a single check.
+func (b *Builder) fail(err error) bool {
+	if b.err == nil {
+		b.err = err
+	}
+	return true
 }
 
 // initBase wires the message and options. It mirrors the Builder constructor.
@@ -155,8 +171,15 @@ func (b *Builder) emit(event, message string) {
 	}
 }
 
-// ToMessage returns the underlying Message (the toMessage).
-func (b *Builder) ToMessage() *builder.Message { return b.message }
+// ToMessage returns the built Message together with the first build error, if
+// any. A non-nil error means a Build* call hit invalid input; the returned
+// Message is then the partial tree built up to that point. The error wraps a
+// helpers sentinel (ErrValidation / ErrFatal) for errors.Is matching.
+func (b *Builder) ToMessage() (*builder.Message, error) { return b.message, b.err }
+
+// Err returns the first build error seen, or nil when every Build* call so far
+// succeeded. It lets a chain be inspected without unpacking ToMessage.
+func (b *Builder) Err() error { return b.err }
 
 // String returns the entire HL7 message string (the toString).
 func (b *Builder) String() string { return b.message.String() }
@@ -170,69 +193,94 @@ func (b *Builder) SetDate(date time.Time, length string) string {
 	return utils.CreateHL7Date(date, length)
 }
 
-// headerExists panics with an HL7FatalError when the MSH header is not first
-// (the headerExists). Go necessity: the spec throws; the BuildXXX shims that
-// follow the `headerExists()` therefore panic.
+// headerExists records an HL7FatalError when the MSH header is not first
+// (the headerExists). It is the first call in every typed segment builder, so
+// it doubles as the chain's short-circuit: a prior failure stays recorded and
+// nothing further is built.
 func (b *Builder) headerExists() {
+	if b.err != nil {
+		return
+	}
 	first := b.message.GetFirstSegment()
 	if first == nil || first.Name() != "MSH" {
-		panic(helpers.NewHL7FatalError("MSH Header must be built first."))
+		b.fail(helpers.NewHL7FatalError("MSH Header must be built first."))
 	}
 }
 
 // buildMSHGuard enforces the single-MSH rule shared by every version's BuildMSH
-// (the buildMSH). Go necessity: the spec throws; this panics.
+// (the buildMSH), recording the failure rather than throwing.
 func (b *Builder) buildMSHGuard() {
+	if b.err != nil {
+		return
+	}
 	if b.message.TotalSegment("MSH") > 0 {
-		panic(helpers.NewHL7FatalError("You can only have one MSH Header per HL7 Message."))
+		b.fail(helpers.NewHL7FatalError("You can only have one MSH Header per HL7 Message."))
 	}
 }
 
 // startSegment initializes a new segment and sets it as current (the
 // _startSegment).
 func (b *Builder) startSegment(name string) {
-	b.segment = mustAddSegment(b.message, name)
+	b.segment = b.mustAddSegment(name)
 }
 
-func mustAddSegment(m *builder.Message, name string) *builder.Segment {
-	seg, err := m.AddSegment(name)
+// mustAddSegment appends a segment, recording any error from the builder tree
+// rather than throwing. It returns nil once a failure is pending so callers
+// stop mutating the tree.
+func (b *Builder) mustAddSegment(name string) *builder.Segment {
+	if b.err != nil {
+		return nil
+	}
+	seg, err := b.message.AddSegment(name)
 	if err != nil {
-		panic(err)
+		b.fail(err)
+		return nil
 	}
 	return seg
 }
 
 // assertSegmentInVersion rejects building a segment that is not part of the
-// current spec version (the _assertSegmentInVersion). Go necessity: panics
-// with HL7ValidationError where the spec throws.
+// current spec version (the _assertSegmentInVersion), recording an
+// HL7ValidationError where the spec throws.
 func (b *Builder) assertSegmentInVersion(spec metadata.SegmentSpec) {
+	if b.err != nil {
+		return
+	}
 	for _, v := range spec.Versions {
 		if string(v) == b.version {
 			return
 		}
 	}
-	panic(helpers.NewHL7ValidationError(
+	b.fail(helpers.NewHL7ValidationError(
 		fmt.Sprintf("Segment %s is not part of HL7 v%s", spec.Name, b.version)))
 }
 
-// BuildSegment builds any HL7 segment by name from its generated SegmentSpec
-// (the buildSegment). MSH must use BuildMSH. Go necessity: panics with the
-// HL7 error hierarchy where the spec throws.
+// buildSegmentGeneric builds any HL7 segment by name from its generated
+// SegmentSpec (the buildSegment). MSH must use BuildMSH. It records the failure
+// into the chain rather than throwing.
 func (b *Builder) buildSegmentGeneric(name string, properties Props) {
+	if b.err != nil {
+		return
+	}
 	upper := strings.ToUpper(name)
 	spec, ok := metadata.SegmentSpecs[upper]
 	if !ok {
-		panic(helpers.NewHL7ValidationError(
+		b.fail(helpers.NewHL7ValidationError(
 			fmt.Sprintf("Unknown HL7 segment %q — no SegmentSpec is registered", name)))
+		return
 	}
 	if upper == "MSH" {
-		panic(helpers.NewHL7ValidationError(
+		b.fail(helpers.NewHL7ValidationError(
 			"Use buildMSH() to build the MSH header — buildSegment does not handle MSH framing"))
+		return
 	}
 
 	b.headerExists()
 	b.assertSegmentInVersion(spec)
-	b.segment = mustAddSegment(b.message, spec.Name)
+	b.segment = b.mustAddSegment(spec.Name)
+	if b.err != nil {
+		return
+	}
 
 	lower := strings.ToLower(spec.Name)
 	for _, field := range spec.Fields {
@@ -297,8 +345,8 @@ func pickComponentValue(object map[string]any, c metadata.ComponentSpec) any {
 
 // composeFromObject converts a typed component object into the HL7 ^-delimited
 // composite string, validating each piece against its ComponentSpec (the
-// _composeFromObject). Go necessity: panics with HL7ValidationError where the spec
-// throws.
+// _composeFromObject). A component-level failure is recorded into the chain and
+// the function returns "" so the caller stops building.
 func (b *Builder) composeFromObject(object map[string]any, components []metadata.ComponentSpec, fieldPath string) string {
 	var parts []string
 	lastFilled := -1
@@ -311,28 +359,33 @@ func (b *Builder) composeFromObject(object map[string]any, components []metadata
 			if c.Usage == metadata.UsageNotSupport {
 				label = "not supported"
 			}
-			panic(helpers.NewHL7ValidationError(
+			b.fail(helpers.NewHL7ValidationError(
 				fmt.Sprintf("Component %s.%d (%s) is %s", fieldPath, c.Num, c.Name, label)))
+			return ""
 		}
 		if c.Usage == metadata.UsageRequired && !hasValue {
-			panic(helpers.NewHL7ValidationError(
+			b.fail(helpers.NewHL7ValidationError(
 				fmt.Sprintf("Component %s.%d (%s) is required", fieldPath, c.Num, c.Name)))
+			return ""
 		}
 		if hasValue && c.Length.Set {
 			s := fmt.Sprint(v)
 			if c.Length.HasExact {
 				if len(s) > c.Length.Exact {
-					panic(helpers.NewHL7ValidationError(
+					b.fail(helpers.NewHL7ValidationError(
 						fmt.Sprintf("Component %s.%d (%s) must be at most %d characters", fieldPath, c.Num, c.Name, c.Length.Exact)))
+					return ""
 				}
 			} else {
 				if c.Length.Max != 0 && len(s) > c.Length.Max {
-					panic(helpers.NewHL7ValidationError(
+					b.fail(helpers.NewHL7ValidationError(
 						fmt.Sprintf("Component %s.%d (%s) must be at most %d characters", fieldPath, c.Num, c.Name, c.Length.Max)))
+					return ""
 				}
 				if c.Length.Min != 0 && len(s) < c.Length.Min {
-					panic(helpers.NewHL7ValidationError(
+					b.fail(helpers.NewHL7ValidationError(
 						fmt.Sprintf("Component %s.%d (%s) must be at least %d characters", fieldPath, c.Num, c.Name, c.Length.Min)))
+					return ""
 				}
 			}
 		}
@@ -342,8 +395,9 @@ func (b *Builder) composeFromObject(object map[string]any, components []metadata
 		// carry an in-table value. An empty/absent table is not enforced.
 		if hasValue && c.Table != 0 {
 			if vals := b.codeTable(fmt.Sprintf("%04d", c.Table)); len(vals) > 0 && !contains(vals, fmt.Sprint(v)) {
-				panic(helpers.NewHL7ValidationError(
+				b.fail(helpers.NewHL7ValidationError(
 					fmt.Sprintf("Component %s.%d (%s) must be one of: %s", fieldPath, c.Num, c.Name, strings.Join(vals, ", "))))
+				return ""
 			}
 		}
 
@@ -369,13 +423,17 @@ func findField(spec metadata.SegmentSpec, num int) (metadata.FieldSpec, bool) {
 
 // validatorSetField is the spec-driven field setter that consults a field's
 // per-version usage code and translates it into validation rules (the
-// _validatorSetField). overrides may be nil. Go necessity: panics with
-// HL7ValidationError where the spec throws.
+// _validatorSetField). overrides may be nil. A failure is recorded into the
+// chain rather than thrown.
 func (b *Builder) validatorSetField(spec metadata.SegmentSpec, fieldNumber int, value any, overrides *ValidationRule) []string {
+	if b.err != nil {
+		return nil
+	}
 	field, ok := findField(spec, fieldNumber)
 	if !ok {
-		panic(helpers.NewHL7ValidationError(
+		b.fail(helpers.NewHL7ValidationError(
 			fmt.Sprintf("Field %s.%d is not defined in the segment spec", spec.Name, fieldNumber)))
+		return nil
 	}
 
 	// Composite-object input: if the caller passes a component object (a map,
@@ -383,6 +441,9 @@ func (b *Builder) validatorSetField(spec metadata.SegmentSpec, fieldNumber int, 
 	// assemble the ^-delimited composite here. Strings keep working.
 	if obj, isObj := value.(map[string]any); isObj && len(field.Components) > 0 {
 		value = b.composeFromObject(obj, field.Components, fmt.Sprintf("%s.%d", spec.Name, fieldNumber))
+		if b.err != nil {
+			return nil
+		}
 	}
 
 	version := metadata.HL7Version(b.version)
@@ -391,7 +452,7 @@ func (b *Builder) validatorSetField(spec metadata.SegmentSpec, fieldNumber int, 
 
 	if !usageOK {
 		if hasValue {
-			panic(helpers.NewHL7ValidationError(
+			b.fail(helpers.NewHL7ValidationError(
 				fmt.Sprintf("Field %s.%d is not available in HL7 v%s", spec.Name, fieldNumber, b.version)))
 		}
 		return []string{}
@@ -402,8 +463,9 @@ func (b *Builder) validatorSetField(spec metadata.SegmentSpec, fieldNumber int, 
 		if usage == metadata.UsageNotSupport {
 			label = "not supported"
 		}
-		panic(helpers.NewHL7ValidationError(
+		b.fail(helpers.NewHL7ValidationError(
 			fmt.Sprintf("Field %s.%d is %s in HL7 v%s and cannot be set", spec.Name, fieldNumber, label, b.version)))
+		return nil
 	}
 
 	// Merge spec-derived rule with caller overrides. Caller wins for
@@ -450,12 +512,14 @@ func (b *Builder) validatorSetField(spec metadata.SegmentSpec, fieldNumber int, 
 		}
 		depString := b.segment.Get(resolvedPath).String()
 		if dep.MustBeSet && depString == "" {
-			panic(helpers.NewHL7ValidationError(
+			b.fail(helpers.NewHL7ValidationError(
 				fmt.Sprintf("Field %s.%d is conditional and requires %s to be set in HL7 v%s", spec.Name, fieldNumber, dep.Path, b.version)))
+			return nil
 		}
 		if dep.HasMustEqual && depString != dep.MustEqual {
-			panic(helpers.NewHL7ValidationError(
+			b.fail(helpers.NewHL7ValidationError(
 				fmt.Sprintf("Field %s.%d is conditional and requires %s to equal %q in HL7 v%s", spec.Name, fieldNumber, dep.Path, dep.MustEqual, b.version)))
+			return nil
 		}
 	}
 
@@ -469,6 +533,9 @@ var numericPathRe = regexp.MustCompile(`^\d+(\.\d+)*$`)
 // (the _validatorSetValue). rules may be nil. Go necessity: panics with
 // HL7ValidationError on forced/hard errors where the spec throws.
 func (b *Builder) validatorSetValue(fieldPath string, value any, rules *ValidationRule) []string {
+	if b.err != nil {
+		return nil
+	}
 	var errors []string
 	var warnings []string
 
@@ -668,11 +735,15 @@ func validatorNormalize(value any) any {
 	return value
 }
 
-// validatorThrowError records an error, throwing first when hard/forced (the
-// _validatorThrowError). Go necessity: panics with HL7ValidationError.
+// validatorThrowError records a validation error (the _validatorThrowError). A
+// hard or forced error is recorded into the build chain as an
+// HL7ValidationError so it surfaces at ToMessage/Err; a soft error is emitted
+// on the "error" event and collected for the field's report.
 func (b *Builder) validatorThrowError(errors *[]string, message string, forceThrow bool) {
 	if b.hardError || forceThrow {
-		panic(helpers.NewHL7ValidationError(message))
+		b.fail(helpers.NewHL7ValidationError(message))
+		*errors = append(*errors, message)
+		return
 	}
 	b.emit("error", message)
 	*errors = append(*errors, message)

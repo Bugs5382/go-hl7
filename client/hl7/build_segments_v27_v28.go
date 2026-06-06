@@ -31,11 +31,14 @@ func itoa(n int) string { return strconv.Itoa(n) }
 // BuildIPC builds an IPC (Imaging Procedure Control) segment (the
 // HL7_2_7._buildIPC). IPC is introduced in v2.7. Chainable.
 func (b *Builder) BuildIPC(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.7")
-	s := spec("IPC")
+	s := b.spec("IPC")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "IPC")
+	b.segment = b.mustAddSegment("IPC")
 	b.setField(s, 1, pick(p, "ipc_1"), &ValidationRule{Length: lenMinMax(1, 427)})
 	b.setField(s, 2, pick(p, "ipc_2"), &ValidationRule{Length: lenMinMax(1, 22)})
 	b.setField(s, 3, pick(p, "ipc_3"), &ValidationRule{Length: lenMinMax(1, 70)})
@@ -50,11 +53,14 @@ func (b *Builder) BuildIPC(p Props) *Builder {
 // BuildISD builds an ISD (Interaction Status Detail) segment (the
 // HL7_2_7._buildISD). ISD.1 is coerced to a string. Chainable.
 func (b *Builder) BuildISD(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.7")
-	s := spec("ISD")
+	s := b.spec("ISD")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "ISD")
+	b.segment = b.mustAddSegment("ISD")
 	isd1 := ""
 	if v := pick(p, "isd_1"); v != nil {
 		isd1 = toStr(v)
@@ -68,11 +74,14 @@ func (b *Builder) BuildISD(p Props) *Builder {
 // BuildSTZ builds an STZ (Sterilization Parameter) segment (the
 // HL7_2_8._buildSTZ). STZ is introduced in v2.8. Chainable.
 func (b *Builder) BuildSTZ(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.8")
-	s := spec("STZ")
+	s := b.spec("STZ")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "STZ")
+	b.segment = b.mustAddSegment("STZ")
 	b.setField(s, 1, pick(p, "stz_1"), &ValidationRule{Length: lenMinMax(1, 250)})
 	b.setField(s, 2, pick(p, "stz_2"), &ValidationRule{Length: lenMinMax(1, 250)})
 	b.setField(s, 3, pick(p, "stz_3"), &ValidationRule{Length: lenMinMax(1, 250)})

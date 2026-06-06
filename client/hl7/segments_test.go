@@ -189,20 +189,17 @@ func TestHL721SegmentBuilders(t *testing.T) {
 	})
 	t.Run("buildSTZ on 2.1 throws HL7FatalError", func(t *testing.T) {
 		b := v21()
-		defer func() {
-			r := recover()
-			if r == nil {
-				t.Fatal("expected panic")
-			}
-			if err, ok := r.(error); !ok || !errors.Is(err, helpers.ErrFatal) {
-				t.Fatalf("expected HL7FatalError, got %v", r)
-			}
-		}()
-		b.BuildSTZ(hl7.Props{"stz_1": "x"})
+		err := b.BuildSTZ(hl7.Props{"stz_1": "x"}).Err()
+		if err == nil {
+			t.Fatal("expected an error")
+		}
+		if !errors.Is(err, helpers.ErrFatal) {
+			t.Fatalf("expected HL7FatalError, got %v", err)
+		}
 	})
 	t.Run("headerExists guards before buildMSH", func(t *testing.T) {
 		fresh := hl7.New(hl7.V2_1)
-		expectThrows(t, "MSH Header", func() { fresh.BuildEVN(hl7.Props{"evn_1": "A01"}) })
+		expectError(t, "MSH Header", func() error { return fresh.BuildEVN(hl7.Props{"evn_1": "A01"}).Err() })
 	})
 }
 
@@ -279,18 +276,22 @@ func TestBaseCommonHelpers(t *testing.T) {
 	})
 	t.Run("toMessage returns the underlying message", func(t *testing.T) {
 		b := v21()
-		if b.ToMessage().String() != b.String() {
+		msg, err := b.ToMessage()
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if msg.String() != b.String() {
 			t.Fatal("mismatch")
 		}
 	})
-	t.Run("checkMSH on base 2.1 throws Not Implemented", func(t *testing.T) {
+	t.Run("checkMSH on base 2.1 returns Not Implemented", func(t *testing.T) {
 		b := hl7.New(hl7.V2_1)
-		expectThrows(t, "Not Implemented", func() { b.CheckMSH(hl7.Props{}) })
+		expectError(t, "Not Implemented", func() error { return b.CheckMSH(hl7.Props{}) })
 	})
 	t.Run("checkMSH on 2.8 delegates to 2.7 checks", func(t *testing.T) {
 		b := hl7.New(hl7.V2_8)
-		if !b.CheckMSH(hl7.Props{"msh_11_1": "P", "msh_9_1": "ADT", "msh_9_2": "A01"}) {
-			t.Fatal("expected true")
+		if err := b.CheckMSH(hl7.Props{"msh_11_1": "P", "msh_9_1": "ADT", "msh_9_2": "A01"}); err != nil {
+			t.Fatalf("expected valid header, got %v", err)
 		}
 	})
 }

@@ -52,7 +52,11 @@ func createAckMessage(t *testing.T, ackType string, message *builder.Message) *b
 		"msa_1": ackType,
 		"msa_2": message.Get("MSH.10").String(),
 	})
-	return messageBuild.ToMessage()
+	msg, err := messageBuild.ToMessage()
+	if err != nil {
+		t.Fatalf("unexpected build error: %v", err)
+	}
+	return msg
 }
 
 func TestServerParserCreatesAAAck(t *testing.T) {

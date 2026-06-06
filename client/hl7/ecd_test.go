@@ -70,8 +70,8 @@ func TestECDPerVersion(t *testing.T) {
 	t.Run("v2.8 rejects ecd_4 with a hard error", func(t *testing.T) {
 		b := hl7.New(hl7.V2_8)
 		ecdHeader(b)
-		expectThrows(t, "", func() {
-			b.BuildECD(hl7.Props{"ecd_1": "1", "ecd_2": "RC", "ecd_4": "20260101"})
+		expectError(t, "", func() error {
+			return b.BuildECD(hl7.Props{"ecd_1": "1", "ecd_2": "RC", "ecd_4": "20260101"}).Err()
 		})
 	})
 
@@ -88,6 +88,6 @@ func TestECDPerVersion(t *testing.T) {
 	t.Run("required ECD.1 unset throws", func(t *testing.T) {
 		b := hl7.New(hl7.V2_4)
 		ecdHeader(b)
-		expectThrows(t, "", func() { b.BuildECD(hl7.Props{"ecd_2": "RC"}) })
+		expectError(t, "", func() error { return b.BuildECD(hl7.Props{"ecd_2": "RC"}).Err() })
 	})
 }

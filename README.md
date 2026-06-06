@@ -84,7 +84,10 @@ func main() {
 		})
 
 	fmt.Println(b.String())
-	msg := b.ToMessage() // a *builder.Message you can keep mutating or send
+	msg, err := b.ToMessage() // *builder.Message + the first validation error, if any
+	if err != nil {
+		panic(err) // or surface it however your app prefers
+	}
 	_ = msg
 }
 ```
@@ -104,9 +107,12 @@ import (
 func ptr[T any](v T) *T { return &v }
 
 func main() {
-	msg := hl7.New(hl7.V2_5).
+	msg, err := hl7.New(hl7.V2_5).
 		BuildMSH(hl7.Props{"msh_9": "ADT^A01", "msh_10": "MSG00001", "msh_11": "P"}).
 		ToMessage()
+	if err != nil {
+		panic(err)
+	}
 
 	c, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "127.0.0.1"})
 	conn, _ := c.CreateConnection(

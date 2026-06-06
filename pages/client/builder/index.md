@@ -28,14 +28,14 @@
 flowchart LR
     A["hl7.New(version)"] -- BuildMSH<br/>required first --> B[builder]
     B --> C[BuildEVN, BuildPID, BuildOBR, BuildOBX, …]
-    C --> D[builder.ToMessage]
+    C --> D["builder.ToMessage (msg, err)"]
     D --> E["📨 Message — send / mutate / serialize"]
 ```
 
 - **`hl7.New(version)`** — the builder constructor; pass a `Version` constant (`hl7.V2_3`, `hl7.V2_5`, `hl7.V2_7`, `hl7.V2_8`, …). It returns a `*hl7.Builder` configured for that spec, exposing the segments that exist in that version.
-- **`BuildMSH(props)`** — must be called first. Anything else panics with `HL7FatalError("MSH Header must be built first.")`.
-- **`Build<SEG>(props)`** — every other segment has a typed builder, and each returns the builder for chaining.
-- **`ToMessage()`** — returns a real `*builder.Message` you can keep editing or send straight to `conn.SendMessage(...)`.
+- **`BuildMSH(props)`** — must be called first. Anything else records `HL7FatalError("MSH Header must be built first.")`, which surfaces from `ToMessage()`/`Err()`.
+- **`Build<SEG>(props)`** — every other segment has a typed builder, and each returns the builder for chaining. The first hard validation failure is recorded and short-circuits the rest of the chain.
+- **`ToMessage()`** — returns `(*builder.Message, error)`. The message is the tree built so far; the error is the first validation failure, if any. `Err()` exposes the same error mid-chain.
 - **`String()`** — returns the framed HL7 text.
 
 > 💡 The builder is **not** the parser. To turn a string back into a `Message`, use `builder.NewMessage(builder.MessageOptions{Text: ...})`. See the [parser docs](../parser/index.md).
@@ -54,8 +54,9 @@ builder := hl7.New(hl7.V2_5, hl7.Options{
     // "8" → YYYYMMDD, "12" → YYYYMMDDHHMM, "14" → YYYYMMDDHHMMSS (default).
     Date: "14",
 
-    // When true, validation issues panic immediately instead of being
-    // collected and emitted on the "error" event. Recommended in dev/CI.
+    // When true, soft validation issues are recorded as an error immediately
+    // instead of being collected and emitted on the "error" event.
+    // Recommended in dev/CI.
     HardError: true,
 })
 ```
@@ -94,7 +95,7 @@ Resulting MSH (HL7 2.5):
 MSH|^~\&|SENDING_APP|SENDING_FAC|RECEIVING_APP|RECEIVING_FAC|20240101000000||ADT^A01|MSG00001|P|2.5
 ```
 
-> ⚠️ Calling any other `Build*` method before `BuildMSH` panics with `HL7FatalError("MSH Header must be built first.")`. Calling `BuildMSH` twice panics with `HL7FatalError("You can only have one MSH Header per HL7 Message.")`.
+> ⚠️ Calling any other `Build*` method before `BuildMSH` records `HL7FatalError("MSH Header must be built first.")` and short-circuits the chain. Calling `BuildMSH` twice records `HL7FatalError("You can only have one MSH Header per HL7 Message.")`. The error comes back from `ToMessage()`/`Err()`.
 
 > 💡 **`Props` is `map[string]any`.** It accepts the spec property keys (`msh_3`, `pid_5`, `obx_5`, …), bare field numbers as strings (`"3"`), human‑friendly aliases on MSH (`sendingApplication`, `receivingFacility`, …), and — for composite fields — a typed component object. Values may be `string`, `int`, `time.Time`, or a `map[string]any` composite.
 
@@ -195,11 +196,13 @@ b.BuildMSH(hl7.Props{"msh_9": "ADT^A01", "msh_10": "X", "msh_11": "P"})
 // ✅ ok — ECD.1, ECD.2 are R, ECD.3 is O.
 b.BuildECD(hl7.Props{"ecd_1": "1", "ecd_2": "RC^Pause^HL70368", "ecd_3": "Y"})
 
-// 💥 panics — ECD.4 is W in 2.8.
+// 🛑 records an error — ECD.4 is W in 2.8. Check it with b.Err()/ToMessage().
 b.BuildECD(hl7.Props{"ecd_1": "2", "ecd_2": "RC^Resume^HL70368", "ecd_4": "20240101"})
 
-// 💥 panics — ECD didn't exist before v2.4.
-hl7.New(hl7.V2_3_1).BuildECD(hl7.Props{"ecd_1": "1"}) // "Segment ECD is not part of HL7 v2.3.1"
+// 🛑 records an error — ECD didn't exist before v2.4.
+_, err := hl7.New(hl7.V2_3_1).
+    BuildECD(hl7.Props{"ecd_1": "1"}).
+    ToMessage() // err: "Segment ECD is not part of HL7 v2.3.1"
 ```
 
 ### Inspecting the spec at runtime
@@ -285,14 +288,14 @@ Component keys are resolved in this precedence order:
 3. `<lowerType>_<num>` key — `obj["xad_1"]`, `obj["xpn_3"]`, …
 4. camelCase rendering of the component name — `obj["streetAddress"]`, `obj["zipOrPostalCode"]`, …
 
-Trailing empty components are trimmed (an XAD with only Street/City emits `Street^^City`, not `Street^^City^^^…^^`). Per-component R/W/X/length validation raises `HL7ValidationError` on violation:
+Trailing empty components are trimmed (an XAD with only Street/City emits `Street^^City`, not `Street^^City^^^…^^`). Per-component R/W/X/length validation records `HL7ValidationError` on violation:
 
 ```go
-// XAD.6 (Country) has max length 3 — this throws.
+// XAD.6 (Country) has max length 3 — this records an error on the builder.
 b.BuildPID(hl7.Props{
     "pid_11": map[string]any{
         "streetAddress": "123 Elm St",
-        "country":       "UNITED_STATES_OF_AMERICA", // 💥 length > 3
+        "country":       "UNITED_STATES_OF_AMERICA", // 🛑 length > 3
     },
 })
 ```
@@ -414,7 +417,7 @@ A quick map of the HL7 delimiters you'll most often use inside these strings:
 >
 > **`Set`/`SetIndex` style** — verbose but programmatic:
 > ```go
-> msg := builder.ToMessage()
+> msg, _ := builder.ToMessage() // handle the error in real code
 > msg.Get("PV1.7").Index(0).SetIndex(1, "Jones").SetIndex(2, "John")
 > msg.Get("PV1.7").Index(1).SetIndex(1, "Smith").SetIndex(2, "Bob")
 > ```
@@ -473,12 +476,15 @@ builder := hl7.New(hl7.V2_5, hl7.Options{
 
 ## ✏️ Direct edits with `msg.Set(...)`
 
-`ToMessage()` returns a real `*builder.Message` you can keep mutating after the builder is done. This is essential for fields the typed builders don't surface (e.g. obscure repetitions or custom Z‑segments).
+`ToMessage()` returns a real `*builder.Message` (plus the first build error) you can keep mutating after the builder is done. This is essential for fields the typed builders don't surface (e.g. obscure repetitions or custom Z‑segments).
 
 > 💡 If you only need composites or repetitions on a field the builder *does* surface, you can usually skip `Set(...)` chains entirely and pass an HL7 composite string straight to the builder prop — see [Composite values inline](#-composite-values-inline--pass-the-whole-string).
 
 ```go
-msg := builder.ToMessage()
+msg, err := builder.ToMessage()
+if err != nil {
+    return err
+}
 
 // Set a single field (1-based dotted HL7 path):
 msg.Set("PID.13", "555-0100")
@@ -568,7 +574,7 @@ import (
     "github.com/Bugs5382/go-hl7/client/hl7"
 )
 
-func createADT_A01(mrn, name, ctrlID string) *builder.Message {
+func createADT_A01(mrn, name, ctrlID string) (*builder.Message, error) {
     return hl7.New(hl7.V2_5).
         BuildMSH(hl7.Props{
             "msh_3":  "MY_APP",
@@ -584,8 +590,11 @@ func createADT_A01(mrn, name, ctrlID string) *builder.Message {
         ToMessage()
 }
 
-_ = conn.SendMessage(createADT_A01("MRN12345", "DOE^JANE^A", "MSG00001"))
-_ = conn.SendMessage(createADT_A01("MRN67890", "ROE^JOHN^B", "MSG00002"))
+m1, err := createADT_A01("MRN12345", "DOE^JANE^A", "MSG00001")
+if err != nil {
+    return err
+}
+_ = conn.SendMessage(m1)
 ```
 
 Keeps callsites readable and test fixtures consistent.
@@ -608,28 +617,19 @@ import (
     "github.com/Bugs5382/go-hl7/client/helpers"
 )
 
-func tryBuild() (err error) {
-    defer func() {
-        if r := recover(); r != nil {
-            if e, ok := r.(error); ok {
-                err = e
-            }
-        }
-    }()
-    hl7.New(hl7.V2_5).
-        BuildMSH(hl7.Props{"msh_9": "ADT^A01", "msh_10": "X", "msh_11": "P"}).
-        BuildPID(hl7.Props{"pid_8": "Q"}) // not in TABLE_0001
-    return nil
-}
+_, err := hl7.New(hl7.V2_5).
+    BuildMSH(hl7.Props{"msh_9": "ADT^A01", "msh_10": "X", "msh_11": "P"}).
+    BuildPID(hl7.Props{"pid_8": "Q"}). // not in TABLE_0001
+    ToMessage()
 
-if err := tryBuild(); errors.Is(err, helpers.ErrValidation) {
+if errors.Is(err, helpers.ErrValidation) {
     fmt.Println("🛑", err) // HL7ValidationError
 }
 ```
 
 | Mode | Behavior |
 |---|---|
-| Default (`HardError: false`) | R/length/table violations emit an `"error"` event and are collected. **W / X / "field not in this version" always panic.** |
-| `HardError: true` | Every violation panics immediately. Recommended in dev & CI. |
+| Default (`HardError: false`) | R/length/table violations emit an `"error"` event and are collected. **W / X / "field not in this version" always record a hard error.** |
+| `HardError: true` | Every violation is recorded as an error immediately. Recommended in dev & CI. |
 
-> 💡 Subscribe to the `"error"` and `"warning"` events on the builder to capture soft validation findings: `b.On("warning", func(m string) { log.Println(m) })`. Because the typed builders panic on hard validation failures (the Go analog of the spec's `throw`), wrap a builder run in `recover` if you need to turn those into errors at a boundary.
+> 💡 Subscribe to the `"error"` and `"warning"` events on the builder to capture soft validation findings: `b.On("warning", func(m string) { log.Println(m) })`. The typed builders record hard validation failures (the Go analog of the spec's `throw`) onto the builder; read them from `ToMessage()`/`Err()` to handle them at a boundary.

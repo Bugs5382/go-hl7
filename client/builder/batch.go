@@ -205,7 +205,9 @@ func (b *Batch) ToFile(name string, newLine bool, location string, extension str
 	fileBatch.Set("FHS.7", b.Get("BHS.7").String())
 	fileBatch.Set("FHS.9", "hl7."+name+"."+b.Get("BHS.7").String()+"."+fileBatch.opt.Extension)
 
-	fileBatch.AddBatch(b)
+	if err := fileBatch.AddBatch(b); err != nil {
+		return "", err
+	}
 	fileBatch.End()
 	if err := fileBatch.CreateFile(name); err != nil {
 		return "", err

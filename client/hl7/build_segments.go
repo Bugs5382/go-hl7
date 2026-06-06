@@ -30,24 +30,33 @@ import (
 	"github.com/Bugs5382/go-hl7/client/hl7/metadata"
 )
 
-// spec returns a registered SegmentSpec by name, panicking when absent (the
-// per-version builders reference compile-time-known specs).
-func spec(name string) metadata.SegmentSpec {
+// spec returns a registered SegmentSpec by name. The per-version builders
+// reference compile-time-known specs, so an absent name is a fatal mismatch: it
+// is recorded into the build chain and a zero spec returned (the downstream
+// setField calls then short-circuit on b.err).
+func (b *Builder) spec(name string) metadata.SegmentSpec {
+	if b.err != nil {
+		return metadata.SegmentSpec{}
+	}
 	s, ok := metadata.SegmentSpecs[name]
 	if !ok {
-		panic(helpers.NewHL7ValidationError("Unknown HL7 segment " + name))
+		b.fail(helpers.NewHL7ValidationError("Unknown HL7 segment " + name))
+		return metadata.SegmentSpec{}
 	}
 	return s
 }
 
-// notImplementedBefore panics with HL7FatalError("Not Implemented") when the
+// notImplementedBefore records HL7FatalError("Not Implemented") when the
 // current version predates the version that introduced a typed builder. It
 // mirrors the Builder._buildXXX stubs: a segment-builder method is only
 // defined from the version that introduced the segment onward, so on an earlier
 // version the call falls through to the base stub that throws.
 func (b *Builder) notImplementedBefore(introduced string) {
+	if b.err != nil {
+		return
+	}
 	if compareVersions(b.version, introduced) < 0 {
-		panic(helpers.NewHL7FatalError("Not Implemented"))
+		b.fail(helpers.NewHL7FatalError("Not Implemented"))
 	}
 }
 
@@ -59,6 +68,9 @@ func (b *Builder) setField(s metadata.SegmentSpec, num int, value any, rule *Val
 // BuildSegment builds any segment by name from its generated spec (the
 // buildSegment). Chainable.
 func (b *Builder) BuildSegment(name string, properties Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.buildSegmentGeneric(name, properties)
 	return b
 }
@@ -66,12 +78,19 @@ func (b *Builder) BuildSegment(name string, properties Props) *Builder {
 // BuildADD builds an ADD (Addendum) segment (the buildADD). It must not
 // follow MSH/BHS/FHS. Chainable.
 func (b *Builder) BuildADD(properties Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
+	if b.err != nil {
+		return b
+	}
 	last := b.message.GetLastSegment()
 	if last != nil && (last.Name() == "BHS" || last.Name() == "FHS" || last.Name() == "MSH") {
-		panic(helpers.NewHL7ValidationError("This segment must not follow a MSH, BHS, or FHS"))
+		b.fail(helpers.NewHL7ValidationError("This segment must not follow a MSH, BHS, or FHS"))
+		return b
 	}
-	b.segment = mustAddSegment(b.message, "ADD")
+	b.segment = b.mustAddSegment("ADD")
 	rule := &ValidationRule{}
 	if b.hasMaxAddSegment {
 		rule.Length = lenMax(b.maxAddSegmentLength)
@@ -83,9 +102,16 @@ func (b *Builder) BuildADD(properties Props) *Builder {
 // BuildNCK builds an NCK (System Clock) segment with the version-appropriate
 // timestamp (the buildNCK + _buildNCK). Chainable.
 func (b *Builder) BuildNCK() *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
+	if b.err != nil {
+		return b
+	}
 	if b.message.TotalSegment("NCK") > 0 {
-		panic(helpers.NewHL7FatalError("You can only have one NCK segment per HL7 Message."))
+		b.fail(helpers.NewHL7FatalError("You can only have one NCK segment per HL7 Message."))
+		return b
 	}
 	b.startSegment("NCK")
 
@@ -112,6 +138,9 @@ func (b *Builder) BuildNCK() *Builder {
 
 // BuildNST builds an NST (Statistics) segment (the _buildNST). Chainable.
 func (b *Builder) BuildNST(properties Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.startSegment("NST")
 	b.validatorSetValue("1", pick(properties, "nst_1"), &ValidationRule{Required: true})
@@ -123,6 +152,9 @@ func (b *Builder) BuildNST(properties Props) *Builder {
 
 // BuildDSP builds a DSP (Display Data) segment (the _buildDSP). Chainable.
 func (b *Builder) BuildDSP(properties Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.startSegment("DSP")
 
@@ -153,13 +185,16 @@ func (b *Builder) BuildDSP(properties Props) *Builder {
 // and per-version usage codes (ECD.4: O in 2.4-2.5.1, B in 2.6-2.7.1, W in 2.8
 // and withdrawn already in 2.7) are enforced by the validator. Chainable.
 func (b *Builder) BuildECD(properties Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	// the spec exposes buildECD only from HL7_2_4 onward; earlier versions fall
 	// through to the Builder._buildECD stub that throws "Not Implemented".
 	b.notImplementedBefore("2.4")
-	s := spec("ECD")
+	s := b.spec("ECD")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "ECD")
+	b.segment = b.mustAddSegment("ECD")
 	b.setField(s, 1, pick(properties, "ecd_1", "referenceCommandNumber"), nil)
 	b.setField(s, 2, pick(properties, "ecd_2", "remoteControlCommand"), nil)
 	b.setField(s, 3, pick(properties, "ecd_3", "responseRequired"), nil)
