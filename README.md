@@ -26,21 +26,21 @@ It is a single Go module (`github.com/Bugs5382/go-hl7`) organized as two package
 ```mermaid
 flowchart LR
     subgraph clientPkgs["client packages"]
-      A[👨‍💻 your code] --> B[hl7.HL7_2_x builder]
-      B --> C[builder.Message / Batch / FileBatch]
-      C --> D[client.Connection]
+      A["your code"] --> B["hl7.HL7_2_x builder"]
+      B --> C["builder.Message / Batch / FileBatch"]
+      C --> D["client.Connection"]
     end
 
-    D -- "TCP / MLLP (TLS / mTLS optional)" --> E[server.Inbound listener]
+    D -->|"TCP / MLLP (TLS / mTLS optional)"| E["server.Inbound listener"]
 
     subgraph serverPkg["server package"]
-      E --> F[per-socket modules.MLLPCodec]
-      F --> G[InboundRequest, SendResponse]
-      G --> H[your handler]
-      H -- "AA / AR / AE / custom" --> E
+      E --> F["per-socket modules.MLLPCodec"]
+      F --> G["InboundRequest, SendResponse"]
+      G --> H["your handler"]
+      H -->|"AA / AR / AE / custom"| E
     end
 
-    E -- ACK --> D
+    E -->|ACK| D
 ```
 
 Every inbound TCP connection gets its **own** `MLLPCodec` instance so concurrent senders never interleave their byte streams.
