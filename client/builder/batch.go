@@ -32,7 +32,7 @@ import (
 	"github.com/Bugs5382/go-hl7/client/utils"
 )
 
-// Batch is the BHS-rooted batch builder (the Batch). It collects Message
+// Batch is the BHS-rooted batch builder. It collects Message
 // children under a Batch Header Segment (BHS) and closes with a Batch Trailing
 // Segment (BTS) carrying the message count.
 type Batch struct {
@@ -43,8 +43,8 @@ type Batch struct {
 }
 
 // NewBatch builds an empty batch (writing BHS.7 with the current date), or
-// parses the provided text into the MSH lines it carries. It mirrors the
-// Batch constructor, returning an error where the spec throws.
+// parses the provided text into the MSH lines it carries. It returns an error
+// on invalid input.
 func NewBatch(opts BatchOptions) (*Batch, error) {
 	opt, err := normalizedClientBatchParserOptions(opts)
 	if err != nil {
@@ -68,7 +68,7 @@ func NewBatch(opts BatchOptions) (*Batch, error) {
 }
 
 // Add adds a Message to the batch, bumping the message count. With index < 0 the
-// message is appended; otherwise it is inserted at index (the Batch.add).
+// message is appended; otherwise it is inserted at index.
 func (b *Batch) Add(message *Message, index int) {
 	b.setDirty()
 	b.messagesCount = b.messagesCount + 1
@@ -83,18 +83,16 @@ func (b *Batch) Add(message *Message, index int) {
 	}
 }
 
-// End closes the batch, appending the BTS trailer with the message count (the
-// Batch.end).
+// End closes the batch, appending the BTS trailer with the message count.
 func (b *Batch) End() {
 	segment := b.addSegment("BTS")
 	segment.Set("1", b.messagesCount)
 }
 
-// Text returns the normalized source text the batch was parsed from (the
-// _opt.text).
+// Text returns the normalized source text the batch was parsed from.
 func (b *Batch) Text() string { return b.opt.Text }
 
-// Get resolves a BHS segment or field path (the Batch.get).
+// Get resolves a BHS segment or field path.
 func (b *Batch) Get(path string) HL7Node {
 	if path == "" {
 		return emptySingleton
@@ -107,15 +105,14 @@ func (b *Batch) Get(path string) HL7Node {
 	return rv
 }
 
-// GetFirstSegment returns the first segment found in the batch matching name
-// (the getFirstSegment).
+// GetFirstSegment returns the first segment found in the batch matching name.
 func (b *Batch) GetFirstSegment(name string) *Segment {
 	return b.firstSegment(name)
 }
 
 // Messages parses the carried text into individual Message nodes, one per MSH
-// line (the Batch.messages). It panics with HL7FatalError when there is no
-// batch text to parse, mirroring the throw.
+// line. It panics with HL7FatalError when there is no
+// batch text to parse.
 func (b *Batch) Messages() []*Message {
 	if b.lines != nil && b.opt.NewLine != "" {
 		messages := make([]*Message, 0, len(b.lines))
@@ -132,8 +129,7 @@ func (b *Batch) Messages() []*Message {
 	panic(helpers.NewHL7FatalError("No messages inside batch."))
 }
 
-// Read resolves a split path, returning a SegmentList for a bare segment name
-// (the Batch.read).
+// Read resolves a split path, returning a SegmentList for a bare segment name.
 func (b *Batch) Read(path []string) HL7Node {
 	if len(path) == 0 {
 		panic(helpers.NewHL7FatalError("Unable to process the read function correctly."))
@@ -159,7 +155,7 @@ func (b *Batch) Read(path []string) HL7Node {
 	panic(helpers.NewHL7FatalError("Unable to process the read function correctly."))
 }
 
-// Set writes a value at a batch segment/field path (the Batch.set).
+// Set writes a value at a batch segment/field path.
 func (b *Batch) Set(path string, value any) HL7Node {
 	if arr, ok := value.([]any); ok {
 		for i, item := range arr {
@@ -172,14 +168,13 @@ func (b *Batch) Set(path string, value any) HL7Node {
 	return b
 }
 
-// Start (re)writes BHS.7 with the current date in the given style (the
-// Batch.start). An empty style defaults to the 14-character form.
+// Start (re)writes BHS.7 with the current date in the given style. An empty style defaults to the 14-character form.
 func (b *Batch) Start(style string) {
 	b.Set("BHS.7", utils.CreateHL7Date(time.Now(), style))
 }
 
 // ToFile wraps the batch in a FileBatch and writes it to disk, returning the
-// generated file name (the Batch.toFile).
+// generated file name.
 func (b *Batch) ToFile(name string, newLine bool, location string, extension string) (string, error) {
 	if extension == "" {
 		extension = "hl7"
@@ -215,16 +210,15 @@ func (b *Batch) ToFile(name string, newLine bool, location string, extension str
 	return fileBatch.FileName(), nil
 }
 
-// createChild builds a Segment from trimmed text (the Batch.createChild).
+// createChild builds a Segment from trimmed text.
 func (b *Batch) createChild(text string, index int) HL7Node {
 	return newSegment(b, strings.TrimSpace(text))
 }
 
-// pathCore returns the empty root path (the Batch.pathCore).
+// pathCore returns the empty root path.
 func (b *Batch) pathCore() []string { return []string{} }
 
-// writeCore writes a segment path, appending a new segment at index 0 (the
-// Batch.writeCore).
+// writeCore writes a segment path, appending a new segment at index 0.
 func (b *Batch) writeCore(path []string, value string) HL7Node {
 	if len(path) == 0 {
 		panic(helpers.NewHL7ParserError("Segment name is not defined."))
@@ -234,7 +228,7 @@ func (b *Batch) writeCore(path []string, value string) HL7Node {
 	return b.writeAtIndex(rest, value, 0, segmentName)
 }
 
-// addSegment appends a new segment at the root (the _addSegment).
+// addSegment appends a new segment at the root.
 func (b *Batch) addSegment(path string) *Segment {
 	if path == "" {
 		panic(helpers.NewHL7ParserError("Missing segment path."))
@@ -246,7 +240,7 @@ func (b *Batch) addSegment(path string) *Segment {
 	return b.addChild(prepared[0]).(*Segment)
 }
 
-// firstSegment returns the first segment named name (the _getFirstSegment).
+// firstSegment returns the first segment named name.
 func (b *Batch) firstSegment(name string) *Segment {
 	for _, c := range b.childrenOf() {
 		if seg, ok := c.(*Segment); ok && seg.Name() == name {

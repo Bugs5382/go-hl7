@@ -34,7 +34,7 @@ import (
 	"github.com/Bugs5382/go-hl7/client/utils"
 )
 
-// FileBatch is the FHS-rooted file-batch builder (the FileBatch). It collects
+// FileBatch is the FHS-rooted file-batch builder. It collects
 // Message and Batch children under a File Header Segment (FHS) and closes with a
 // File Trailing Segment (FTS), and can serialize the tree to disk.
 type FileBatch struct {
@@ -48,7 +48,7 @@ type FileBatch struct {
 
 // NewFileBatch builds an empty file batch (writing FHS.7 with the current
 // date), or parses the text/file/buffer into the MSH lines it carries. It
-// mirrors the FileBatch constructor, returning an error where the spec throws.
+// returns an error on invalid input.
 func NewFileBatch(opts FileOptions) (*FileBatch, error) {
 	opt, err := normalizedClientFileParserOptions(opts)
 	if err != nil {
@@ -102,9 +102,8 @@ func (f *FileBatch) AddBatch(batch *Batch) error {
 	return nil
 }
 
-// CreateFile writes the framed bytes to disk under the configured Location
-// (the createFile). It is a no-op when no Location was set, mirroring the
-// spec's undefined-location guard.
+// CreateFile writes the framed bytes to disk under the configured Location. It
+// is a no-op when no Location was set.
 func (f *FileBatch) CreateFile(name string) error {
 	fhsDate := f.Get("FHS.7").String()
 
@@ -137,20 +136,19 @@ func (f *FileBatch) CreateFile(name string) error {
 }
 
 // End closes the file batch, appending the FTS trailer with the batch+message
-// count (the FileBatch.end).
+// count.
 func (f *FileBatch) End() {
 	segment := f.addSegment("FTS")
 	segment.Set("1", f.batchCount+f.messagesCount)
 }
 
-// FileName returns the generated file name (the fileName).
+// FileName returns the generated file name.
 func (f *FileBatch) FileName() string { return f.fileName }
 
-// Text returns the normalized source text the file batch was parsed from (the
-// _opt.text).
+// Text returns the normalized source text the file batch was parsed from.
 func (f *FileBatch) Text() string { return f.opt.Text }
 
-// Get resolves an FHS segment or field path (the FileBatch.get).
+// Get resolves an FHS segment or field path.
 func (f *FileBatch) Get(path string) HL7Node {
 	if path == "" {
 		return emptySingleton
@@ -164,8 +162,8 @@ func (f *FileBatch) Get(path string) HL7Node {
 }
 
 // Messages parses the carried text into individual Message nodes, one per MSH
-// line (the FileBatch.messages). It panics with HL7FatalError when there is no
-// file text to parse, mirroring the throw.
+// line. It panics with HL7FatalError when there is no
+// file text to parse.
 func (f *FileBatch) Messages() []*Message {
 	if f.lines != nil && f.opt.NewLine != "" {
 		messages := make([]*Message, 0, len(f.lines))
@@ -182,8 +180,7 @@ func (f *FileBatch) Messages() []*Message {
 	panic(helpers.NewHL7FatalError("No messages inside file segment."))
 }
 
-// Read resolves a split path, returning a SegmentList for a bare segment name
-// (the FileBatch.read).
+// Read resolves a split path, returning a SegmentList for a bare segment name.
 func (f *FileBatch) Read(path []string) HL7Node {
 	if len(path) == 0 {
 		panic(helpers.NewHL7FatalError("Unable to process the read function correctly."))
@@ -209,7 +206,7 @@ func (f *FileBatch) Read(path []string) HL7Node {
 	panic(helpers.NewHL7FatalError("Unable to process the read function correctly."))
 }
 
-// Set writes a value at a file-batch segment/field path (the FileBatch.set).
+// Set writes a value at a file-batch segment/field path.
 func (f *FileBatch) Set(path string, value any) HL7Node {
 	if arr, ok := value.([]any); ok {
 		for i, item := range arr {
@@ -222,21 +219,20 @@ func (f *FileBatch) Set(path string, value any) HL7Node {
 	return f
 }
 
-// Start (re)writes FHS.7 with the current date (the FileBatch.start).
+// Start (re)writes FHS.7 with the current date.
 func (f *FileBatch) Start() {
 	f.Set("FHS.7", utils.CreateHL7Date(time.Now(), ""))
 }
 
-// createChild builds a Segment from trimmed text (the FileBatch.createChild).
+// createChild builds a Segment from trimmed text.
 func (f *FileBatch) createChild(text string, index int) HL7Node {
 	return newSegment(f, strings.TrimSpace(text))
 }
 
-// pathCore returns the empty root path (the FileBatch.pathCore).
+// pathCore returns the empty root path.
 func (f *FileBatch) pathCore() []string { return []string{} }
 
-// writeCore writes a segment path, appending a new segment at index 0 (the
-// FileBatch.writeCore).
+// writeCore writes a segment path, appending a new segment at index 0.
 func (f *FileBatch) writeCore(path []string, value string) HL7Node {
 	if len(path) == 0 {
 		panic(helpers.NewHL7ParserError("Segment name is not defined."))
@@ -246,7 +242,7 @@ func (f *FileBatch) writeCore(path []string, value string) HL7Node {
 	return f.writeAtIndex(rest, value, 0, segmentName)
 }
 
-// addSegment appends a new segment at the root (the _addSegment).
+// addSegment appends a new segment at the root.
 func (f *FileBatch) addSegment(path string) *Segment {
 	if path == "" {
 		panic(helpers.NewHL7ParserError("Missing segment path."))
@@ -258,7 +254,7 @@ func (f *FileBatch) addSegment(path string) *Segment {
 	return f.addChild(prepared[0]).(*Segment)
 }
 
-// firstBatch returns the first Batch child (the _getFirstBatch).
+// firstBatch returns the first Batch child.
 func (f *FileBatch) firstBatch() *Batch {
 	for _, c := range f.childrenOf() {
 		if batch, ok := c.(*Batch); ok {
@@ -268,7 +264,7 @@ func (f *FileBatch) firstBatch() *Batch {
 	panic(helpers.NewHL7FatalError("Unable to process _getFirstBatch."))
 }
 
-// firstSegment returns the first segment named name (the _getFirstSegment).
+// firstSegment returns the first segment named name.
 func (f *FileBatch) firstSegment(name string) *Segment {
 	for _, c := range f.childrenOf() {
 		if seg, ok := c.(*Segment); ok && seg.Name() == name {

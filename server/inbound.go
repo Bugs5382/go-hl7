@@ -37,12 +37,10 @@ import (
 )
 
 // InboundHandler processes one inbound message and sends an ACK via the
-// response, mirroring the InboundHandler ((req, res) => void). Returning an
-// error is the Go-idiomatic surface for a handler that fails; the handler
-// returns void.
+// response. Returning an error signals a handler failure.
 type InboundHandler func(request *InboundRequest, res ResponseSender) error
 
-// inboundStats mirrors the Inbound.stats counters.
+// inboundStats holds the per-listener counters.
 type inboundStats struct {
 	received     int
 	totalMessage int
@@ -50,9 +48,8 @@ type inboundStats struct {
 
 // Inbound is one TCP/TLS listener bound to a port. It accepts connections,
 // frames inbound HL7 with a per-socket MLLP codec, parses message/batch/file
-// bodies, and dispatches each to the handler. It mirrors the reference's
-// Inbound (an EventEmitter) over the same event names via the embedded
-// EventEmitter: listen, client.connect, client.close, client.error, data.raw,
+// bodies, and dispatches each to the handler. It embeds EventEmitter and
+// emits: listen, client.connect, client.close, client.error, data.raw,
 // data.error, error, response.sent.
 type Inbound struct {
 	EventEmitter
@@ -78,8 +75,8 @@ func (in *Inbound) IsListening() bool {
 	return in.listening
 }
 
-// newInbound builds and starts a listener, mirroring the Inbound constructor
-// (which calls _listen). The spec throws on bad options; Go returns the error.
+// newInbound builds, validates, and starts a listener, returning an error on
+// bad options.
 func newInbound(server *Server, properties ListenerOptions, handler InboundHandler) (*Inbound, error) {
 	opt, err := srvutils.NormalizeListenerOptions(properties)
 	if err != nil {
@@ -92,25 +89,24 @@ func newInbound(server *Server, properties ListenerOptions, handler InboundHandl
 	return in, nil
 }
 
-// GetName returns the resolved listener name (the _opt.name).
+// GetName returns the resolved listener name.
 func (in *Inbound) GetName() string { return in.opt.Name }
 
-// TotalMessage returns the per-message parse counter (the stats.totalMessage).
+// TotalMessage returns the per-message parse counter.
 func (in *Inbound) TotalMessage() int {
 	in.mu.Lock()
 	defer in.mu.Unlock()
 	return in.stats.totalMessage
 }
 
-// TotalReceived returns the per-frame received counter (the stats.received).
+// TotalReceived returns the per-frame received counter.
 func (in *Inbound) TotalReceived() int {
 	in.mu.Lock()
 	defer in.mu.Unlock()
 	return in.stats.received
 }
 
-// Close destroys all client sockets and stops the listener, mirroring the
-// close().
+// Close destroys all client sockets and stops the listener.
 func (in *Inbound) Close() error {
 	in.mu.Lock()
 	if in.closed {
@@ -133,8 +129,8 @@ func (in *Inbound) Close() error {
 }
 
 // listen binds the listener (TCP or TLS), emits listen once bound, and accepts
-// connections in a goroutine. It mirrors the _listen including the
-// dual-stack IPv6 -> IPv4 fallback (when "::" cannot bind, retry on 0.0.0.0).
+// connections in a goroutine. It includes the dual-stack IPv6 -> IPv4 fallback
+// (when "::" cannot bind, retry on 0.0.0.0).
 func (in *Inbound) listen() error {
 	port := in.opt.Port
 	bindAddress := in.main.opt.BindAddress
@@ -160,8 +156,7 @@ func (in *Inbound) listen() error {
 
 	listener, err := in.bind(network, address)
 	if err != nil && dualStack {
-		// IPv6 wildcard unavailable: retry IPv4-only on 0.0.0.0 (the
-		// fallback to host "0.0.0.0").
+		// IPv6 wildcard unavailable: retry IPv4-only on 0.0.0.0.
 		fallbackHost := bindAddress
 		if fallbackHost == "::" {
 			fallbackHost = "0.0.0.0"
@@ -178,9 +173,8 @@ func (in *Inbound) listen() error {
 	in.listening = true
 	in.mu.Unlock()
 
-	// the socket.listen fires its "listen" callback asynchronously (next
-	// event-loop tick), so a handler registered right after createInbound still
-	// catches it. Emit from a goroutine to preserve that ordering.
+	// Emit "listen" from a goroutine so a handler registered right after
+	// CreateInbound still catches it.
 	go in.emit("listen")
 
 	go in.acceptLoop(listener)
@@ -199,8 +193,8 @@ func (in *Inbound) bind(network, address string) (net.Listener, error) {
 	return tls.Listen(network, address, cfg)
 }
 
-// buildServerTLSConfig maps the server TLSConfig to a *tls.Config, mirroring
-// the tls.createServer({ ca, cert, key, requestCert }).
+// buildServerTLSConfig maps the server TLSConfig to a *tls.Config (ca, cert,
+// key, requestCert).
 func buildServerTLSConfig(cfg *srvutils.TLSConfig) (*tls.Config, error) {
 	out := &tls.Config{}
 	if len(cfg.Cert) > 0 && len(cfg.Key) > 0 {
@@ -223,8 +217,7 @@ func buildServerTLSConfig(cfg *srvutils.TLSConfig) (*tls.Config, error) {
 }
 
 // acceptLoop accepts connections until the listener closes, spawning a
-// per-socket reader goroutine. It mirrors the createServer connection
-// callback.
+// per-socket reader goroutine.
 func (in *Inbound) acceptLoop(listener net.Listener) {
 	for {
 		conn, err := listener.Accept()
@@ -237,7 +230,7 @@ func (in *Inbound) acceptLoop(listener net.Listener) {
 
 // onClientConnected registers a socket, sets no-delay, and starts its reader
 // with a per-socket codec (so concurrent connections do not interleave their
-// buffers, issue #132). It mirrors the _onTcpClientConnected.
+// buffers, issue #132).
 func (in *Inbound) onClientConnected(conn net.Conn) {
 	in.mu.Lock()
 	in.sockets = append(in.sockets, conn)
@@ -247,9 +240,8 @@ func (in *Inbound) onClientConnected(conn net.Conn) {
 		_ = tcp.SetNoDelay(true)
 	}
 
-	// The codec's only argument is the return character (the \r default); the
-	// configured encoding is dropped since Go bodies are UTF-8 byte slices.
-	// Passing encoding here would wrongly set the message join character.
+	// The codec's only argument is the return character (defaulting to "\r");
+	// HL7 bodies are UTF-8 byte slices, so no encoding is configured.
 	codec := modules.NewMLLPCodec("")
 
 	in.emit("client.connect", conn)
@@ -257,9 +249,8 @@ func (in *Inbound) onClientConnected(conn net.Conn) {
 	go in.readLoop(conn, codec)
 }
 
-// readLoop reads framed bytes for one socket, feeds the per-socket codec, and
-// dispatches completed messages. It mirrors the socket "data" handler plus
-// the "error"/"close" handlers.
+// readLoop reads framed bytes for one socket, feeds the per-socket codec,
+// dispatches completed messages, and handles socket errors/close.
 func (in *Inbound) readLoop(conn net.Conn, codec *modules.MLLPCodec) {
 	buf := make([]byte, 4096)
 	for {
@@ -276,7 +267,7 @@ func (in *Inbound) readLoop(conn net.Conn, codec *modules.MLLPCodec) {
 }
 
 // onData processes one chunk: feed the codec, and on a complete frame parse it
-// as file/batch/message and dispatch. Mirrors the data handler body.
+// as file/batch/message and dispatch.
 func (in *Inbound) onData(conn net.Conn, codec *modules.MLLPCodec, chunk []byte) {
 	var dataResult bool
 	func() {
@@ -330,7 +321,7 @@ func (in *Inbound) onData(conn net.Conn, codec *modules.MLLPCodec, chunk []byte)
 }
 
 // handleMessages re-parses and dispatches each message from a batch/file body,
-// mirroring the _handleMessages (which rebuilds each Message from its text).
+// rebuilding each Message from its text.
 func (in *Inbound) handleMessages(conn net.Conn, messages []*builder.Message, fromType string) {
 	for _, msg := range messages {
 		in.dispatch(conn, msg.String(), fromType)
@@ -338,8 +329,7 @@ func (in *Inbound) handleMessages(conn net.Conn, messages []*builder.Message, fr
 }
 
 // dispatch parses one message body, bumps totalMessage, builds the request and
-// response, wires response.sent, and invokes the handler. It mirrors the
-// per-message tail shared by the data handler and _handleMessages.
+// response, wires response.sent, and invokes the handler.
 func (in *Inbound) dispatch(conn net.Conn, msgText, fromType string) {
 	parsed, err := builder.NewMessage(builder.MessageOptions{Text: msgText})
 	if err != nil {
@@ -353,8 +343,8 @@ func (in *Inbound) dispatch(conn net.Conn, msgText, fromType string) {
 
 	// Enforce this listener's required HL7 version: an inbound message whose
 	// MSH.12 differs is rejected with an AR (Application Reject) ACK, a
-	// version-mismatch event is emitted, and the handler is NOT invoked (each
-	// port enforces its own version; an intentional divergence from node-hl7).
+	// version-mismatch event is emitted, and the handler is NOT invoked. Each
+	// port enforces its own version.
 	if got := parsed.Get("MSH.12").String(); got != in.opt.Version {
 		res := in.newResponse(conn, parsed)
 		_ = res.SendResponse("AR")
@@ -373,14 +363,12 @@ func (in *Inbound) dispatch(conn net.Conn, msgText, fromType string) {
 	}
 }
 
-// newResponse builds the response for a request. The spec uses the configured
-// _sendResponseClass; the default is SendResponse.
+// newResponse builds the SendResponse for a request.
 func (in *Inbound) newResponse(conn net.Conn, message *builder.Message) *SendResponse {
 	return NewSendResponse(conn, message, in.opt.MSHOverrides)
 }
 
-// closeSocket destroys a socket and removes it from the tracked list, mirroring
-// the _closeSocket.
+// closeSocket destroys a socket and removes it from the tracked list.
 func (in *Inbound) closeSocket(conn net.Conn) {
 	_ = conn.Close()
 	in.mu.Lock()

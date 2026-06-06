@@ -38,12 +38,12 @@ import (
 	"github.com/Bugs5382/go-hl7/server"
 )
 
-// These mirror __tests__/server/hl7.issues.test.ts: the over-the-wire portions
-// of PR #134 (getSocket), issue #130 (custom ACK), issue #132 (concurrency /
-// split frame), and issue #133 (throughput).
+// These cover the over-the-wire portions of PR #134 (GetSocket), issue #130
+// (custom ACK), issue #132 (concurrency / split frame), and issue #133
+// (throughput).
 
-// TestPR134GetSocketOverWire mirrors the createInbound handler receiving a real
-// net.Conn through req.getSocket(), with addresses available on both ends.
+// TestPR134GetSocketOverWire checks an inbound handler receiving a real
+// net.Conn through req.GetSocket(), with addresses available on both ends.
 func TestPR134GetSocketOverWire(t *testing.T) {
 	port := freePort(t)
 	done := newEventWaiter()
@@ -85,7 +85,7 @@ func TestPR134GetSocketOverWire(t *testing.T) {
 	cli.CloseAll()
 }
 
-// TestIssue130CustomACK mirrors sendCustomResponse delivering a verbatim,
+// TestIssue130CustomACK checks SendCustomResponse delivering a verbatim,
 // vendor-shaped ACK (with extra MSA fields and an ERR segment) to the client.
 func TestIssue130CustomACK(t *testing.T) {
 	port := freePort(t)
@@ -168,7 +168,7 @@ func TestIssue130CustomACK(t *testing.T) {
 	cli.CloseAll()
 }
 
-// TestIssue130CustomACKRawString mirrors sendCustomResponse accepting a raw HL7
+// TestIssue130CustomACKRawString checks SendCustomResponse accepting a raw HL7
 // string as well as a Message.
 func TestIssue130CustomACKRawString(t *testing.T) {
 	port := freePort(t)
@@ -219,7 +219,7 @@ func TestIssue130CustomACKRawString(t *testing.T) {
 	cli.CloseAll()
 }
 
-// TestIssue130CustomACKResponseSent mirrors sendCustomResponse emitting
+// TestIssue130CustomACKResponseSent checks SendCustomResponse emitting
 // 'response.sent' on the listener.
 func TestIssue130CustomACKResponseSent(t *testing.T) {
 	port := freePort(t)
@@ -266,7 +266,7 @@ func TestIssue130CustomACKResponseSent(t *testing.T) {
 	cli.CloseAll()
 }
 
-// TestIssue132Concurrency mirrors two simultaneous clients not interleaving each
+// TestIssue132Concurrency checks two simultaneous clients not interleaving each
 // other's per-socket data buffers.
 func TestIssue132Concurrency(t *testing.T) {
 	port := freePort(t)
@@ -349,7 +349,7 @@ func TestIssue132Concurrency(t *testing.T) {
 	cliB.CloseAll()
 }
 
-// TestIssue132SplitFrame mirrors a single MLLP frame split across many tiny TCP
+// TestIssue132SplitFrame checks a single MLLP frame split across many tiny TCP
 // writes still parsing cleanly.
 func TestIssue132SplitFrame(t *testing.T) {
 	port := freePort(t)
@@ -419,7 +419,7 @@ func TestIssue132SplitFrame(t *testing.T) {
 	_ = listener.Close()
 }
 
-// TestIssue133Throughput mirrors the listener processing a burst of messages
+// TestIssue133Throughput checks the listener processing a burst of messages
 // without dropping any.
 func TestIssue133Throughput(t *testing.T) {
 	port := freePort(t)

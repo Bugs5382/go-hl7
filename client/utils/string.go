@@ -29,13 +29,11 @@ import (
 	"strings"
 )
 
-// randomStringAlphabet is the character set RandomString draws from. It mirrors
-// the randomString alphabet.
+// randomStringAlphabet is the character set RandomString draws from.
 const randomStringAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_"
 
 // RandomString generates a random string of the given length from the
-// alphanumeric-plus-underscore alphabet. It mirrors the randomString.
-// The the spec default length is 20; pass 20 for that behavior.
+// alphanumeric-plus-underscore alphabet. The usual default length is 20.
 func RandomString(length int) string {
 	var b strings.Builder
 	b.Grow(length)
@@ -46,11 +44,11 @@ func RandomString(length int) string {
 }
 
 // regexpMeta is the set of regular-expression metacharacters EscapeForRegExp
-// escapes. It mirrors the character class in the escapeForRegExp.
+// escapes.
 const regexpMeta = "-/\\^$*+?.()|[]{}"
 
 // EscapeForRegExp escapes regular-expression metacharacters in value by
-// prefixing each with a backslash. It mirrors the escapeForRegExp.
+// prefixing each with a backslash.
 func EscapeForRegExp(value string) string {
 	var b strings.Builder
 	for _, r := range value {
@@ -63,7 +61,7 @@ func EscapeForRegExp(value string) string {
 }
 
 // DecodeHexString decodes a string of ASCII hex digit pairs into the characters
-// they encode. It mirrors the decodeHexString.
+// they encode.
 func DecodeHexString(value string) string {
 	var b strings.Builder
 	for i := 0; i+1 < len(value)+1 && i+2 <= len(value); i += 2 {

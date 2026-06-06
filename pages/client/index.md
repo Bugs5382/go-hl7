@@ -35,7 +35,7 @@ This library exists to make HL7 a first‑class citizen of the Go ecosystem — 
 | Pure Go, standard library only | No supply chain to audit; reproducible builds. |
 | **Zero runtime dependencies** | Faster cold starts, smaller container images, easier audits. |
 | Typed segment builders (HL7 2.1 → 2.8) | No more hand‑typed `MSH\|^~\&\|...` strings. |
-| Version‑pinned client (single‑set, **required**) | The client is bound to one HL7 version; outbound messages whose `MSH.12` differs are rejected before they're sent — an intentional divergence from node-hl7. |
+| Version‑pinned client (single‑set, **required**) | The client is bound to one HL7 version; outbound messages whose `MSH.12` differs are rejected before they're sent. |
 | Built‑in MLLP framing & TLS | Production‑ready transport without bolting on another library. |
 | Pluggable outbound queue | In‑memory by default; swap in Redis for multi‑pod deployments. |
 

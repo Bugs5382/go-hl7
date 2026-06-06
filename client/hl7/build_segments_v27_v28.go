@@ -28,8 +28,7 @@ import "strconv"
 // itoa is a local strconv.Itoa shorthand for building "<seg>_<num>" prop keys.
 func itoa(n int) string { return strconv.Itoa(n) }
 
-// BuildIPC builds an IPC (Imaging Procedure Control) segment (the
-// HL7_2_7._buildIPC). IPC is introduced in v2.7. Chainable.
+// BuildIPC builds an IPC (Imaging Procedure Control) segment. IPC is introduced in v2.7. Chainable.
 func (b *Builder) BuildIPC(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -50,8 +49,7 @@ func (b *Builder) BuildIPC(p Props) *Builder {
 	return b
 }
 
-// BuildISD builds an ISD (Interaction Status Detail) segment (the
-// HL7_2_7._buildISD). ISD.1 is coerced to a string. Chainable.
+// BuildISD builds an ISD (Interaction Status Detail) segment. ISD.1 is coerced to a string. Chainable.
 func (b *Builder) BuildISD(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -71,8 +69,7 @@ func (b *Builder) BuildISD(p Props) *Builder {
 	return b
 }
 
-// BuildSTZ builds an STZ (Sterilization Parameter) segment (the
-// HL7_2_8._buildSTZ). STZ is introduced in v2.8. Chainable.
+// BuildSTZ builds an STZ (Sterilization Parameter) segment. STZ is introduced in v2.8. Chainable.
 func (b *Builder) BuildSTZ(p Props) *Builder {
 	if b.err != nil {
 		return b

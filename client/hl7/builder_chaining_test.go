@@ -30,8 +30,8 @@ import (
 	"github.com/Bugs5382/go-hl7/client/hl7"
 )
 
-// These tests mirror the hl7.builder-chaining.test.ts: BuildXXX returns
-// the receiver, and chained and imperative builds produce identical output.
+// These tests check builder chaining: BuildXXX returns the receiver, and
+// chained and imperative builds produce identical output.
 
 func TestBuilderChaining(t *testing.T) {
 	date := time.Date(2024, 1, 15, 10, 20, 30, 0, time.UTC)

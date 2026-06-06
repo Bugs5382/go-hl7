@@ -31,9 +31,8 @@ import (
 	"github.com/Bugs5382/go-hl7/client/hl7"
 )
 
-// These tests mirror the buildSegment half of the reference's
-// hl7.segment-specs.test.ts: the generic spec-driven BuildSegment across
-// versions. (The catalogue-coverage half lives in the metadata package test.)
+// These tests cover the generic spec-driven BuildSegment across versions. (The
+// catalogue-coverage tests live in the metadata package.)
 
 func specHeader() hl7.Props {
 	return hl7.Props{

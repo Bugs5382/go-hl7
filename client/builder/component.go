@@ -29,7 +29,7 @@ import (
 	"github.com/Bugs5382/go-hl7/client/internal/declaration"
 )
 
-// Component is one component of a field repetition (the Component). Its
+// Component is one component of a field repetition. Its
 // children are sub-components.
 type Component struct{ valueNode }
 
@@ -40,9 +40,8 @@ func newComponent(parent node, key, text string) *Component {
 	return c
 }
 
-// Read returns the sub-component at the 1-based head of path (the
-// Component.read). An out-of-range index returns nil, mirroring the
-// `children[i]` yielding undefined (which get() resolves to an EmptyNode).
+// Read returns the sub-component at the 1-based head of path. An out-of-range
+// index returns nil, which Get resolves to an EmptyNode.
 func (c *Component) Read(path []string) HL7Node {
 	idx, _ := strconv.Atoi(path[0])
 	ch := c.childrenOf()
@@ -52,13 +51,12 @@ func (c *Component) Read(path []string) HL7Node {
 	return ch[idx-1]
 }
 
-// createChild builds a SubComponent (the Component.createChild).
+// createChild builds a SubComponent.
 func (c *Component) createChild(text string, index int) HL7Node {
 	return newSubComponent(c, strconv.Itoa(index+1), text)
 }
 
-// writeCore writes into the sub-component at the 1-based head of path (the
-// Component.writeCore).
+// writeCore writes into the sub-component at the 1-based head of path.
 func (c *Component) writeCore(path []string, value string) HL7Node {
 	idx, _ := strconv.Atoi(path[0])
 	return c.writeAtIndex(path[1:], value, idx-1, "")

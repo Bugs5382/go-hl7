@@ -30,12 +30,8 @@ import (
 	"github.com/Bugs5382/go-hl7/client/hl7"
 )
 
-// Mirrors __tests__/client/hl7.server.parser.test.ts: the _createAckMessage
-// helper (from the client test __utils__) builds an ACK off an inbound message
-// via the HL7_2_1 builder, exercised here for diagnostics.
-
-// createAckMessage ports the test util _createAckMessage(type, message): build
-// an HL7_2_1 ACK that swaps the inbound MSH routing fields and echoes MSH.10.
+// createAckMessage builds a v2.1 ACK off an inbound message: it swaps the
+// inbound MSH routing fields and echoes MSH.10.
 func createAckMessage(t *testing.T, ackType string, message *builder.Message) *builder.Message {
 	t.Helper()
 	messageBuild := hl7.New(hl7.V2_1)

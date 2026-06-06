@@ -28,24 +28,23 @@ import (
 	"github.com/Bugs5382/go-hl7/client/internal/declaration"
 )
 
-// SubComponent is the leaf value of the tree (the SubComponent). It
+// SubComponent is the leaf value of the tree. It
 // unescapes its raw text on String and treats a non-string as empty.
 type SubComponent struct{ valueNode }
 
 // newSubComponent builds a SubComponent with the given key and text.
 func newSubComponent(parent node, key, text string) *SubComponent {
 	s := &SubComponent{}
-	// the spec passes no delimiter for a SubComponent; mirror that by leaving the
-	// delimiter unset so it has no further children to split.
+	// A SubComponent is a leaf: leave the delimiter unset so it has no further
+	// children to split.
 	s.initValueNode(s, parent, key, text, declaration.DelimiterSegment, false)
 	return s
 }
 
-// IsEmpty reports whether the unescaped value is not a string (the
-// SubComponent.isEmpty). In Go String always yields a string, so this is false.
+// IsEmpty reports whether the unescaped value is not a string. In Go String always yields a string, so this is false.
 func (s *SubComponent) IsEmpty() bool { return false }
 
-// rawText returns the unescaped raw text (the SubComponent.toString).
+// rawText returns the unescaped raw text.
 func (s *SubComponent) rawText() string {
 	root := s.messageRoot()
 	if root == nil {

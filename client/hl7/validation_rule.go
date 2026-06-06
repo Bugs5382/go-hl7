@@ -1,9 +1,8 @@
-// Package hl7 is the spec-driven, per-version HL7 v2 message builder. It mirrors
-// the hl7/ tree: the Builder base builder, the per-version HL7_2_x
-// classes (a 2.1 -> 2.8 inheritance chain), the spec-driven field validator
-// keyed off the generated metadata catalog, and the composite-object field
-// assembly. The base builder writes into a builder.Message and toString()
-// serializes the wire format.
+// Package hl7 is the spec-driven, per-version HL7 v2 message builder. It
+// provides the Builder, per-version segment sets across the 2.1 -> 2.8 range,
+// the spec-driven field validator keyed off the generated metadata catalog,
+// and composite-object field assembly. The builder writes into a
+// builder.Message and serializes the wire format via String().
 package hl7
 
 /*
@@ -36,8 +35,7 @@ import (
 )
 
 // ruleType is the input type for a ValidationRule, controlling which checks
-// apply. It mirrors the ValidationRule.type union ("date"|"number"|
-// "string"), defaulting to "string".
+// apply. It is one of "date", "number", or "string", defaulting to "string".
 type ruleType string
 
 const (
@@ -49,8 +47,8 @@ const (
 	ruleDate ruleType = "date"
 )
 
-// numberBound mirrors the ValidationRule.number min/max bounds. The
-// Has* flags stand in for TypeScript's optional members.
+// numberBound carries optional min/max bounds for a numeric rule. The Has*
+// flags mark which bounds are set.
 type numberBound struct {
 	Min    float64
 	HasMin bool
@@ -58,10 +56,9 @@ type numberBound struct {
 	HasMax bool
 }
 
-// ValidationRule is the per-field validation rule consumed by the validator. It
-// mirrors the ValidationRule type. TypeScript optional members become
-// pointer/Has* flags (Go necessity), and the regexp.Regexp pattern replaces
-// the RegExp.
+// ValidationRule is the per-field validation rule consumed by the validator.
+// Optional members are expressed with pointer/Has* flags, and the pattern is a
+// *regexp.Regexp.
 type ValidationRule struct {
 	// AllowedValues is the set of valid values. Requires Type to be ruleString.
 	AllowedValues []string
@@ -85,8 +82,8 @@ type ValidationRule struct {
 	Required bool
 	// Type controls which validations apply. Defaults to ruleString.
 	Type ruleType
-	// HasType reports whether Type was explicitly set (Go stand-in for the
-	// TypeScript optional member; lets the validator default it to ruleString).
+	// HasType reports whether Type was explicitly set; when false the validator
+	// defaults it to ruleString.
 	HasType bool
 	// Usage is the HL7 usage code driving Required/Deprecated and W/X rejection.
 	Usage metadata.HL7UsageCode

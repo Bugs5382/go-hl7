@@ -366,7 +366,7 @@ The connection is persistent; you can send many messages over a single TCP/MLLP 
 
 `ClientOptions.Version` is **required** and pins the client to a single HL7 version. It must be one of the known versions — `2.1`, `2.2`, `2.3`, `2.3.1`, `2.4`, `2.5`, `2.5.1`, `2.6`, `2.7`, `2.7.1`, `2.8` — or `NewClient` returns an error (`version is not defined.` / `version is not a valid HL7 version.`).
 
-Every connection opened from a client inherits that one version, and `SendMessage` enforces it: before a message is queued or transmitted, its `MSH.12` must equal the configured version. If it differs, `SendMessage` returns an error and **does not send** (for a batch or file, *every* contained message's `MSH.12` must match). This is an intentional divergence from node-hl7, which leaves the transport version‑agnostic.
+Every connection opened from a client inherits that one version, and `SendMessage` enforces it: before a message is queued or transmitted, its `MSH.12` must equal the configured version. If it differs, `SendMessage` returns an error and **does not send** (for a batch or file, *every* contained message's `MSH.12` must match).
 
 ```go
 c, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "127.0.0.1"})

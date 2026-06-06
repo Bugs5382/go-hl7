@@ -32,9 +32,9 @@ import (
 	"github.com/Bugs5382/go-hl7/client/hl7/metadata"
 )
 
-// testBuilder mirrors the usage-codes test's TestBuilder: a v2.6 builder with a
-// no-op "error" listener and a helper that lazily creates the synthetic segment
-// before invoking the spec-driven validator.
+// newTestBuilder returns a v2.6 builder with a no-op "error" listener and a
+// helper that lazily creates the synthetic segment before invoking the
+// spec-driven validator.
 func newTestBuilder() *Builder {
 	b := newVersion("2.6", nil)
 	b.On("error", func(string) {})
@@ -67,9 +67,7 @@ func tstSpec() metadata.SegmentSpec {
 }
 
 // expectValidationErr runs fn (which performs a build on b) and asserts that b
-// recorded an HL7ValidationError whose message matches want (substring),
-// mirroring the toThrow assertions now that validation records instead of
-// panicking.
+// recorded an HL7ValidationError whose message matches want (substring).
 func expectValidationErr(t *testing.T, b *Builder, want string, fn func()) {
 	t.Helper()
 	fn()

@@ -40,8 +40,7 @@ type Message struct {
 }
 
 // NewMessage builds an empty message from a validated MessageHeader, or parses
-// the provided text. It mirrors the Message constructor, returning an
-// error where the spec throws (Go necessity).
+// the provided text. It returns an error on invalid input.
 func NewMessage(opts MessageOptions) (*Message, error) {
 	opt, err := normalizedClientMessageParserOptions(opts)
 	if err != nil {
@@ -108,7 +107,7 @@ func NewMessage(opts MessageOptions) (*Message, error) {
 	return m, nil
 }
 
-// AddSegment adds a new segment to the message (the addSegment).
+// AddSegment adds a new segment to the message.
 func (m *Message) AddSegment(path string) (*Segment, error) {
 	if path == "" {
 		return nil, helpers.NewHL7ParserError("Missing segment path.")
@@ -124,7 +123,7 @@ func (m *Message) AddSegment(path string) (*Segment, error) {
 	return nil, helpers.NewHL7ParserError("Invalid segment " + path + ".")
 }
 
-// Get resolves a segment or field path (the Message.get).
+// Get resolves a segment or field path.
 func (m *Message) Get(path string) HL7Node {
 	if path == "" {
 		return emptySingleton
@@ -137,7 +136,7 @@ func (m *Message) Get(path string) HL7Node {
 	return rv
 }
 
-// GetFirstSegment returns the first child segment (the getFirstSegment).
+// GetFirstSegment returns the first child segment.
 func (m *Message) GetFirstSegment() *Segment {
 	ch := m.childrenOf()
 	if len(ch) == 0 {
@@ -146,7 +145,7 @@ func (m *Message) GetFirstSegment() *Segment {
 	return ch[0].(*Segment)
 }
 
-// GetLastSegment returns the last child segment (the getLastSegment).
+// GetLastSegment returns the last child segment.
 func (m *Message) GetLastSegment() *Segment {
 	ch := m.childrenOf()
 	if len(ch) == 0 {
@@ -155,8 +154,7 @@ func (m *Message) GetLastSegment() *Segment {
 	return ch[len(ch)-1].(*Segment)
 }
 
-// Read resolves a split path, returning a SegmentList for a bare segment name
-// (the Message.read).
+// Read resolves a split path, returning a SegmentList for a bare segment name.
 func (m *Message) Read(path []string) HL7Node {
 	if len(path) == 0 {
 		return emptySingleton
@@ -182,7 +180,7 @@ func (m *Message) Read(path []string) HL7Node {
 	return emptySingleton
 }
 
-// Set writes a value at a segment/field path (the Message.set).
+// Set writes a value at a segment/field path.
 func (m *Message) Set(path string, value any) HL7Node {
 	if arr, ok := value.([]any); ok {
 		for i, item := range arr {
@@ -196,7 +194,7 @@ func (m *Message) Set(path string, value any) HL7Node {
 }
 
 // ToFile wraps the message in a FileBatch and writes it to disk, returning the
-// generated file name (the Message.toFile).
+// generated file name.
 func (m *Message) ToFile(name string, newLine bool, location string, extension string) (string, error) {
 	if extension == "" {
 		extension = "hl7"
@@ -231,7 +229,7 @@ func (m *Message) ToFile(name string, newLine bool, location string, extension s
 	return fileBatch.FileName(), nil
 }
 
-// TotalSegment counts segments matching name (the totalSegment).
+// TotalSegment counts segments matching name.
 func (m *Message) TotalSegment(name string) int {
 	count := 0
 	for _, c := range m.childrenOf() {
@@ -242,16 +240,15 @@ func (m *Message) TotalSegment(name string) int {
 	return count
 }
 
-// createChild builds a Segment from trimmed text (the Message.createChild).
+// createChild builds a Segment from trimmed text.
 func (m *Message) createChild(text string, index int) HL7Node {
 	return newSegment(m, strings.TrimSpace(text))
 }
 
-// pathCore returns the empty root path (the Message.pathCore).
+// pathCore returns the empty root path.
 func (m *Message) pathCore() []string { return []string{} }
 
-// writeCore writes a segment path, appending a new segment when absent (the
-// Message.writeCore).
+// writeCore writes a segment path, appending a new segment when absent.
 func (m *Message) writeCore(path []string, value string) HL7Node {
 	segmentName := path[0]
 	rest := path[1:]
@@ -262,7 +259,7 @@ func (m *Message) writeCore(path []string, value string) HL7Node {
 	return m.writeAtIndex(rest, value, index, segmentName)
 }
 
-// getFirstSegment returns the first segment named name (the _getFirstSegment).
+// getFirstSegment returns the first segment named name.
 func (m *Message) getFirstSegment(name string) *Segment {
 	for _, c := range m.childrenOf() {
 		if seg, ok := c.(*Segment); ok && seg.Name() == name {
@@ -272,8 +269,7 @@ func (m *Message) getFirstSegment(name string) *Segment {
 	return nil
 }
 
-// getFirstSegmentIndex returns the index of the first segment named name
-// (the _getFirstSegmentIndex).
+// getFirstSegmentIndex returns the index of the first segment named name.
 func (m *Message) getFirstSegmentIndex(name string) (int, bool) {
 	for i, c := range m.childrenOf() {
 		if seg, ok := c.(*Segment); ok && seg.Name() == name {

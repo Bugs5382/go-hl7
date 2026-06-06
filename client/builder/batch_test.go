@@ -32,7 +32,7 @@ import (
 	"github.com/Bugs5382/go-hl7/client/utils"
 )
 
-// mshHeader mirrors the MSH_HEADER fixture (msh_9_1: ADT, msh_9_2: A01,
+// mshHeader builds a test MSH header (msh_9_1: ADT, msh_9_2: A01,
 // msh_11_1: D).
 func mshHeader(controlID string) *builder.MessageHeader {
 	return (&builder.MessageHeader{

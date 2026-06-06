@@ -33,9 +33,9 @@ import (
 	"github.com/Bugs5382/go-hl7/client/hl7"
 )
 
-// These tests mirror the hl7.segments.test.ts: the v2.1 typed segment
-// builders, the v2.4 PID extension, the per-version MSH branches, v2.7 IPC/ISD,
-// v2.8 STZ, and the Builder common helpers.
+// These tests cover the v2.1 typed segment builders, the v2.4 PID extension,
+// the per-version MSH branches, v2.7 IPC/ISD, v2.8 STZ, and the Builder common
+// helpers.
 
 var segDate = time.Date(2024, 1, 15, 10, 20, 30, 0, time.UTC)
 

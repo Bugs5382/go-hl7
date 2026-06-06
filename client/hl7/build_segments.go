@@ -47,10 +47,9 @@ func (b *Builder) spec(name string) metadata.SegmentSpec {
 }
 
 // notImplementedBefore records HL7FatalError("Not Implemented") when the
-// current version predates the version that introduced a typed builder. It
-// mirrors the Builder._buildXXX stubs: a segment-builder method is only
-// defined from the version that introduced the segment onward, so on an earlier
-// version the call falls through to the base stub that throws.
+// current version predates the version that introduced a typed builder. A
+// segment builder is only valid from the version that introduced the segment
+// onward; calling it on an earlier version is an error.
 func (b *Builder) notImplementedBefore(introduced string) {
 	if b.err != nil {
 		return
@@ -65,8 +64,7 @@ func (b *Builder) setField(s metadata.SegmentSpec, num int, value any, rule *Val
 	b.validatorSetField(s, num, value, rule)
 }
 
-// BuildSegment builds any segment by name from its generated spec (the
-// buildSegment). Chainable.
+// BuildSegment builds any segment by name from its generated spec. Chainable.
 func (b *Builder) BuildSegment(name string, properties Props) *Builder {
 	if b.err != nil {
 		return b
@@ -75,7 +73,7 @@ func (b *Builder) BuildSegment(name string, properties Props) *Builder {
 	return b
 }
 
-// BuildADD builds an ADD (Addendum) segment (the buildADD). It must not
+// BuildADD builds an ADD (Addendum) segment. It must not
 // follow MSH/BHS/FHS. Chainable.
 func (b *Builder) BuildADD(properties Props) *Builder {
 	if b.err != nil {
@@ -100,7 +98,7 @@ func (b *Builder) BuildADD(properties Props) *Builder {
 }
 
 // BuildNCK builds an NCK (System Clock) segment with the version-appropriate
-// timestamp (the buildNCK + _buildNCK). Chainable.
+// timestamp. Chainable.
 func (b *Builder) BuildNCK() *Builder {
 	if b.err != nil {
 		return b
@@ -136,7 +134,7 @@ func (b *Builder) BuildNCK() *Builder {
 	return b
 }
 
-// BuildNST builds an NST (Statistics) segment (the _buildNST). Chainable.
+// BuildNST builds an NST (Statistics) segment. Chainable.
 func (b *Builder) BuildNST(properties Props) *Builder {
 	if b.err != nil {
 		return b
@@ -150,7 +148,7 @@ func (b *Builder) BuildNST(properties Props) *Builder {
 	return b
 }
 
-// BuildDSP builds a DSP (Display Data) segment (the _buildDSP). Chainable.
+// BuildDSP builds a DSP (Display Data) segment. Chainable.
 func (b *Builder) BuildDSP(properties Props) *Builder {
 	if b.err != nil {
 		return b
@@ -180,17 +178,17 @@ func (b *Builder) BuildDSP(properties Props) *Builder {
 	return b
 }
 
-// BuildECD builds an ECD (Equipment Command) segment (the HL7_2_4._buildECD,
-// inherited through 2.8). ECD did not exist before v2.4; the version assertion
-// and per-version usage codes (ECD.4: O in 2.4-2.5.1, B in 2.6-2.7.1, W in 2.8
-// and withdrawn already in 2.7) are enforced by the validator. Chainable.
+// BuildECD builds an ECD (Equipment Command) segment, valid from v2.4 through
+// 2.8. ECD did not exist before v2.4; the version assertion and per-version
+// usage codes (ECD.4: O in 2.4-2.5.1, B in 2.6-2.7.1, W in 2.8 and withdrawn
+// already in 2.7) are enforced by the validator. Chainable.
 func (b *Builder) BuildECD(properties Props) *Builder {
 	if b.err != nil {
 		return b
 	}
 	b.headerExists()
-	// the spec exposes buildECD only from HL7_2_4 onward; earlier versions fall
-	// through to the Builder._buildECD stub that throws "Not Implemented".
+	// ECD is valid only from v2.4 onward; earlier versions report "Not
+	// Implemented".
 	b.notImplementedBefore("2.4")
 	s := b.spec("ECD")
 	b.assertSegmentInVersion(s)

@@ -1,4 +1,4 @@
-// Mirrors the ParserPlan cases in __tests__/client/hl7.misc-coverage.test.ts.
+// Tests for ParserPlan delimiter derivation.
 package modules
 
 /*

@@ -30,25 +30,23 @@ import (
 	"github.com/Bugs5382/go-hl7/server/utils"
 )
 
-// InboundRequestProps carries the construction inputs for an InboundRequest,
-// mirroring the InboundRequestProps { socket?, type }.
+// InboundRequestProps carries the construction inputs for an InboundRequest.
 type InboundRequestProps struct {
 	// Socket is the connection that produced this message, exposed so handlers
-	// can read peer/local details (the socket).
+	// can read peer/local details.
 	Socket net.Conn
-	// Type is the source type: "message", "batch", or "file" (the type).
+	// Type is the source type: "message", "batch", or "file".
 	Type string
 }
 
 // InboundRequest wraps a parsed inbound message handed to the inbound handler.
-// It mirrors the InboundRequest.
 type InboundRequest struct {
 	fromType string
 	message  *builder.Message
 	socket   net.Conn
 }
 
-// NewInboundRequest constructs an InboundRequest, mirroring the constructor.
+// NewInboundRequest constructs an InboundRequest.
 func NewInboundRequest(message *builder.Message, properties InboundRequestProps) *InboundRequest {
 	return &InboundRequest{
 		fromType: properties.Type,
@@ -57,10 +55,8 @@ func NewInboundRequest(message *builder.Message, properties InboundRequestProps)
 	}
 }
 
-// GetMessage returns the stored message, mirroring the getMessage. The spec
-// throws HL7ListenerError when the message is undefined; Go panics with the
-// same error (this mirrors the throw, the EmptyNode-style structural-access
-// contract).
+// GetMessage returns the stored message. It panics with an HL7ListenerError
+// when no message is set.
 func (r *InboundRequest) GetMessage() *builder.Message {
 	if r.message != nil {
 		return r.message
@@ -68,8 +64,8 @@ func (r *InboundRequest) GetMessage() *builder.Message {
 	panic(utils.NewHL7ListenerError("Message is not defined."))
 }
 
-// GetSocket returns the underlying connection, mirroring the getSocket. The spec
-// throws when undefined; Go panics with the same error.
+// GetSocket returns the underlying connection. It panics with an
+// HL7ListenerError when no socket is set.
 func (r *InboundRequest) GetSocket() net.Conn {
 	if r.socket != nil {
 		return r.socket
@@ -77,5 +73,5 @@ func (r *InboundRequest) GetSocket() net.Conn {
 	panic(utils.NewHL7ListenerError("Socket is not defined."))
 }
 
-// GetType returns the source type, mirroring the getType.
+// GetType returns the source type.
 func (r *InboundRequest) GetType() string { return r.fromType }

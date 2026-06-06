@@ -1,7 +1,6 @@
-// Package tables carries the generated HL7 v2 code tables (the reference's
-// hl7/tables TABLE_NNNN exports) that back enum validation. FieldSpec.Table and
-// ComponentSpec.Table reference a numeric table id whose allowed code values
-// live in Tables.
+// Package tables carries the generated HL7 v2 code tables that back enum
+// validation. FieldSpec.Table and ComponentSpec.Table reference a numeric
+// table id whose allowed code values live in Tables.
 package tables
 
 /*

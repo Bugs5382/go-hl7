@@ -31,12 +31,11 @@ import (
 	"github.com/Bugs5382/go-hl7/client/hl7"
 )
 
-// These tests mirror the hl7.ecd.test.ts: ECD per-version availability.
+// These tests check ECD per-version availability.
 // ECD did not exist before v2.4; ECD.4 is O in 2.4-2.5.1, B (deprecated, warns)
 // in 2.6-2.7.1, and W (withdrawn, hard reject) in 2.8 — already withdrawn in 2.7
-// per the catalog. The compile-time "no buildECD before v2.4" check is a
-// TypeScript-only construct; its Go mirror is the runtime version rejection
-// (covered by the segment-specs tests).
+// per the catalog. The "no ECD before v2.4" rule is enforced at runtime by the
+// version rejection (covered by the segment-specs tests).
 
 func ecdHeader(b *hl7.Builder) {
 	b.On("error", func(string) {})

@@ -44,7 +44,7 @@ type emitterHandler struct {
 	once bool
 }
 
-// On registers handler for the named event (the on).
+// On registers handler for the named event.
 func (e *EventEmitter) On(name string, handler func(args ...any)) *EventEmitter {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -55,7 +55,7 @@ func (e *EventEmitter) On(name string, handler func(args ...any)) *EventEmitter 
 	return e
 }
 
-// Once registers a one-shot handler (the once).
+// Once registers a one-shot handler.
 func (e *EventEmitter) Once(name string, handler func(args ...any)) *EventEmitter {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -66,8 +66,7 @@ func (e *EventEmitter) Once(name string, handler func(args ...any)) *EventEmitte
 	return e
 }
 
-// RemoveAllListeners drops all handlers, or those for a single event (the
-// removeAllListeners).
+// RemoveAllListeners drops all handlers, or those for a single event.
 func (e *EventEmitter) RemoveAllListeners(name ...string) *EventEmitter {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -81,8 +80,8 @@ func (e *EventEmitter) RemoveAllListeners(name ...string) *EventEmitter {
 	return e
 }
 
-// emit fires every handler for the named event with args, stripping one-shots
-// (the emit). Handlers run unlocked so re-entrant subscription is safe.
+// emit fires every handler for the named event with args, stripping one-shots.
+// Handlers run unlocked so re-entrant subscription is safe.
 func (e *EventEmitter) emit(name string, args ...any) bool {
 	e.mu.Lock()
 	if e.listeners == nil {

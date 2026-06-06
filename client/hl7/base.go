@@ -38,15 +38,13 @@ import (
 
 // Props is a segment-build input: spec property names ("msh_9_1", "pid_11",
 // "sendingApplication", ...) mapped to their values (string, time.Time, int,
-// or a composite-object map for composite fields). It is the faithful Go
-// counterpart to the duck-typed `properties` object literals; modeling
-// it as a map (rather than a fixed struct) is the only way to accept the exact
-// same heterogeneous inputs the spec accepts, including a composite field that may
-// be either a pre-formatted string or a typed component object.
+// or a composite-object map for composite fields). Modeling it as a map rather
+// than a fixed struct accepts heterogeneous inputs, including a composite field
+// that may be either a pre-formatted string or a typed component object.
 type Props = map[string]any
 
-// Options configures a builder. It mirrors the ClientBuilderOptions: the
-// separator characters, the date length, and the hardError flag.
+// Options configures a builder: the separator characters, the date length, and
+// the hardError flag.
 type Options struct {
 	// Text is an optional pre-parsed message body (rarely used by builders).
 	Text string
@@ -77,17 +75,16 @@ type Builder struct {
 
 	opt     Options
 	message *builder.Message
-	// segment is the segment currently being built (the _segment).
+	// segment is the segment currently being built.
 	segment *builder.Segment
 	// maxAddSegmentLength bounds the ADD segment; set by the version subtype.
 	maxAddSegmentLength int
 	hasMaxAddSegment    bool
-	// hardError forces every deviation to throw (the hardError).
+	// hardError forces every deviation to throw.
 	hardError bool
 
-	// errorHandlers / warningHandlers back the EventEmitter "error"/"warning"
-	// events the validator emits. Go necessity: the reference extends an
-	// EventEmitter; this is a minimal On(event, handler) over the same event names.
+	// errorHandlers / warningHandlers back the "error"/"warning" events the
+	// validator emits via a minimal On(event, handler).
 	errorHandlers   []func(string)
 	warningHandlers []func(string)
 
@@ -108,7 +105,7 @@ func (b *Builder) fail(err error) bool {
 	return true
 }
 
-// initBase wires the message and options. It mirrors the Builder constructor.
+// initBase wires the message and options.
 func (b *Builder) initBase(opts []Options) {
 	opt := optsOf(opts)
 	b.opt = normalizeOptions(opt)
@@ -124,7 +121,7 @@ func (b *Builder) initBase(opts []Options) {
 	b.message = m
 }
 
-// normalizeOptions fills option defaults, mirroring normalizedClientBuilderOptions.
+// normalizeOptions fills option defaults.
 func normalizeOptions(opt Options) Options {
 	if opt.SeparatorField == "" {
 		opt.SeparatorField = "|"
@@ -144,11 +141,11 @@ func normalizeOptions(opt Options) Options {
 	return opt
 }
 
-// Version returns the HL7 spec version (the version field).
+// Version returns the HL7 spec version.
 func (b *Builder) Version() string { return b.version }
 
-// On registers a handler for the "error" or "warning" event, mirroring the
-// EventEmitter.on used by the validator.
+// On registers a handler for the "error" or "warning" event the validator
+// emits.
 func (b *Builder) On(event string, handler func(string)) {
 	switch event {
 	case "error":
@@ -181,10 +178,10 @@ func (b *Builder) ToMessage() (*builder.Message, error) { return b.message, b.er
 // succeeded. It lets a chain be inspected without unpacking ToMessage.
 func (b *Builder) Err() error { return b.err }
 
-// String returns the entire HL7 message string (the toString).
+// String returns the entire HL7 message string.
 func (b *Builder) String() string { return b.message.String() }
 
-// SetDate formats a date at the given HL7 length (the setDate). A zero date
+// SetDate formats a date at the given HL7 length. A zero date
 // formats the current time.
 func (b *Builder) SetDate(date time.Time, length string) string {
 	if date.IsZero() {
@@ -193,10 +190,10 @@ func (b *Builder) SetDate(date time.Time, length string) string {
 	return utils.CreateHL7Date(date, length)
 }
 
-// headerExists records an HL7FatalError when the MSH header is not first
-// (the headerExists). It is the first call in every typed segment builder, so
-// it doubles as the chain's short-circuit: a prior failure stays recorded and
-// nothing further is built.
+// headerExists records an HL7FatalError when the MSH header is not first. It
+// is the first call in every typed segment builder, so it doubles as the
+// chain's short-circuit: a prior failure stays recorded and nothing further is
+// built.
 func (b *Builder) headerExists() {
 	if b.err != nil {
 		return
@@ -207,8 +204,8 @@ func (b *Builder) headerExists() {
 	}
 }
 
-// buildMSHGuard enforces the single-MSH rule shared by every version's BuildMSH
-// (the buildMSH), recording the failure rather than throwing.
+// buildMSHGuard enforces the single-MSH rule shared by every version's BuildMSH,
+// recording the failure rather than throwing.
 func (b *Builder) buildMSHGuard() {
 	if b.err != nil {
 		return
@@ -218,8 +215,7 @@ func (b *Builder) buildMSHGuard() {
 	}
 }
 
-// startSegment initializes a new segment and sets it as current (the
-// _startSegment).
+// startSegment initializes a new segment and sets it as current.
 func (b *Builder) startSegment(name string) {
 	b.segment = b.mustAddSegment(name)
 }
@@ -240,8 +236,7 @@ func (b *Builder) mustAddSegment(name string) *builder.Segment {
 }
 
 // assertSegmentInVersion rejects building a segment that is not part of the
-// current spec version (the _assertSegmentInVersion), recording an
-// HL7ValidationError where the spec throws.
+// current spec version, recording an HL7ValidationError.
 func (b *Builder) assertSegmentInVersion(spec metadata.SegmentSpec) {
 	if b.err != nil {
 		return
@@ -256,7 +251,7 @@ func (b *Builder) assertSegmentInVersion(spec metadata.SegmentSpec) {
 }
 
 // buildSegmentGeneric builds any HL7 segment by name from its generated
-// SegmentSpec (the buildSegment). MSH must use BuildMSH. It records the failure
+// SegmentSpec. MSH must use BuildMSH. It records the failure
 // into the chain rather than throwing.
 func (b *Builder) buildSegmentGeneric(name string, properties Props) {
 	if b.err != nil {
@@ -298,7 +293,7 @@ func (b *Builder) buildSegmentGeneric(name string, properties Props) {
 var camelComponentRe = regexp.MustCompile(`\([^)]*\)`)
 
 // camelizeComponentName converts an HL7 component label like "Zip Or Postal
-// Code" into the camelCase key zipOrPostalCode (the camelizeComponentName).
+// Code" into the camelCase key zipOrPostalCode.
 func camelizeComponentName(name string) string {
 	stripped := camelComponentRe.ReplaceAllString(name, "")
 	tokens := strings.FieldsFunc(stripped, func(r rune) bool {
@@ -319,7 +314,7 @@ var tailKeyCache = map[int]*regexp.Regexp{}
 
 // pickComponentValue resolves which key in a typed-component object holds the
 // value for a ComponentSpec, trying numeric, numeric-as-string, *_<num>, and
-// camelCase keys in that order (the pickComponentValue).
+// camelCase keys in that order.
 func pickComponentValue(object map[string]any, c metadata.ComponentSpec) any {
 	if v, ok := object[strconv.Itoa(c.Num)]; ok {
 		return v
@@ -344,8 +339,7 @@ func pickComponentValue(object map[string]any, c metadata.ComponentSpec) any {
 }
 
 // composeFromObject converts a typed component object into the HL7 ^-delimited
-// composite string, validating each piece against its ComponentSpec (the
-// _composeFromObject). A component-level failure is recorded into the chain and
+// composite string, validating each piece against its ComponentSpec. A component-level failure is recorded into the chain and
 // the function returns "" so the caller stops building.
 func (b *Builder) composeFromObject(object map[string]any, components []metadata.ComponentSpec, fieldPath string) string {
 	var parts []string
@@ -422,8 +416,7 @@ func findField(spec metadata.SegmentSpec, num int) (metadata.FieldSpec, bool) {
 }
 
 // validatorSetField is the spec-driven field setter that consults a field's
-// per-version usage code and translates it into validation rules (the
-// _validatorSetField). overrides may be nil. A failure is recorded into the
+// per-version usage code and translates it into validation rules. overrides may be nil. A failure is recorded into the
 // chain rather than thrown.
 func (b *Builder) validatorSetField(spec metadata.SegmentSpec, fieldNumber int, value any, overrides *ValidationRule) []string {
 	if b.err != nil {
@@ -502,8 +495,8 @@ func (b *Builder) validatorSetField(spec metadata.SegmentSpec, fieldNumber int, 
 	rule.Usage = usage
 	rule.HasUsage = true
 
-	// Conditional (D) fields are only enforced when the spec carries an explicit
-	// dependsOn; prose-only conditions are treated as optional.
+	// Conditional (D) fields are only enforced when the field carries an
+	// explicit DependsOn; prose-only conditions are treated as optional.
 	if usage == metadata.UsageDependent && field.DependsOn != nil && hasValue {
 		dep := field.DependsOn
 		resolvedPath := dep.Path
@@ -529,9 +522,8 @@ func (b *Builder) validatorSetField(spec metadata.SegmentSpec, fieldNumber int, 
 // numericPathRe matches a bare numeric/dotted path like "1" or "2.3".
 var numericPathRe = regexp.MustCompile(`^\d+(\.\d+)*$`)
 
-// validatorSetValue validates value against rules and writes it when clean
-// (the _validatorSetValue). rules may be nil. Go necessity: panics with
-// HL7ValidationError on forced/hard errors where the spec throws.
+// validatorSetValue validates value against rules and writes it when clean.
+// rules may be nil. It panics with HL7ValidationError on forced/hard errors.
 func (b *Builder) validatorSetValue(fieldPath string, value any, rules *ValidationRule) []string {
 	if b.err != nil {
 		return nil
@@ -735,7 +727,7 @@ func validatorNormalize(value any) any {
 	return value
 }
 
-// validatorThrowError records a validation error (the _validatorThrowError). A
+// validatorThrowError records a validation error. A
 // hard or forced error is recorded into the build chain as an
 // HL7ValidationError so it surfaces at ToMessage/Err; a soft error is emitted
 // on the "error" event and collected for the field's report.
@@ -755,5 +747,5 @@ func (b *Builder) validatorWarn(warnings *[]string, message string) {
 }
 
 // timeNow returns the current time. It is a package-level seam so date-bearing
-// builders read a single clock (mirrors the `new Date()`).
+// builders read a single clock.
 func timeNow() time.Time { return time.Now() }

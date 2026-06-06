@@ -32,10 +32,10 @@ import (
 	"github.com/Bugs5382/go-hl7/client/utils"
 )
 
-// These tests mirror the hl7.build.test.ts "builder message - all
-// versions" block: per-version BuildMSH wire format and CheckMSH behavior, plus
-// the v2.1 BuildEVN/BuildFT1/BuildNCK cases. Batch/FileBatch coverage from that
-// file is out of the spec-builder scope.
+// These tests cover the builder message across all versions: per-version
+// BuildMSH wire format and CheckMSH behavior, plus the v2.1
+// BuildEVN/BuildFT1/BuildNCK cases. Batch/FileBatch coverage is out of the
+// spec-builder scope.
 
 func contains(t *testing.T, s, sub string) {
 	t.Helper()

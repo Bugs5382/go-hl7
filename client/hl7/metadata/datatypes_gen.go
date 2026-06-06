@@ -26,8 +26,8 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
 // DataTypes is the generated registry of composite HL7 data-type component
-// layouts (XAD, XPN, CE, CWE, CX, ...), mirroring the DATA_TYPES. The
-// builder assembles composite-object field inputs from these component lists.
+// layouts (XAD, XPN, CE, CWE, CX, ...). The builder assembles
+// composite-object field inputs from these component lists.
 var DataTypes = map[string][]ComponentSpec{
 	"AD": {
 		{Num: 1, Name: "Street Address", HL7Type: "ST", Rpt: "1", Usage: "O"},

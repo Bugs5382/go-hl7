@@ -25,132 +25,118 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import "github.com/Bugs5382/go-hl7/client/builder"
 
-// TLSConfig mirrors the subset of the tls.ConnectionOptions the client and
-// its tests use. A non-nil *TLSConfig (including the empty &TLSConfig{}) enables
-// TLS, standing in for the `tls: true | TLSOptions` union: passing the
-// boolean `true` becomes &TLSConfig{}.
+// TLSConfig configures client-side TLS. A non-nil *TLSConfig (including the
+// empty &TLSConfig{}) enables TLS; the empty value uses Go's defaults.
 type TLSConfig struct {
-	// Cert is the PEM-encoded certificate (the tls `cert`).
+	// Cert is the PEM-encoded certificate.
 	Cert []byte
-	// Key is the PEM-encoded private key (the tls `key`).
+	// Key is the PEM-encoded private key.
 	Key []byte
 	// CA is an optional PEM-encoded certificate authority bundle to trust
-	// instead of the system roots (the tls `ca`), used for self-signed certs.
+	// instead of the system roots, used for self-signed certs.
 	CA []byte
 	// RejectUnauthorized, when set to a false value, skips peer-certificate
-	// verification (the tls `rejectUnauthorized: false`). nil leaves Go's
-	// default verification on.
+	// verification. nil leaves Go's default verification on.
 	RejectUnauthorized *bool
-	// ServerName overrides the SNI/verification host name (the tls
-	// `servername`).
+	// ServerName overrides the SNI/verification host name.
 	ServerName string
 }
 
-// ClientOptions mirrors the ClientOptions. Pointer fields distinguish
-// "not provided" (nil) from an explicit value, matching the
-// hasOwnProperty checks for the ipv4/ipv6 dual-stack semantics.
+// ClientOptions configures a Client. Pointer fields distinguish "not provided"
+// (nil) from an explicit value, which the IPv4/IPv6 dual-stack defaults rely
+// on.
 type ClientOptions struct {
 	// AutoSelectFamily enables Happy-Eyeballs dual-stack racing when neither
-	// family is exclusive (autoSelectFamily, default true).
+	// family is exclusive (default true).
 	AutoSelectFamily *bool
 	// AutoSelectFamilyAttemptTimeout is the per-family attempt timeout in ms
-	// (autoSelectFamilyAttemptTimeout, default 250).
+	// (default 250).
 	AutoSelectFamilyAttemptTimeout *int
 	// ConnectionTimeout, in ms, ends and retries a stalled connection; 0 stays
-	// connected (connectionTimeout, default 0).
+	// connected (default 0).
 	ConnectionTimeout *int
-	// Host is the FQDN or IPv4/IPv6 address to connect to (host).
+	// Host is the FQDN or IPv4/IPv6 address to connect to.
 	Host string
-	// IPv4 enables the IPv4 family (ipv4, default true).
+	// IPv4 enables the IPv4 family (default true).
 	IPv4 *bool
-	// IPv6 enables the IPv6 family (ipv6, default false).
+	// IPv6 enables the IPv6 family (default false).
 	IPv6 *bool
-	// MaxAttempts caps message-send retries while reconnecting (
-	// maxAttempts, default 10, range 1..50).
+	// MaxAttempts caps message-send retries while reconnecting (default 10,
+	// range 1..50).
 	MaxAttempts *int
-	// MaxConnectionAttempts caps initial connection attempts (
-	// maxConnectionAttempts, default 10, range 1..50).
+	// MaxConnectionAttempts caps initial connection attempts (default 10,
+	// range 1..50).
 	MaxConnectionAttempts *int
-	// MaxTimeout caps connection-timeout occurrences before giving up (
-	// maxTimeout, default 10).
+	// MaxTimeout caps connection-timeout occurrences before giving up
+	// (default 10).
 	MaxTimeout *int
-	// RetryHigh is the max backoff delay in ms (retryHigh, default 30000).
+	// RetryHigh is the max backoff delay in ms (default 30000).
 	RetryHigh *int
-	// RetryLow is the backoff step in ms (retryLow, default 1000).
+	// RetryLow is the backoff step in ms (default 1000).
 	RetryLow *int
-	// TLS enables and configures TLS; non-nil turns it on (tls).
+	// TLS enables and configures TLS; non-nil turns it on.
 	TLS *TLSConfig
 	// Version is the REQUIRED HL7 version every message sent over this client's
 	// connections must declare in MSH.12. It must be one of the known HL7
 	// versions (2.1, 2.2, 2.3, 2.3.1, 2.4, 2.5, 2.5.1, 2.6, 2.7, 2.7.1, 2.8).
-	// This is an intentional divergence from node-hl7, which leaves the
-	// transport version-agnostic: here each client is pinned to a single
-	// version and outgoing messages whose MSH.12 differs are rejected before
-	// they are sent.
+	// Each client is pinned to a single version; outgoing messages whose
+	// MSH.12 differs are rejected before they are sent.
 	Version string
 }
 
-// ClientListenerOptions mirrors the ClientListenerOptions (the per-port
-// createConnection options that may override the client defaults).
+// ClientListenerOptions configures a single connection (port) and may override
+// the client defaults.
 type ClientListenerOptions struct {
 	// AutoConnect connects immediately on creation when true; otherwise the
-	// caller must call Connect (autoConnect, default true).
+	// caller must call Connect (default true).
 	AutoConnect *bool
-	// Encoding is retained for API parity; Go HL7 bodies are UTF-8 byte
-	// slices so it is informational only (encoding, default "utf8").
+	// Encoding is retained for API parity; HL7 bodies are UTF-8 byte slices so
+	// it is informational only (default "utf8").
 	Encoding string
-	// EnqueueMessage is the custom queue-store hook; pairs with FlushQueue
-	// (enqueueMessage). nil uses the default in-memory queue.
+	// EnqueueMessage is the custom queue-store hook; pairs with FlushQueue.
+	// nil uses the default in-memory queue.
 	EnqueueMessage func(message MessageItem, notifyPendingCount NotifyPendingCount) error
 	// ExtendMaxLimit, when true, lets the in-memory queue grow past MaxLimit
-	// instead of dropping the oldest (extendMaxLimit).
+	// instead of dropping the oldest.
 	ExtendMaxLimit *bool
-	// FlushQueue is the custom queue-drain hook; pairs with EnqueueMessage
-	// (flushQueue). nil uses the default in-memory queue.
+	// FlushQueue is the custom queue-drain hook; pairs with EnqueueMessage.
+	// nil uses the default in-memory queue.
 	FlushQueue func(callback FallBackHandler, notifyPendingCount NotifyPendingCount) error
-	// MaxAttempts overrides the client MaxAttempts for this port (
-	// maxAttempts).
+	// MaxAttempts overrides the client MaxAttempts for this port.
 	MaxAttempts *int
-	// MaxConnectionAttempts overrides the client value for this port (
-	// maxConnectionAttempts).
+	// MaxConnectionAttempts overrides the client value for this port.
 	MaxConnectionAttempts *int
-	// MaxLimit caps the in-memory pending queue (maxLimit, default 10000).
+	// MaxLimit caps the in-memory pending queue (default 10000).
 	MaxLimit *int
-	// NotifyOnLimitExceeded emits client.limitExceeded when the queue overflows
-	// (notifyOnLimitExceeded).
+	// NotifyOnLimitExceeded emits client.limitExceeded when the queue overflows.
 	NotifyOnLimitExceeded *bool
-	// Port is the remote port to connect to (port, required).
+	// Port is the remote port to connect to (required).
 	Port *int
 	// RetryHigh overrides the client backoff ceiling for this port.
 	RetryHigh *int
 	// RetryLow overrides the client backoff step for this port.
 	RetryLow *int
-	// WaitAck serializes sends on the previous ACK when true (waitAck,
-	// default true).
+	// WaitAck serializes sends on the previous ACK when true (default true).
 	WaitAck *bool
 }
 
-// MessageItem is anything the connection can send. the MessageItem is
-// `Batch | FileBatch | Message`; the contract is the String()-able message body
-// the codec frames, which Message, Batch, and FileBatch all satisfy.
+// MessageItem is anything the connection can send: any value with a String()
+// method that returns the message body the codec frames. *Message, *Batch, and
+// *FileBatch all satisfy it.
 type MessageItem interface {
 	String() string
 }
 
-// FallBackHandler delivers a queued message back into the connection on
-// flush, mirroring the FallBackHandler.
+// FallBackHandler delivers a queued message back into the connection on flush.
 type FallBackHandler func(message MessageItem)
 
-// NotifyPendingCount reports the current pending-queue depth, mirroring the
-// NotifyPendingCount.
+// NotifyPendingCount reports the current pending-queue depth.
 type NotifyPendingCount func(count int) error
 
-// OutboundHandler receives a parsed ACK/response, mirroring the
-// OutboundHandler ((res) => Promise<void> | void).
+// OutboundHandler receives a parsed ACK/response.
 type OutboundHandler func(res *InboundResponse) error
 
-// validatedClientOptions is the fully-resolved client option set, mirroring
-// the ValidatedClientOptions.
+// validatedClientOptions is the fully-resolved client option set.
 type validatedClientOptions struct {
 	autoSelectFamily               bool
 	autoSelectFamilyAttemptTimeout int
@@ -170,8 +156,7 @@ type validatedClientOptions struct {
 	version string
 }
 
-// validatedClientListenerOptions is the fully-resolved per-port option set,
-// mirroring the ValidatedClientListenerOptions.
+// validatedClientListenerOptions is the fully-resolved per-port option set.
 type validatedClientListenerOptions struct {
 	autoConnect           bool
 	encoding              string

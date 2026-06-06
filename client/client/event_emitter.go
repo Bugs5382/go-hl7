@@ -38,15 +38,14 @@ type EventEmitter struct {
 }
 
 // emitterHandler wraps a registered callback and whether it is a one-shot
-// (the once) listener.
+// listener.
 type emitterHandler struct {
 	fn   func(args ...any)
 	once bool
 }
 
-// On registers handler for the named event, mirroring the
-// EventEmitter.on. It returns the emitter so registrations can be chained the
-// way the spec returns `this`.
+// On registers handler for the named event. It returns the emitter so
+// registrations can be chained.
 func (e *EventEmitter) On(name string, handler func(args ...any)) *EventEmitter {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -58,7 +57,7 @@ func (e *EventEmitter) On(name string, handler func(args ...any)) *EventEmitter 
 }
 
 // Once registers a one-shot handler that is removed after its first
-// invocation, mirroring the EventEmitter.once.
+// invocation.
 func (e *EventEmitter) Once(name string, handler func(args ...any)) *EventEmitter {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -70,8 +69,7 @@ func (e *EventEmitter) Once(name string, handler func(args ...any)) *EventEmitte
 }
 
 // RemoveAllListeners drops every registered handler (or only those for the
-// given event when a name is supplied), mirroring the
-// EventEmitter.removeAllListeners.
+// given event when a name is supplied).
 func (e *EventEmitter) RemoveAllListeners(name ...string) *EventEmitter {
 	e.mu.Lock()
 	defer e.mu.Unlock()
@@ -86,9 +84,9 @@ func (e *EventEmitter) RemoveAllListeners(name ...string) *EventEmitter {
 }
 
 // emit fires every handler registered for the named event with args, removing
-// one-shot handlers afterward. It mirrors the EventEmitter.emit. Handlers
-// run with the emitter unlocked so a handler may re-subscribe (the end2end
-// "close" handler registers a follow-on "connection" listener).
+// one-shot handlers afterward. Handlers run with the emitter unlocked so a
+// handler may re-subscribe (e.g. a "close" handler registering a follow-on
+// "connection" listener).
 func (e *EventEmitter) emit(name string, args ...any) bool {
 	e.mu.Lock()
 	if e.listeners == nil {

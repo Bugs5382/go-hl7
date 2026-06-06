@@ -40,7 +40,7 @@ Version constructors (no implicit default — the constructor *is* the version s
 1. **HL7 version is REQUIRED per connection — and mismatches are rejected.**
    - **Client:** `ClientOptions.Version` is mandatory and single-set. It must be one of `2.1, 2.2, 2.3, 2.3.1, 2.4, 2.5, 2.5.1, 2.6, 2.7, 2.7.1, 2.8`, else `NewClient` returns `version is not defined.` / `version is not a valid HL7 version.`. Before any send, the message's `MSH.12` **must equal** the client version; if it differs, `conn.SendMessage` returns an error and **does not transmit** (for a batch/file, *every* inner message must match). Error text: `message version "2.5" does not match the connection version "2.7".`
    - **Server:** `ListenerOptions.Version` is mandatory **per listener** (same valid set / errors from `CreateInbound`). When an inbound `MSH.12` differs, the server replies with an **`AR`** (Application Reject) ACK, emits a version-mismatch `data.error` event, and **does not call your handler**. Dedicate one port per version.
-   - This is intentional and diverges from node-hl7 (which is version-agnostic on the transport). Build the message with the **matching version constructor** for the connection.
+   - Build the message with the **matching version constructor** for the connection.
 
 2. **`BuildMSH` must run first.** Calling any other `Build*` (or `BuildSegment`) before `BuildMSH` records `HL7FatalError("MSH Header must be built first.")` on the builder. Calling `BuildMSH` twice records `HL7FatalError("You can only have one MSH Header per HL7 Message.")`. The first such error stops the chain and surfaces from `ToMessage()`/`Err()`. MSH must go through `BuildMSH`, not `BuildSegment("MSH", …)`.
 

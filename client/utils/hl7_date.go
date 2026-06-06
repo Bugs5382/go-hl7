@@ -1,6 +1,6 @@
-// Package utils carries the small pure helpers the client package uses. It
-// mirrors the utils/ folder (createHL7Date, randomString, expBackoff,
-// ipAddress, is, spilt, getSegIndexes, decodeHexString, escapeForRegExp).
+// Package utils carries the small pure helpers the client package uses: HL7
+// date formatting, random strings, exponential backoff, IP-address checks,
+// segment indexing, hex decoding, and regexp escaping.
 package utils
 
 /*
@@ -34,7 +34,7 @@ import (
 )
 
 // CreateHL7Date formats a time as an HL7-compatible date string. The length
-// selects the format, mirroring the createHL7Date:
+// selects the format:
 //
 //	"8"  = YYYYMMDD
 //	"12" = YYYYMMDDHHMM
@@ -44,7 +44,7 @@ import (
 //	"26" = YYYYMMDDHHMMSS.SSSSSS+ZZZZ (microseconds + timezone)
 //
 // An empty length defaults to the 14-character form. The date is read in its
-// own location, mirroring the use of local-time getters.
+// own location.
 func CreateHL7Date(date time.Time, length string) string {
 	y := date.Year()
 	mo := PadHL7Date(int(date.Month()), 2, "0")
@@ -89,7 +89,7 @@ func tzOffset(date time.Time) string {
 
 // PadHL7Date left-pads the decimal form of n to the given width using the pad
 // character z. If n is already at least width digits wide it is returned
-// unchanged. It mirrors the padHL7Date.
+// unchanged.
 func PadHL7Date(n, width int, z string) string {
 	s := strconv.Itoa(n)
 	if len(s) >= width {

@@ -28,7 +28,7 @@ import (
 	"testing"
 )
 
-// Mirrors hl7.dualstack.test.ts "Client option normalization".
+// Client option normalization.
 
 func TestClientOptionNormalization(t *testing.T) {
 	t.Run("IPv4-only is the default", func(t *testing.T) {

@@ -33,8 +33,7 @@ import (
 )
 
 // pick returns the first present, non-empty value among the given prop keys, or
-// nil. It mirrors the `properties.msh_3 || properties.sendingApplication`
-// fallback chains.
+// nil. It implements the alias fallback (e.g. msh_3 or sendingApplication).
 func pick(p Props, keys ...string) any {
 	for _, k := range keys {
 		if v, ok := p[k]; ok {
@@ -60,8 +59,7 @@ func pickStr(p Props, keys ...string) string {
 }
 
 // dateField resolves a Date-typed prop: a time.Time formats at length, anything
-// else passes through, and an absent value yields fallback. It mirrors the
-// `x instanceof Date && !isNaN ? setDate(x, len) : fallback` idiom.
+// else passes through, and an absent value yields fallback.
 func (b *Builder) dateField(v any, length string, fallback any) any {
 	if t, ok := v.(time.Time); ok && !t.IsZero() {
 		return b.SetDate(t, length)
@@ -85,8 +83,7 @@ func lenExact(n int) metadata.Length { return metadata.Length{Exact: n, HasExact
 func dateRule() *ValidationRule { return &ValidationRule{Type: ruleDate, HasType: true} }
 
 // BuildMSH builds the MSH header, enforcing the single-MSH rule and dispatching
-// the per-version framing (the buildMSH -> version _buildMSH). Returns the
-// receiver for chaining.
+// the per-version framing. Returns the receiver for chaining.
 func (b *Builder) BuildMSH(properties Props) *Builder {
 	if b.err != nil {
 		return b
@@ -129,7 +126,7 @@ func (b *Builder) mshCommonHead(properties Props, recvFacMax int) {
 	b.validatorSetValue("6", pick(properties, "msh_6", "receivingFacility"), &ValidationRule{Length: lenMinMax(1, recvFacMax)})
 }
 
-// buildMSH21 ports the HL7_2_1._buildMSH (MSH.9 single field, MSH.11 P/T).
+// buildMSH21 builds the v2.1 MSH header (MSH.9 single field, MSH.11 P/T).
 func (b *Builder) buildMSH21(properties Props) {
 	b.segment = b.mustAddSegment("MSH")
 	if len(b.opt.SeparatorComponent) != 1 {
@@ -149,7 +146,7 @@ func (b *Builder) buildMSH21(properties Props) {
 	b.validatorSetValue("12", b.version, &ValidationRule{Required: true})
 }
 
-// buildMSH22 ports the HL7_2_2._buildMSH (MSH.9 splits to 9.1/9.2).
+// buildMSH22 builds the v2.2 MSH header (MSH.9 splits to 9.1/9.2).
 func (b *Builder) buildMSH22(properties Props) {
 	b.mshCommonHead(properties, 20)
 	b.validatorSetValue("7", b.dateField(pick(properties, "msh_7"), b.opt.Date, b.SetDate(time.Now(), b.opt.Date)), &ValidationRule{Required: true, Type: ruleDate, HasType: true})
@@ -161,7 +158,7 @@ func (b *Builder) buildMSH22(properties Props) {
 	b.validatorSetValue("12", b.version, &ValidationRule{Required: true})
 }
 
-// buildMSH23 ports the HL7_2_3._buildMSH (11 splits to 11.1/11.2, +13-18).
+// buildMSH23 builds the v2.3 MSH header (11 splits to 11.1/11.2, +13-18).
 func (b *Builder) buildMSH23(properties Props) {
 	b.mshCommonHead(properties, 20)
 	b.validatorSetValue("7", b.dateField(pick(properties, "msh_7"), b.opt.Date, b.SetDate(time.Now(), b.opt.Date)), &ValidationRule{Required: true, Type: ruleDate, HasType: true})
@@ -182,7 +179,7 @@ func (b *Builder) buildMSH23(properties Props) {
 	b.validatorSetValue("18", pick(properties, "msh_18"), &ValidationRule{Length: lenMinMax(1, 16)})
 }
 
-// buildMSH24 ports the HL7_2_4._buildMSH (adds MSH.9.3, 11.2 incl T).
+// buildMSH24 builds the v2.4 MSH header (adds MSH.9.3, 11.2 incl T).
 func (b *Builder) buildMSH24(properties Props) {
 	b.mshCommonHead(properties, 20)
 	b.validatorSetValue("7", b.dateField(pick(properties, "msh_7"), b.opt.Date, b.SetDate(time.Now(), b.opt.Date)), &ValidationRule{Required: true, Type: ruleDate, HasType: true})
@@ -198,7 +195,7 @@ func (b *Builder) buildMSH24(properties Props) {
 	b.validatorSetValue("12", b.version, &ValidationRule{Required: true})
 }
 
-// buildMSH27 ports the HL7_2_7._buildMSH (227-char fields, MSH.10 max 199).
+// buildMSH27 builds the v2.7 MSH header (227-char fields, MSH.10 max 199).
 func (b *Builder) buildMSH27(properties Props) {
 	b.segment = b.mustAddSegment("MSH")
 	if len(b.opt.SeparatorComponent) != 1 {

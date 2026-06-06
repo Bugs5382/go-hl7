@@ -29,7 +29,7 @@ import (
 	"github.com/Bugs5382/go-hl7/client/hl7"
 )
 
-// These tests mirror the hl7.segments.v22-v23.test.ts: the v2.2 and
+// These tests cover the v2.2 and
 // v2.3 typed segment builders, including the version-gated OBR/OBX/ORC/PID/PV1
 // extensions and the new scheduling/clinical-study/provider segments.
 

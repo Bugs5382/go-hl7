@@ -28,12 +28,10 @@ import (
 	"math"
 )
 
-// AssertNumber validates that value falls within [min, max], mirroring
-// the assertNumber. The spec reads the value out of a properties record by
-// name; Go passes the already-resolved value plus its name for the message.
-// Pass no max for the open-ended (>= min) form. The spec throws a TypeError; Go
-// returns a plain error carrying the identical message (these are option
-// validations, not the HL7Error hierarchy).
+// AssertNumber validates that value falls within [min, max]. The caller passes
+// the resolved value plus its name for the error message. Pass no max for the
+// open-ended (>= min) form. On failure it returns a plain error carrying the
+// message (these are option validations, not the HL7Error hierarchy).
 func AssertNumber(value float64, name string, min int, max ...int) error {
 	hasMax := len(max) > 0
 	if math.IsNaN(value) || math.IsInf(value, 0) || value < float64(min) || (hasMax && value > float64(max[0])) {

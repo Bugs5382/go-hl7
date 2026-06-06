@@ -23,15 +23,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-// These BuildXXX methods port the HL7_2_4 typed segment builders (DRG,
+// These BuildXXX methods build the v2.4 segments (DRG,
 // GOL, IAM, OM1-OM6, PRB, PTH, TXA), introduced in v2.4. ECD (also v2.4) lives
 // in build_segments.go. Each is a validatorSetField sequence over the shared
-// base; the version guard rejects the segment on earlier versions just as
-// the Builder._buildXXX stub throws "Not Implemented". The OBR/ORC/PID
-// version extensions the spec adds in HL7_2_4 live in build_segments_v21.go.
+// base; the version guard rejects the segment on earlier versions. The
+// OBR/ORC/PID version extensions added in v2.4 live in build_segments_v21.go.
 
-// BuildDRG builds a DRG (Diagnosis Related Group) segment (the
-// HL7_2_4._buildDRG). Chainable.
+// BuildDRG builds a DRG (Diagnosis Related Group) segment. Chainable.
 func (b *Builder) BuildDRG(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -52,7 +50,7 @@ func (b *Builder) BuildDRG(p Props) *Builder {
 	return b
 }
 
-// BuildGOL builds a GOL (Goal Detail) segment (the HL7_2_4._buildGOL).
+// BuildGOL builds a GOL (Goal Detail) segment.
 // Chainable.
 func (b *Builder) BuildGOL(p Props) *Builder {
 	if b.err != nil {
@@ -87,8 +85,7 @@ func (b *Builder) BuildGOL(p Props) *Builder {
 	return b
 }
 
-// BuildIAM builds an IAM (Patient Adverse Reaction Information) segment (the
-// HL7_2_4._buildIAM). Chainable.
+// BuildIAM builds an IAM (Patient Adverse Reaction Information) segment. Chainable.
 func (b *Builder) BuildIAM(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -112,8 +109,7 @@ func (b *Builder) BuildIAM(p Props) *Builder {
 	return b
 }
 
-// BuildOM1 builds an OM1 (General Segment for Observation Definitions) (the
-// HL7_2_4._buildOM1). Chainable.
+// BuildOM1 builds an OM1 (General Segment for Observation Definitions). Chainable.
 func (b *Builder) BuildOM1(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -173,8 +169,7 @@ func (b *Builder) BuildOM1(p Props) *Builder {
 	return b
 }
 
-// BuildOM2 builds an OM2 (Numeric Observation) segment (the
-// HL7_2_4._buildOM2). Chainable.
+// BuildOM2 builds an OM2 (Numeric Observation) segment. Chainable.
 func (b *Builder) BuildOM2(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -197,8 +192,7 @@ func (b *Builder) BuildOM2(p Props) *Builder {
 	return b
 }
 
-// BuildOM3 builds an OM3 (Categorical Test/Observation) segment (the
-// HL7_2_4._buildOM3). Chainable.
+// BuildOM3 builds an OM3 (Categorical Test/Observation) segment. Chainable.
 func (b *Builder) BuildOM3(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -219,8 +213,7 @@ func (b *Builder) BuildOM3(p Props) *Builder {
 	return b
 }
 
-// BuildOM4 builds an OM4 (Observations Requiring Specimens) segment (the
-// HL7_2_4._buildOM4). Chainable.
+// BuildOM4 builds an OM4 (Observations Requiring Specimens) segment. Chainable.
 func (b *Builder) BuildOM4(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -251,8 +244,7 @@ func (b *Builder) BuildOM4(p Props) *Builder {
 	return b
 }
 
-// BuildOM5 builds an OM5 (Observation Batteries) segment (the
-// HL7_2_4._buildOM5). Chainable.
+// BuildOM5 builds an OM5 (Observation Batteries) segment. Chainable.
 func (b *Builder) BuildOM5(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -269,7 +261,7 @@ func (b *Builder) BuildOM5(p Props) *Builder {
 }
 
 // BuildOM6 builds an OM6 (Observations Calculated from Other Observations)
-// segment (the HL7_2_4._buildOM6). Chainable.
+// segment. Chainable.
 func (b *Builder) BuildOM6(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -284,7 +276,7 @@ func (b *Builder) BuildOM6(p Props) *Builder {
 	return b
 }
 
-// BuildPRB builds a PRB (Problem Detail) segment (the HL7_2_4._buildPRB).
+// BuildPRB builds a PRB (Problem Detail) segment.
 // Chainable.
 func (b *Builder) BuildPRB(p Props) *Builder {
 	if b.err != nil {
@@ -324,7 +316,7 @@ func (b *Builder) BuildPRB(p Props) *Builder {
 	return b
 }
 
-// BuildPTH builds a PTH (Pathway) segment (the HL7_2_4._buildPTH).
+// BuildPTH builds a PTH (Pathway) segment.
 // Chainable.
 func (b *Builder) BuildPTH(p Props) *Builder {
 	if b.err != nil {
@@ -345,8 +337,7 @@ func (b *Builder) BuildPTH(p Props) *Builder {
 	return b
 }
 
-// BuildTXA builds a TXA (Transcription Document Header) segment (the
-// HL7_2_4._buildTXA). Chainable.
+// BuildTXA builds a TXA (Transcription Document Header) segment. Chainable.
 func (b *Builder) BuildTXA(p Props) *Builder {
 	if b.err != nil {
 		return b

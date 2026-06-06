@@ -28,7 +28,7 @@ import (
 )
 
 // CheckMSH validates an MSH header against the current spec version, dispatching
-// the per-version checks (the checkMSH chain). It returns nil when the header is
+// the per-version checks. It returns nil when the header is
 // valid and an error (wrapping ErrFatal/ErrValidation) describing the first
 // failure otherwise. The messages are preserved verbatim so callers matching on
 // the text see identical behavior. v2.1 has no checkMSH and returns a fatal
@@ -56,7 +56,7 @@ func has(p Props, key string) (string, bool) {
 	return s, true
 }
 
-// checkMSHBase ports the HL7_2_2.checkMSH (9.1/9.2 len 3, msh_10 max 20).
+// checkMSHBase validates the base MSH rules (9.1/9.2 len 3, msh_10 max 20).
 func checkMSHBase(msh Props) error {
 	s91, ok91 := has(msh, "msh_9_1")
 	s92, ok92 := has(msh, "msh_9_2")
@@ -75,7 +75,7 @@ func checkMSHBase(msh Props) error {
 	return nil
 }
 
-// checkMSH23 ports the HL7_2_3.checkMSH (base + 11.1/11.2 length checks).
+// checkMSH23 validates the v2.3 MSH rules (base + 11.1/11.2 length checks).
 func checkMSH23(msh Props) error {
 	if err := checkMSHBase(msh); err != nil {
 		return err
@@ -90,9 +90,9 @@ func checkMSH23(msh Props) error {
 	return nil
 }
 
-// checkMSH24Plus ports the HL7_2_4.checkMSH (base + MSH.9.3 length) and the
-// HL7_2_7.checkMSH override (9.1/9.2 len 3, msh_10 max 199). v2.4-2.6 use the
-// 2.3-derived base; v2.7+ uses the 2.7 rules.
+// checkMSH24Plus validates the v2.4 rules (base + MSH.9.3 length) and the v2.7
+// override (9.1/9.2 len 3, msh_10 max 199). v2.4-2.6 use the 2.3-derived base;
+// v2.7+ uses the 2.7 rules.
 func checkMSH24Plus(version string, msh Props) error {
 	switch version {
 	case "2.4", "2.5", "2.5.1", "2.6":
@@ -108,7 +108,7 @@ func checkMSH24Plus(version string, msh Props) error {
 	}
 }
 
-// checkMSH27 ports the HL7_2_7.checkMSH (9.1/9.2 len 3, msh_10 max 199).
+// checkMSH27 validates the v2.7 MSH rules (9.1/9.2 len 3, msh_10 max 199).
 func checkMSH27(msh Props) error {
 	s91, ok91 := has(msh, "msh_9_1")
 	s92, ok92 := has(msh, "msh_9_2")

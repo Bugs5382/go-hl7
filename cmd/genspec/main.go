@@ -111,10 +111,9 @@ func genSegments(srcDir, outDir string) error {
 	var b strings.Builder
 	b.WriteString(genBanner)
 	b.WriteString("\npackage metadata\n\n")
-	b.WriteString("// SegmentSpecs is the generated registry of HL7 segment specs, mirroring\n")
-	b.WriteString("// the SEGMENT_SPECS aggregation. Keys are segment names as the spec keys\n")
-	b.WriteString("// them (e.g. \"Zxx\"). It drives the spec-driven builder's per-version usage\n")
-	b.WriteString("// validation.\n")
+	b.WriteString("// SegmentSpecs is the generated registry of HL7 segment specs. Keys are\n")
+	b.WriteString("// segment names (e.g. \"Zxx\"). It drives the spec-driven builder's\n")
+	b.WriteString("// per-version usage validation.\n")
 	b.WriteString("var SegmentSpecs = map[string]SegmentSpec{\n")
 	for _, e := range entries {
 		fileBase := strings.ToLower(strings.TrimSuffix(e.constName, "_SPEC"))
@@ -270,8 +269,8 @@ func genDataTypes(srcDir, outDir string) error {
 	b.WriteString(genBanner)
 	b.WriteString("\npackage metadata\n\n")
 	b.WriteString("// DataTypes is the generated registry of composite HL7 data-type component\n")
-	b.WriteString("// layouts (XAD, XPN, CE, CWE, CX, ...), mirroring the DATA_TYPES. The\n")
-	b.WriteString("// builder assembles composite-object field inputs from these component lists.\n")
+	b.WriteString("// layouts (XAD, XPN, CE, CWE, CX, ...). The builder assembles\n")
+	b.WriteString("// composite-object field inputs from these component lists.\n")
 	b.WriteString("var DataTypes = map[string][]ComponentSpec{\n")
 	for _, name := range sortedKeys(dt) {
 		comps, _ := dt[name].([]jsValue)

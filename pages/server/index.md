@@ -15,7 +15,7 @@ flowchart LR
 
 Every connection gets its own `modules.MLLPCodec` so concurrent senders never interleave their byte streams. Your handler receives one parsed `builder.Message` at a time even if the inbound frame is a BHS batch or FHS file.
 
-Each listener is bound to a **required** HL7 version (set per port): an inbound message whose `MSH.12` does not match the listener's version is rejected with an `AR` (Application Reject) ACK and never reaches your handler. Dedicate a port per version. This is an intentional divergence from node-hl7, which leaves the transport version‑agnostic.
+Each listener is bound to a **required** HL7 version (set per port): an inbound message whose `MSH.12` does not match the listener's version is rejected with an `AR` (Application Reject) ACK and never reaches your handler. Dedicate a port per version.
 
 ## 🗂️ Documentation layout
 

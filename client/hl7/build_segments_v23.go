@@ -23,20 +23,19 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-// These BuildXXX methods port the HL7_2_3 typed segment builders (the
+// These BuildXXX methods build the v2.3 segments (the
 // scheduling/clinical-study/provider segments introduced in v2.3). Each is a
 // validatorSetField sequence over the shared base; the version guard rejects
-// the segment on earlier versions just as the Builder._buildXXX stub
-// throws "Not Implemented". The NK1/OBR/OBX/ORC/PID version extensions the spec
-// adds in HL7_2_3 live in build_segments_v21.go, gated by the usage catalog.
+// the segment on earlier versions. The NK1/OBR/OBX/ORC/PID version extensions
+// added in v2.3 live in build_segments_v21.go, gated by the usage catalog.
 
-// aigStyle builds the AIG/AIL/AIP/AIS-shared field layout, which the spec repeats
+// aigStyle builds the AIG/AIL/AIP/AIS-shared field layout, repeated
 // verbatim across those four scheduling segments. The date field index differs
 // (AIS dates field 4, the others field 6/8), so the shared body is only the
 // common prefix; each builder supplies its own field sequence.
 
-// BuildAIG builds an AIG (Appointment Information - General Resource) segment
-// (the HL7_2_3._buildAIG). Chainable.
+// BuildAIG builds an AIG (Appointment Information - General Resource) segment.
+// Chainable.
 func (b *Builder) BuildAIG(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -63,8 +62,8 @@ func (b *Builder) BuildAIG(p Props) *Builder {
 	return b
 }
 
-// BuildAIL builds an AIL (Appointment Information - Location Resource) segment
-// (the HL7_2_3._buildAIL). Chainable.
+// BuildAIL builds an AIL (Appointment Information - Location Resource) segment.
+// Chainable.
 func (b *Builder) BuildAIL(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -89,8 +88,8 @@ func (b *Builder) BuildAIL(p Props) *Builder {
 	return b
 }
 
-// BuildAIP builds an AIP (Appointment Information - Personnel Resource) segment
-// (the HL7_2_3._buildAIP). Chainable.
+// BuildAIP builds an AIP (Appointment Information - Personnel Resource) segment.
+// Chainable.
 func (b *Builder) BuildAIP(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -115,8 +114,7 @@ func (b *Builder) BuildAIP(p Props) *Builder {
 	return b
 }
 
-// BuildAIS builds an AIS (Appointment Information - Service) segment (the
-// HL7_2_3._buildAIS). Chainable.
+// BuildAIS builds an AIS (Appointment Information - Service) segment. Chainable.
 func (b *Builder) BuildAIS(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -139,8 +137,7 @@ func (b *Builder) BuildAIS(p Props) *Builder {
 	return b
 }
 
-// BuildAPR builds an APR (Appointment Preferences) segment (the
-// HL7_2_3._buildAPR). Chainable.
+// BuildAPR builds an APR (Appointment Preferences) segment. Chainable.
 func (b *Builder) BuildAPR(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -158,8 +155,7 @@ func (b *Builder) BuildAPR(p Props) *Builder {
 	return b
 }
 
-// BuildCSP builds a CSP (Clinical Study Phase) segment (the
-// HL7_2_3._buildCSP). Chainable.
+// BuildCSP builds a CSP (Clinical Study Phase) segment. Chainable.
 func (b *Builder) BuildCSP(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -176,8 +172,7 @@ func (b *Builder) BuildCSP(p Props) *Builder {
 	return b
 }
 
-// BuildCSR builds a CSR (Clinical Study Registration) segment (the
-// HL7_2_3._buildCSR). Chainable.
+// BuildCSR builds a CSR (Clinical Study Registration) segment. Chainable.
 func (b *Builder) BuildCSR(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -206,8 +201,7 @@ func (b *Builder) BuildCSR(p Props) *Builder {
 	return b
 }
 
-// BuildCSS builds a CSS (Clinical Study Data Schedule) segment (the
-// HL7_2_3._buildCSS). Chainable.
+// BuildCSS builds a CSS (Clinical Study Data Schedule) segment. Chainable.
 func (b *Builder) BuildCSS(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -223,7 +217,7 @@ func (b *Builder) BuildCSS(p Props) *Builder {
 	return b
 }
 
-// BuildCTD builds a CTD (Contact Data) segment (the HL7_2_3._buildCTD).
+// BuildCTD builds a CTD (Contact Data) segment.
 // Chainable.
 func (b *Builder) BuildCTD(p Props) *Builder {
 	if b.err != nil {
@@ -244,8 +238,7 @@ func (b *Builder) BuildCTD(p Props) *Builder {
 	return b
 }
 
-// BuildPCR builds a PCR (Possible Causal Relationship) segment (the
-// HL7_2_3._buildPCR). Chainable.
+// BuildPCR builds a PCR (Possible Causal Relationship) segment. Chainable.
 func (b *Builder) BuildPCR(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -281,8 +274,7 @@ func (b *Builder) BuildPCR(p Props) *Builder {
 	return b
 }
 
-// BuildPD1 builds a PD1 (Patient Additional Demographic) segment (the
-// HL7_2_3._buildPD1). Chainable.
+// BuildPD1 builds a PD1 (Patient Additional Demographic) segment. Chainable.
 func (b *Builder) BuildPD1(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -307,8 +299,7 @@ func (b *Builder) BuildPD1(p Props) *Builder {
 	return b
 }
 
-// BuildPRA builds a PRA (Practitioner Detail) segment (the
-// HL7_2_3._buildPRA). Chainable.
+// BuildPRA builds a PRA (Practitioner Detail) segment. Chainable.
 func (b *Builder) BuildPRA(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -329,7 +320,7 @@ func (b *Builder) BuildPRA(p Props) *Builder {
 	return b
 }
 
-// BuildPRD builds a PRD (Provider Data) segment (the HL7_2_3._buildPRD).
+// BuildPRD builds a PRD (Provider Data) segment.
 // Chainable.
 func (b *Builder) BuildPRD(p Props) *Builder {
 	if b.err != nil {
@@ -352,8 +343,7 @@ func (b *Builder) BuildPRD(p Props) *Builder {
 	return b
 }
 
-// BuildPSH builds a PSH (Product Summary Header) segment (the
-// HL7_2_3._buildPSH). Chainable.
+// BuildPSH builds a PSH (Product Summary Header) segment. Chainable.
 func (b *Builder) BuildPSH(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -380,8 +370,7 @@ func (b *Builder) BuildPSH(p Props) *Builder {
 	return b
 }
 
-// BuildRDF builds an RDF (Table Row Definition) segment (the
-// HL7_2_3._buildRDF). Chainable.
+// BuildRDF builds an RDF (Table Row Definition) segment. Chainable.
 func (b *Builder) BuildRDF(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -396,7 +385,7 @@ func (b *Builder) BuildRDF(p Props) *Builder {
 	return b
 }
 
-// BuildRDT builds an RDT (Table Row Data) segment (the HL7_2_3._buildRDT).
+// BuildRDT builds an RDT (Table Row Data) segment.
 // Chainable.
 func (b *Builder) BuildRDT(p Props) *Builder {
 	if b.err != nil {
@@ -411,7 +400,7 @@ func (b *Builder) BuildRDT(p Props) *Builder {
 	return b
 }
 
-// BuildRGS builds an RGS (Resource Group) segment (the HL7_2_3._buildRGS).
+// BuildRGS builds an RGS (Resource Group) segment.
 // Chainable.
 func (b *Builder) BuildRGS(p Props) *Builder {
 	if b.err != nil {
@@ -428,7 +417,7 @@ func (b *Builder) BuildRGS(p Props) *Builder {
 	return b
 }
 
-// BuildROL builds a ROL (Role) segment (the HL7_2_3._buildROL). Chainable.
+// BuildROL builds a ROL (Role) segment. Chainable.
 func (b *Builder) BuildROL(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -449,8 +438,7 @@ func (b *Builder) BuildROL(p Props) *Builder {
 	return b
 }
 
-// BuildSCH builds an SCH (Scheduling Activity Information) segment (the
-// HL7_2_3._buildSCH). Chainable.
+// BuildSCH builds an SCH (Scheduling Activity Information) segment. Chainable.
 func (b *Builder) BuildSCH(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -488,7 +476,7 @@ func (b *Builder) BuildSCH(p Props) *Builder {
 	return b
 }
 
-// BuildVAR builds a VAR (Variance) segment (the HL7_2_3._buildVAR).
+// BuildVAR builds a VAR (Variance) segment.
 // Chainable.
 func (b *Builder) BuildVAR(p Props) *Builder {
 	if b.err != nil {

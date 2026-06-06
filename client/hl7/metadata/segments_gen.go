@@ -25,10 +25,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-// SegmentSpecs is the generated registry of HL7 segment specs, mirroring
-// the SEGMENT_SPECS aggregation. Keys are segment names as the spec keys
-// them (e.g. "Zxx"). It drives the spec-driven builder's per-version usage
-// validation.
+// SegmentSpecs is the generated registry of HL7 segment specs. Keys are
+// segment names (e.g. "Zxx"). It drives the spec-driven builder's
+// per-version usage validation.
 var SegmentSpecs = map[string]SegmentSpec{
 	"ABS": {
 		Name:        "ABS",

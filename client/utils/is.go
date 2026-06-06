@@ -27,8 +27,7 @@ import "strings"
 
 // IsBatch reports whether a message begins a batch. It is true for text that
 // contains more than one MSH segment, or for text that begins with the batch
-// (BHS) header segment. It mirrors the isBatch, including the rule that
-// a single MSH is not a batch.
+// (BHS) header segment. A single MSH is not a batch.
 func IsBatch(message string) bool {
 	count := 0
 	for _, line := range Split(message, nil) {
@@ -47,7 +46,7 @@ func IsBatch(message string) bool {
 }
 
 // IsFile reports whether a message begins with the file-batch (FHS) header
-// segment. It mirrors the isFile.
+// segment.
 func IsFile(message string) bool {
 	return strings.HasPrefix(message, "FHS")
 }
@@ -63,9 +62,7 @@ func IsHL7Number(value string) bool {
 	return true
 }
 
-// IsHL7String reports whether a value is a string. In Go the argument is
-// already typed string, mirroring the isHL7String which is `typeof
-// value === "string"`.
+// IsHL7String reports whether a value is a string.
 func IsHL7String(value any) bool {
 	_, ok := value.(string)
 	return ok

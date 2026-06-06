@@ -28,9 +28,8 @@ import (
 	"testing"
 )
 
-// These tests mirror the catalogue-coverage half of the reference's
-// hl7.segment-specs.test.ts ("SegmentSpec catalogue coverage"). The generic
-// buildSegment runtime cases live with the spec-driven builder (phase 2).
+// These tests cover the SegmentSpec catalogue. The generic BuildSegment
+// runtime cases live with the spec-driven builder.
 
 func findField(spec SegmentSpec, num int) (FieldSpec, bool) {
 	for _, f := range spec.Fields {

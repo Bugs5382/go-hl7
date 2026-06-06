@@ -26,18 +26,17 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 import "time"
 
 // EmptyNode is the shared sentinel returned for a missing path, so chained
-// Get(...).String() never panics. It mirrors the EmptyNode: reads
-// self-return, value coercions report not-ok (throws), and writes are
-// no-ops returning the node.
+// Get(...).String() never panics. Reads self-return, value coercions report
+// not-ok, and writes are no-ops returning the node.
 type EmptyNode struct{}
 
 // Len returns 0.
 func (e *EmptyNode) Len() int { return 0 }
 
-// Name is not implemented for an empty node, mirroring the throw.
+// Name is not implemented for an empty node.
 func (e *EmptyNode) Name() string { panic("Method not implemented") }
 
-// Path is not implemented for an empty node, mirroring the throw.
+// Path is not implemented for an empty node.
 func (e *EmptyNode) Path() []string { panic("Method not implemented") }
 
 // Exists always reports false.
@@ -46,7 +45,7 @@ func (e *EmptyNode) Exists(path string) bool { return false }
 // ExistsIndex always reports false.
 func (e *EmptyNode) ExistsIndex(i int) bool { return false }
 
-// ForEach is not implemented for an empty node, mirroring the throw.
+// ForEach is not implemented for an empty node.
 func (e *EmptyNode) ForEach(cb func(value HL7Node, index int)) { panic("Method not implemented") }
 
 // Get self-returns the empty node.
@@ -58,7 +57,7 @@ func (e *EmptyNode) Index(i int) HL7Node { return e }
 // IsEmpty always reports true.
 func (e *EmptyNode) IsEmpty() bool { return true }
 
-// Read is not implemented for an empty node, mirroring the throw.
+// Read is not implemented for an empty node.
 func (e *EmptyNode) Read(path []string) HL7Node { panic("Method not implemented") }
 
 // Set self-returns the empty node.
@@ -73,7 +72,7 @@ func (e *EmptyNode) Write(path []string, value string) HL7Node { return e }
 // ToArray returns an empty slice.
 func (e *EmptyNode) ToArray() []HL7Node { return []HL7Node{} }
 
-// Raw is not implemented for an empty node, mirroring the throw.
+// Raw is not implemented for an empty node.
 func (e *EmptyNode) Raw() string { panic("Method not implemented") }
 
 // String returns the empty string.

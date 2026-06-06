@@ -25,7 +25,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import "testing"
 
-// Mirrors hl7.dualstack.test.ts "validIPv4 / validIPv6 / detectIPFamily".
+// Tests for ValidIPv4 / ValidIPv6 / DetectIPFamily.
 
 func TestValidIPv4(t *testing.T) {
 	for _, ip := range []string{"127.0.0.1", "0.0.0.0", "192.0.2.1", "255.255.255.255"} {

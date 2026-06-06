@@ -32,7 +32,7 @@ import (
 	"github.com/Bugs5382/go-hl7/client/hl7/metadata"
 )
 
-// These tests mirror the hl7.composite-objects.test.ts: composite HL7
+// These tests check that composite HL7
 // fields (XAD, XPN) accept typed component objects in addition to pre-formatted
 // ^-delimited strings, the composer validates each component (R/W/X, length),
 // and object/string forms produce byte-identical wire output. The typed

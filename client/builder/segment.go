@@ -34,7 +34,7 @@ import (
 // numericPathRe matches a fully numeric dotted path like "5" or "5.1".
 var numericPathRe = regexp.MustCompile(`^\d+(\.\d+)*$`)
 
-// Segment is one segment line of a message (the Segment). Its children are
+// Segment is one segment line of a message. Its children are
 // fields. MSH/BHS/FHS are special-cased: field 1 is the field separator and
 // other indices shift by one.
 type Segment struct {
@@ -66,8 +66,7 @@ func min3(n int) int {
 // Name returns the three-letter segment name.
 func (s *Segment) Name() string { return s.segmentName }
 
-// Read resolves a field path with MSH/BHS/FHS index handling (the
-// Segment.read).
+// Read resolves a field path with MSH/BHS/FHS index handling.
 func (s *Segment) Read(path []string) HL7Node {
 	index, _ := strconv.Atoi(path[0])
 	path = path[1:]
@@ -93,7 +92,7 @@ func (s *Segment) Read(path []string) HL7Node {
 }
 
 // Set writes value at a path, resolving numeric-only paths under the segment
-// name (the Segment.set).
+// name.
 func (s *Segment) Set(path string, value any) HL7Node {
 	resolved := path
 	if numericPathRe.MatchString(path) {
@@ -110,16 +109,15 @@ func (s *Segment) Set(path string, value any) HL7Node {
 	return s
 }
 
-// createChild builds a Field (the Segment.createChild).
+// createChild builds a Field.
 func (s *Segment) createChild(text string, index int) HL7Node {
 	return newField(s, strconv.Itoa(index), text)
 }
 
-// pathCore returns the segment name (the Segment.pathCore).
+// pathCore returns the segment name.
 func (s *Segment) pathCore() []string { return []string{s.segmentName} }
 
-// writeCore writes a field with MSH/BHS/FHS index handling (the
-// Segment.writeCore).
+// writeCore writes a field with MSH/BHS/FHS index handling.
 func (s *Segment) writeCore(path []string, value string) HL7Node {
 	index, err := strconv.Atoi(path[0])
 	path = path[1:]

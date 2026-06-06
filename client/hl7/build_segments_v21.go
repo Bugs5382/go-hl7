@@ -23,23 +23,21 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-// These BuildXXX methods port the HL7_2_1 protected _buildXXX segment
-// builders (the base segment set every later version inherits). Field-level
-// per-version differences are gated by the usage catalog the validator
-// consults, so these shared bodies stay version-correct: a field absent from
-// the current version with no value is a no-op, and one with a value is
-// rejected. The per-field length/date/allowedValues overrides are ported
-// verbatim from the 2.1 source. The MSH builders live in build_msh.go.
+// These BuildXXX methods build the v2.1 segment set, the base every later
+// version inherits. Field-level per-version differences are gated by the usage
+// catalog the validator consults, so these shared bodies stay version-correct:
+// a field absent from the current version with no value is a no-op, and one
+// with a value is rejected. The MSH builders live in build_msh.go.
 
 // dv formats a Date-typed override field at the standard message date length,
-// falling back to fallback. Shorthand for the `x instanceof Date ? setDate(x)
-// : fallback` idiom the spec repeats in every date field.
+// falling back to fallback. It sets a Date value via setDate and otherwise
+// uses the fallback.
 func (b *Builder) dv(v any, fallback any) any { return b.dateField(v, b.opt.Date, fallback) }
 
 // dv8 is dv at the fixed "8" (YYYYMMDD) length.
 func (b *Builder) dv8(v any, fallback any) any { return b.dateField(v, "8", fallback) }
 
-// BuildACC builds an ACC (Accident) segment (the _buildACC). Chainable.
+// BuildACC builds an ACC (Accident) segment. Chainable.
 func (b *Builder) BuildACC(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -54,7 +52,7 @@ func (b *Builder) BuildACC(p Props) *Builder {
 	return b
 }
 
-// BuildBLG builds a BLG (Billing) segment (the _buildBLG). Chainable.
+// BuildBLG builds a BLG (Billing) segment. Chainable.
 func (b *Builder) BuildBLG(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -69,7 +67,7 @@ func (b *Builder) BuildBLG(p Props) *Builder {
 	return b
 }
 
-// BuildDG1 builds a DG1 (Diagnosis) segment (the _buildDG1). Chainable.
+// BuildDG1 builds a DG1 (Diagnosis) segment. Chainable.
 func (b *Builder) BuildDG1(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -95,7 +93,7 @@ func (b *Builder) BuildDG1(p Props) *Builder {
 	return b
 }
 
-// BuildDSC builds a DSC (Continuation Pointer) segment (the _buildDSC).
+// BuildDSC builds a DSC (Continuation Pointer) segment.
 func (b *Builder) BuildDSC(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -108,7 +106,7 @@ func (b *Builder) BuildDSC(p Props) *Builder {
 	return b
 }
 
-// BuildERR builds an ERR (Error) segment (the _buildERR). Chainable.
+// BuildERR builds an ERR (Error) segment. Chainable.
 func (b *Builder) BuildERR(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -121,7 +119,7 @@ func (b *Builder) BuildERR(p Props) *Builder {
 	return b
 }
 
-// BuildEVN builds an EVN (Event Type) segment (the _buildEVN). Chainable.
+// BuildEVN builds an EVN (Event Type) segment. Chainable.
 func (b *Builder) BuildEVN(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -137,7 +135,7 @@ func (b *Builder) BuildEVN(p Props) *Builder {
 	return b
 }
 
-// BuildFT1 builds an FT1 (Financial Transaction) segment (the _buildFT1).
+// BuildFT1 builds an FT1 (Financial Transaction) segment.
 func (b *Builder) BuildFT1(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -171,7 +169,7 @@ func (b *Builder) BuildFT1(p Props) *Builder {
 	return b
 }
 
-// BuildGT1 builds a GT1 (Guarantor) segment (the _buildGT1). Chainable.
+// BuildGT1 builds a GT1 (Guarantor) segment. Chainable.
 func (b *Builder) BuildGT1(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -203,7 +201,7 @@ func (b *Builder) BuildGT1(p Props) *Builder {
 	return b
 }
 
-// BuildIN1 builds an IN1 (Insurance) segment (the _buildIN1). Chainable.
+// BuildIN1 builds an IN1 (Insurance) segment. Chainable.
 func (b *Builder) BuildIN1(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -224,7 +222,7 @@ func (b *Builder) BuildIN1(p Props) *Builder {
 	return b
 }
 
-// BuildMRG builds an MRG (Merge Patient Info) segment (the _buildMRG).
+// BuildMRG builds an MRG (Merge Patient Info) segment.
 func (b *Builder) BuildMRG(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -239,7 +237,7 @@ func (b *Builder) BuildMRG(p Props) *Builder {
 	return b
 }
 
-// BuildMSA builds an MSA (Acknowledgment) segment (the _buildMSA). Chainable.
+// BuildMSA builds an MSA (Acknowledgment) segment. Chainable.
 func (b *Builder) BuildMSA(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -255,7 +253,7 @@ func (b *Builder) BuildMSA(p Props) *Builder {
 	return b
 }
 
-// BuildNK1 builds an NK1 (Next of Kin) segment (the _buildNK1). Chainable.
+// BuildNK1 builds an NK1 (Next of Kin) segment. Chainable.
 func (b *Builder) BuildNK1(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -268,7 +266,7 @@ func (b *Builder) BuildNK1(p Props) *Builder {
 		b.setField(s, i, pick(p, "nk1_"+itoa(i)), nil)
 	}
 
-	// Version extensions (the HL7_2_3._buildNK1, gated by the usage catalog).
+	// Version extensions, gated by the usage catalog.
 	if compareVersions(b.version, "2.3") >= 0 {
 		b.setField(s, 6, pick(p, "nk1_6"), &ValidationRule{Length: lenMinMax(1, 40)})
 		b.setField(s, 7, pick(p, "nk1_7"), &ValidationRule{Length: lenMinMax(1, 60)})
@@ -289,7 +287,7 @@ func (b *Builder) BuildNK1(p Props) *Builder {
 	return b
 }
 
-// BuildNPU builds an NPU (Bed Status Update) segment (the _buildNPU).
+// BuildNPU builds an NPU (Bed Status Update) segment.
 func (b *Builder) BuildNPU(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -303,7 +301,7 @@ func (b *Builder) BuildNPU(p Props) *Builder {
 	return b
 }
 
-// BuildNSC builds an NSC (Network Change) segment (the _buildNSC). Chainable.
+// BuildNSC builds an NSC (Network Change) segment. Chainable.
 func (b *Builder) BuildNSC(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -318,7 +316,7 @@ func (b *Builder) BuildNSC(p Props) *Builder {
 	return b
 }
 
-// BuildNTE builds an NTE (Notes and Comments) segment (the _buildNTE).
+// BuildNTE builds an NTE (Notes and Comments) segment.
 func (b *Builder) BuildNTE(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -333,7 +331,7 @@ func (b *Builder) BuildNTE(p Props) *Builder {
 	return b
 }
 
-// BuildOBR builds an OBR (Observation Request) segment (the _buildOBR).
+// BuildOBR builds an OBR (Observation Request) segment.
 func (b *Builder) BuildOBR(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -368,9 +366,9 @@ func (b *Builder) BuildOBR(p Props) *Builder {
 	b.setField(s, 24, pick(p, "obr_24", "diagnosticServiceSectionId"), &ValidationRule{AllowedValues: b.codeTable("0074"), Length: lenMinMax(1, 10)})
 	b.setField(s, 25, pick(p, "obr_25", "resultStatus"), &ValidationRule{AllowedValues: b.codeTable("0123"), Length: lenExact(1)})
 
-	// Version extensions: the spec overrides _buildOBR in later versions, calling
-	// super first then appending the new fields. The usage catalog gates each
-	// field, so these run only from the version that introduced them onward.
+	// Version extensions: later versions append OBR fields. The usage catalog
+	// gates each field, so these run only from the version that introduced them
+	// onward.
 	if compareVersions(b.version, "2.2") >= 0 {
 		b.setField(s, 26, pick(p, "obr_26"), &ValidationRule{Length: lenMinMax(1, 60)})
 		b.setField(s, 27, pick(p, "obr_27"), &ValidationRule{Length: lenMinMax(1, 200)})
@@ -402,7 +400,7 @@ func (b *Builder) BuildOBR(p Props) *Builder {
 	return b
 }
 
-// BuildOBX builds an OBX (Observation/Result) segment (the _buildOBX).
+// BuildOBX builds an OBX (Observation/Result) segment.
 func (b *Builder) BuildOBX(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -423,7 +421,7 @@ func (b *Builder) BuildOBX(p Props) *Builder {
 	b.setField(s, 10, pick(p, "obx_10"), &ValidationRule{Length: lenExact(2)})
 	b.setField(s, 11, pick(p, "obx_11", "observationResultStatus"), &ValidationRule{AllowedValues: b.codeTable("0085"), Length: lenExact(1)})
 
-	// Version extensions (the HL7_2_x._buildOBX, gated by the usage catalog).
+	// Version extensions, gated by the usage catalog.
 	if compareVersions(b.version, "2.2") >= 0 {
 		b.setField(s, 12, b.dv(pick(p, "obx_12"), ""), dateRule())
 		b.setField(s, 13, pick(p, "obx_13"), &ValidationRule{Length: lenMinMax(1, 20)})
@@ -437,7 +435,7 @@ func (b *Builder) BuildOBX(p Props) *Builder {
 	return b
 }
 
-// BuildORC builds an ORC (Common Order) segment (the _buildORC). Chainable.
+// BuildORC builds an ORC (Common Order) segment. Chainable.
 func (b *Builder) BuildORC(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -461,7 +459,7 @@ func (b *Builder) BuildORC(p Props) *Builder {
 	b.setField(s, 13, pick(p, "orc_13"), &ValidationRule{Length: lenMinMax(1, 80)})
 	b.setField(s, 14, pick(p, "orc_14", "callBackPhoneNumber"), &ValidationRule{Length: lenMinMax(1, 40)})
 
-	// Version extensions (the HL7_2_x._buildORC, gated by the usage catalog).
+	// Version extensions, gated by the usage catalog.
 	if compareVersions(b.version, "2.2") >= 0 {
 		b.setField(s, 15, b.dv(pick(p, "orc_15"), ""), dateRule())
 		b.setField(s, 16, pick(p, "orc_16"), &ValidationRule{Length: lenMinMax(1, 200)})
@@ -487,7 +485,7 @@ func (b *Builder) BuildORC(p Props) *Builder {
 	return b
 }
 
-// BuildPID builds a PID (Patient Identification) segment (the _buildPID).
+// BuildPID builds a PID (Patient Identification) segment.
 // PID.11 (XAD) and PID.5 (XPN) accept composite-object inputs via the validator.
 func (b *Builder) BuildPID(p Props) *Builder {
 	if b.err != nil {
@@ -517,9 +515,8 @@ func (b *Builder) BuildPID(p Props) *Builder {
 	b.setField(s, 18, pick(p, "pid_18", "patientAccountNumber"), &ValidationRule{Length: lenMinMax(1, 20)})
 	b.setField(s, 19, pick(p, "pid_19", "ssn"), &ValidationRule{Length: lenMinMax(1, 16)})
 
-	// Version extensions: the spec adds PID fields in later versions by overriding
-	// _buildPID and calling super first. The usage catalog gates each field, so
-	// these run only from the version that introduced them onward.
+	// Version extensions: later versions add PID fields. The usage catalog gates
+	// each field, so these run only from the version that introduced them onward.
 	if compareVersions(b.version, "2.2") >= 0 {
 		b.setField(s, 20, pick(p, "pid_20"), &ValidationRule{Length: lenMinMax(1, 25)})
 		b.setField(s, 21, pick(p, "pid_21"), &ValidationRule{Length: lenMinMax(1, 20)})
@@ -549,8 +546,7 @@ func (b *Builder) BuildPID(p Props) *Builder {
 	return b
 }
 
-// pickStrOrNil returns the string form of a prop value, or nil when absent. It
-// mirrors the `pid_25 === undefined ? undefined : String(pid_25)`.
+// pickStrOrNil returns the string form of a prop value, or nil when absent.
 func pickStrOrNil(p Props, keys ...string) any {
 	v := pick(p, keys...)
 	if v == nil {
@@ -559,7 +555,7 @@ func pickStrOrNil(p Props, keys ...string) any {
 	return toStr(v)
 }
 
-// BuildPR1 builds a PR1 (Procedures) segment (the _buildPR1). Chainable.
+// BuildPR1 builds a PR1 (Procedures) segment. Chainable.
 func (b *Builder) BuildPR1(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -582,7 +578,7 @@ func (b *Builder) BuildPR1(p Props) *Builder {
 	return b
 }
 
-// BuildPV1 builds a PV1 (Patient Visit) segment (the _buildPV1). Chainable.
+// BuildPV1 builds a PV1 (Patient Visit) segment. Chainable.
 func (b *Builder) BuildPV1(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -636,7 +632,7 @@ func (b *Builder) BuildPV1(p Props) *Builder {
 	b.setField(s, 43, pick(p, "pv1_43"), &ValidationRule{Length: lenMinMax(1, 12)})
 	b.setField(s, 44, b.dv(pick(p, "pv1_44", "admitDateTime"), ""), dateRule())
 
-	// Version extensions (the HL7_2_2._buildPV1, gated by the usage catalog).
+	// Version extensions, gated by the usage catalog.
 	if compareVersions(b.version, "2.2") >= 0 {
 		b.setField(s, 45, b.dv(pick(p, "pv1_45"), ""), dateRule())
 		b.setField(s, 46, pick(p, "pv1_46"), &ValidationRule{Length: lenMinMax(1, 12)})
@@ -650,7 +646,7 @@ func (b *Builder) BuildPV1(p Props) *Builder {
 	return b
 }
 
-// BuildQRD builds a QRD (Query Definition) segment (the _buildQRD).
+// BuildQRD builds a QRD (Query Definition) segment.
 func (b *Builder) BuildQRD(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -672,7 +668,7 @@ func (b *Builder) BuildQRD(p Props) *Builder {
 	return b
 }
 
-// BuildQRF builds a QRF (Query Filter) segment (the _buildQRF). Chainable.
+// BuildQRF builds a QRF (Query Filter) segment. Chainable.
 func (b *Builder) BuildQRF(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -689,7 +685,7 @@ func (b *Builder) BuildQRF(p Props) *Builder {
 	return b
 }
 
-// BuildRX1 builds an RX1 (Pharmacy/Treatment Order) segment (the _buildRX1).
+// BuildRX1 builds an RX1 (Pharmacy/Treatment Order) segment.
 func (b *Builder) BuildRX1(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -723,7 +719,7 @@ func (b *Builder) BuildRX1(p Props) *Builder {
 	return b
 }
 
-// BuildUB1 builds a UB1 (UB82 Data) segment (the _buildUB1). Chainable.
+// BuildUB1 builds a UB1 (UB82 Data) segment. Chainable.
 func (b *Builder) BuildUB1(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -758,7 +754,7 @@ func (b *Builder) BuildUB1(p Props) *Builder {
 	return b
 }
 
-// BuildURD builds a URD (Results/Update Definition) segment (the _buildURD).
+// BuildURD builds a URD (Results/Update Definition) segment.
 func (b *Builder) BuildURD(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -774,7 +770,7 @@ func (b *Builder) BuildURD(p Props) *Builder {
 	return b
 }
 
-// BuildURS builds a URS (Unsolicited Selection) segment (the _buildURS).
+// BuildURS builds a URS (Unsolicited Selection) segment.
 func (b *Builder) BuildURS(p Props) *Builder {
 	if b.err != nil {
 		return b

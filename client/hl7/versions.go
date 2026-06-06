@@ -37,13 +37,9 @@ import (
 // lengths) are dispatched by version in BuildMSH. checkMSH is dispatched by
 // version in CheckMSH.
 //
-// Go necessity (documented adaptation): the spec embeds the version chain in
-// TypeScript class inheritance and narrows withdrawn fields to `never` at the
-// type level (e.g. v2.8 ECD.4). Go has no type-level narrowing and no virtual
-// dispatch through struct embedding, so New returns a single *Builder carrying
-// its version string, and the version narrowing collapses to the runtime
-// usage-code check (W/X reject a value), which the validator and
-// assertSegmentInVersion enforce identically.
+// New returns a single *Builder carrying its version string; per-version field
+// availability is enforced at runtime by the usage-code check (W/X reject a
+// value), which the validator and assertSegmentInVersion apply identically.
 
 // Version is an HL7 spec version selector passed to New. Use the exported
 // V2_x constants rather than a bare string literal.

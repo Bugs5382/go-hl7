@@ -1,3 +1,5 @@
+// Package utils carries the server package's error hierarchy, ACK-code
+// constants, and option normalization.
 package utils
 
 /*
@@ -26,8 +28,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 import "errors"
 
 // Sentinel errors back the server error hierarchy so callers can match with
-// errors.Is where the reference used `instanceof` (the same Go necessity the
-// client helpers package documents).
+// errors.Is.
 var (
 	// ErrServer indicates a server failure (HL7ServerError, code 500).
 	ErrServer = errors.New("hl7: server")
@@ -35,8 +36,7 @@ var (
 	ErrListener = errors.New("hl7: listener")
 )
 
-// HL7ServerError mirrors the HL7ServerError (code 500). It is the
-// MSA.1-validation / option failure error.
+// HL7ServerError is the MSA.1-validation / option failure error (code 500).
 type HL7ServerError struct {
 	// Code is the numeric error code (500).
 	Code int
@@ -55,8 +55,7 @@ func NewHL7ServerError(message string) *HL7ServerError {
 	return &HL7ServerError{Code: 500, Msg: message}
 }
 
-// HL7ListenerError mirrors the HL7ListenerError. It is the
-// inbound-listener option/parse failure error.
+// HL7ListenerError is the inbound-listener option/parse failure error.
 type HL7ListenerError struct {
 	// Msg is the human-readable message.
 	Msg string

@@ -25,7 +25,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import "regexp"
 
-// MLLP control bytes. These mirror the PROTOCOL_MLLP_HEADER/END/FOOTER.
+// MLLP control bytes.
 const (
 	// ProtocolMLLPHeader is the MLLP start-block byte (VT, 0x0B).
 	ProtocolMLLPHeader byte = 0x0b
@@ -36,5 +36,5 @@ const (
 )
 
 // NameFormat matches characters that are not permitted in a listener/connection
-// name. It mirrors the NAME_FORMAT regular expression.
+// name.
 var NameFormat = regexp.MustCompile("[ `!@#$%^&*()+\\-=\\[\\]{};':\"\\\\|,.<>/?~]")

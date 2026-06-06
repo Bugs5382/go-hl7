@@ -1,8 +1,7 @@
 // Package builder is the wire message model (delimiter-level, version-agnostic)
-// for HL7 v2 messages. It mirrors the builder/ tree: the Message,
-// Batch, FileBatch roots and the uniform node hierarchy (NodeBase, RootBase,
-// Segment, SegmentList, Field, FieldRepetition, Component, SubComponent,
-// ValueNode, EmptyNode).
+// for HL7 v2 messages: the Message, Batch, FileBatch roots and the uniform node
+// hierarchy (NodeBase, RootBase, Segment, SegmentList, Field, FieldRepetition,
+// Component, SubComponent, ValueNode, EmptyNode).
 package builder
 
 /*
@@ -30,11 +29,9 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import "time"
 
-// HL7Node is the uniform interface every element of the HL7 tree satisfies. It
-// mirrors the HL7Node interface (builder/interface/hL7Node.ts). Two Go
-// necessities apply: the get(string | number) splits into Get(path string)
-// and Index(i int) because Go has no method overloading; and the value
-// coercions return (T, ok) because Go has no exceptions.
+// HL7Node is the uniform interface every element of the HL7 tree satisfies.
+// Lookup splits into Get(path string) and Index(i int); the value coercions
+// return (T, ok) rather than panicking on bad input.
 type HL7Node interface {
 	// Name returns the dotted path name of this node.
 	Name() string
@@ -43,41 +40,38 @@ type HL7Node interface {
 
 	// Get resolves a string path like "PID.5.1" (1-based HL7 indices).
 	Get(path string) HL7Node
-	// Index returns the child at a 0-based position. Go necessity: the
-	// get(number) overload splits into a separate method.
+	// Index returns the child at a 0-based position.
 	Index(i int) HL7Node
 
 	// Set writes value at a string path, returning the receiver for chaining.
 	Set(path string, value any) HL7Node
-	// SetIndex writes value at a 0-based child index. Go necessity: the
-	// set(number, value) overload splits into a separate method.
+	// SetIndex writes value at a 0-based child index.
 	SetIndex(i int, value any) HL7Node
 	// Exists reports whether a string path resolves to a non-empty node.
 	Exists(path string) bool
 	// ExistsIndex reports whether a child index resolves to a non-empty node.
 	ExistsIndex(i int) bool
 
-	// Read resolves an already-split path (the read).
+	// Read resolves an already-split path.
 	Read(path []string) HL7Node
-	// Write writes value at an already-split path (the write).
+	// Write writes value at an already-split path.
 	Write(path []string, value string) HL7Node
 
-	// String returns the de-framed HL7 text for this node (the toString).
+	// String returns the de-framed HL7 text for this node.
 	String() string
-	// Raw returns the raw text for this node (the toRaw).
+	// Raw returns the raw text for this node.
 	Raw() string
-	// ToArray returns the child nodes (the toArray).
+	// ToArray returns the child nodes.
 	ToArray() []HL7Node
-	// ForEach iterates over the children (the forEach).
+	// ForEach iterates over the children.
 	ForEach(cb func(value HL7Node, index int))
 	// IsEmpty reports whether the node has no children.
 	IsEmpty() bool
 
-	// Path returns the path segments (the path getter).
+	// Path returns the path segments.
 	Path() []string
 
-	// Int coerces to an integer; ok is false when the value is unparseable. Go
-	// necessity: the spec throws on bad coercion, Go returns (T, ok).
+	// Int coerces to an integer; ok is false when the value is unparseable.
 	Int() (int, bool)
 	// Float coerces to a float; ok is false when unparseable.
 	Float() (float64, bool)
@@ -88,10 +82,10 @@ type HL7Node interface {
 }
 
 // node is the internal virtual-method contract used for inheritance-style
-// dispatch. The reference overrides protected methods (createChild, pathCore,
-// writeCore, read, and the toString/name/children accessors) per subclass;
-// Go expresses this with an interface plus a self back-reference on base, so a
-// base method that needs the "most-derived" behavior calls through self.
+// dispatch. Each subclass overrides the hooks (createChild, pathCore,
+// writeCore, read, and the string/name/children accessors); the interface plus
+// a self back-reference on base lets a base method that needs the
+// "most-derived" behavior call through self.
 type node interface {
 	HL7Node
 

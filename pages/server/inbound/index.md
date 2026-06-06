@@ -123,7 +123,7 @@ srv.CreateInbound(
 
 ### Per‑listener version enforcement
 
-`Version` is **required** and must be one of `2.1`, `2.2`, `2.3`, `2.3.1`, `2.4`, `2.5`, `2.5.1`, `2.6`, `2.7`, `2.7.1`, `2.8` — an empty or unknown value returns an error from `CreateInbound`. Each port enforces **its own** version: when an inbound message's `MSH.12` does not match, the server sends an **`AR`** (Application Reject) ACK, emits a version‑mismatch `data.error` event, and **returns without invoking your handler**. Dedicate a port per version by calling `CreateInbound` once per version. This is an intentional divergence from node-hl7, which leaves the transport version‑agnostic.
+`Version` is **required** and must be one of `2.1`, `2.2`, `2.3`, `2.3.1`, `2.4`, `2.5`, `2.5.1`, `2.6`, `2.7`, `2.7.1`, `2.8` — an empty or unknown value returns an error from `CreateInbound`. Each port enforces **its own** version: when an inbound message's `MSH.12` does not match, the server sends an **`AR`** (Application Reject) ACK, emits a version‑mismatch `data.error` event, and **returns without invoking your handler**. Dedicate a port per version by calling `CreateInbound` once per version.
 
 ---
 

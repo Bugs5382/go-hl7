@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 import "github.com/Bugs5382/go-hl7/client/internal/declaration"
 
 // SegmentList wraps one or more segments of the same name so callers can
-// iterate even when there is a single match (the SegmentList).
+// iterate even when there is a single match.
 type SegmentList struct {
 	nodeBase
 	segments []*Segment
@@ -40,10 +40,10 @@ func newSegmentList(parent node, segments []*Segment) *SegmentList {
 	return l
 }
 
-// Name returns the name of the first segment (the SegmentList.name).
+// Name returns the name of the first segment.
 func (l *SegmentList) Name() string { return l.segments[0].Name() }
 
-// childrenOf returns the wrapped segments (the SegmentList.children).
+// childrenOf returns the wrapped segments.
 func (l *SegmentList) childrenOf() []HL7Node {
 	out := make([]HL7Node, len(l.segments))
 	for i, s := range l.segments {
@@ -55,16 +55,16 @@ func (l *SegmentList) childrenOf() []HL7Node {
 // Segments returns the wrapped segments for iteration.
 func (l *SegmentList) Segments() []*Segment { return l.segments }
 
-// Read delegates to the first segment (the SegmentList.read).
+// Read delegates to the first segment.
 func (l *SegmentList) Read(path []string) HL7Node { return l.segments[0].Read(path) }
 
-// rawText delegates to the first segment (the SegmentList.toString).
+// rawText delegates to the first segment.
 func (l *SegmentList) rawText() string { return l.segments[0].String() }
 
-// pathCore returns the first segment's path (the SegmentList.pathCore).
+// pathCore returns the first segment's path.
 func (l *SegmentList) pathCore() []string { return l.segments[0].Path() }
 
-// writeCore delegates to the first segment (the SegmentList.writeCore).
+// writeCore delegates to the first segment.
 func (l *SegmentList) writeCore(path []string, value string) HL7Node {
 	return l.segments[0].Write(path, value)
 }

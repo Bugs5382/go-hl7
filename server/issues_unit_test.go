@@ -47,8 +47,8 @@ func issueTestMessage(t *testing.T, controlID string) *builder.Message {
 	return m
 }
 
-// TestPR134InboundRequestSocket mirrors the PR #134 unit tests: InboundRequest
-// exposes the underlying socket, and getSocket throws when none was provided.
+// TestPR134InboundRequestSocket checks that InboundRequest exposes the
+// underlying socket, and GetSocket panics when none was provided.
 func TestPR134InboundRequestSocket(t *testing.T) {
 	t.Run("getSocket returns the socket passed in props", func(t *testing.T) {
 		fake, real := net.Pipe()

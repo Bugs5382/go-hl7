@@ -23,13 +23,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-// These BuildXXX methods port the HL7_2_5 typed segment builders (SFT,
-// SPM) and HL7_2_6 typed segment builders (BPX, BTX, ITM, IVT, REL). Each is a
+// These BuildXXX methods build the v2.5 segments (SFT,
+// SPM) and v2.6 segments (BPX, BTX, ITM, IVT, REL). Each is a
 // validatorSetField sequence over the shared base; the version guard rejects
-// the segment on earlier versions just as the Builder._buildXXX stub throws
-// "Not Implemented".
+// the segment on earlier versions.
 
-// BuildSFT builds an SFT (Software Segment) (the HL7_2_5._buildSFT).
+// BuildSFT builds an SFT (Software Segment).
 // Introduced in v2.5. Chainable.
 func (b *Builder) BuildSFT(p Props) *Builder {
 	if b.err != nil {
@@ -49,7 +48,7 @@ func (b *Builder) BuildSFT(p Props) *Builder {
 	return b
 }
 
-// BuildSPM builds an SPM (Specimen) segment (the HL7_2_5._buildSPM).
+// BuildSPM builds an SPM (Specimen) segment.
 // Introduced in v2.5. Chainable.
 func (b *Builder) BuildSPM(p Props) *Builder {
 	if b.err != nil {
@@ -90,8 +89,7 @@ func (b *Builder) BuildSPM(p Props) *Builder {
 	return b
 }
 
-// BuildBPX builds a BPX (Blood Product Dispense Status) segment (the
-// HL7_2_6._buildBPX). Introduced in v2.6. Chainable.
+// BuildBPX builds a BPX (Blood Product Dispense Status) segment. Introduced in v2.6. Chainable.
 func (b *Builder) BuildBPX(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -121,8 +119,7 @@ func (b *Builder) BuildBPX(p Props) *Builder {
 	return b
 }
 
-// BuildBTX builds a BTX (Blood Product Transfusion/Disposition) segment (the
-// HL7_2_6._buildBTX). Introduced in v2.6. Chainable.
+// BuildBTX builds a BTX (Blood Product Transfusion/Disposition) segment. Introduced in v2.6. Chainable.
 func (b *Builder) BuildBTX(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -152,7 +149,7 @@ func (b *Builder) BuildBTX(p Props) *Builder {
 	return b
 }
 
-// BuildITM builds an ITM (Material Item) segment (the HL7_2_6._buildITM).
+// BuildITM builds an ITM (Material Item) segment.
 // Introduced in v2.6. Chainable.
 func (b *Builder) BuildITM(p Props) *Builder {
 	if b.err != nil {
@@ -204,8 +201,7 @@ func (b *Builder) BuildITM(p Props) *Builder {
 	return b
 }
 
-// BuildIVT builds an IVT (Material Location) segment (the
-// HL7_2_6._buildIVT). Introduced in v2.6. Chainable.
+// BuildIVT builds an IVT (Material Location) segment. Introduced in v2.6. Chainable.
 func (b *Builder) BuildIVT(p Props) *Builder {
 	if b.err != nil {
 		return b
@@ -243,8 +239,7 @@ func (b *Builder) BuildIVT(p Props) *Builder {
 	return b
 }
 
-// BuildREL builds a REL (Clinical Relationship Segment) (the
-// HL7_2_6._buildREL). Introduced in v2.6. Chainable.
+// BuildREL builds a REL (Clinical Relationship Segment). Introduced in v2.6. Chainable.
 func (b *Builder) BuildREL(p Props) *Builder {
 	if b.err != nil {
 		return b
