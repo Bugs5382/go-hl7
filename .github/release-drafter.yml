@@ -21,7 +21,7 @@
 name-template: 'v$RESOLVED_VERSION'
 tag-template: 'v$RESOLVED_VERSION'
 template: |
-  # What Changed
+  # What Changed 👀
 
   $CHANGES
 
@@ -29,28 +29,28 @@ template: |
 
   **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
 categories:
-  - title: Features
+  - title: 🚀 Features
     labels:
       - enhancement
-  - title: Bug Fixes
+  - title: 🐛 Bug Fixes
     labels:
       - bug
-  - title: Changes
+  - title: ⚠️ Changes
     labels:
       - changed
-  - title: Deprecated
+  - title: ⛔️ Deprecated
     labels:
       - deprecated
-  - title: Removed
+  - title: 🗑 Removed
     labels:
       - removed
-  - title: Security
+  - title: 🔐 Security
     labels:
       - security
-  - title: Documentation
+  - title: 📄 Documentation
     labels:
       - documentation
-  - title: Dependency Updates
+  - title: 🧩 Dependency Updates
     labels:
       - dependencies
     collapse-after: 5
