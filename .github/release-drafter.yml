@@ -29,6 +29,9 @@ template: |
 
   **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
 categories:
+  - title: 💥 Breaking Changes
+    labels:
+      - breaking
   - title: 🚀 Features
     labels:
       - enhancement
