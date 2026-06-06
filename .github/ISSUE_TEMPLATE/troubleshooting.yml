@@ -1,0 +1,38 @@
+name: 🛠️ Troubleshooting
+description: Something isn't working but you're not sure it's a bug. Ask for help getting unstuck.
+title: "[help]: "
+labels:
+  - question
+  - triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for "I can't figure out why X happens" questions. If you've isolated a clear defect, file a 🐛 Bug Report instead.
+  - type: dropdown
+    id: package
+    attributes:
+      label: Which package?
+      options:
+        - builder (client/hl7)
+        - message/parser (client/builder)
+        - client (client/client)
+        - server (server)
+        - not sure
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: go-hl7 version
+      placeholder: "v1.0.0"
+    validations:
+      required: true
+  - type: textarea
+    id: trying
+    attributes:
+      label: What are you trying to do, and what happens?
+      description: Include the relevant code and any error. Redact any PHI.
+      render: go
+    validations:
+      required: true

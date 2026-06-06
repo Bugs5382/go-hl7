@@ -1,0 +1,45 @@
+name: ✨ Feature Request
+description: Suggest a new capability, builder, parser improvement, or API addition.
+title: "[feat]: "
+labels:
+  - enhancement
+  - triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea. For larger changes, sharing the design context up front makes the review smoother.
+  - type: dropdown
+    id: package
+    attributes:
+      label: Which package?
+      options:
+        - builder (client/hl7)
+        - message/parser (client/builder)
+        - client (client/client)
+        - server (server)
+        - generators (cmd/genspec, cmd/gentables)
+        - other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: The use case. What can you not do today, and what's the workaround you're stuck on?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What the API or behavior would look like. A sketch of the call site helps.
+      render: go
+    validations:
+      required: false
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false
