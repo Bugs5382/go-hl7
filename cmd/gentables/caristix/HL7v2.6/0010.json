@@ -1,0 +1,10 @@
+{
+  "id": "0010",
+  "tableId": "0010",
+  "tableType": "User",
+  "name": "Physician ID",
+  "chapters": [
+    "CH_03"
+  ],
+  "entries": []
+}

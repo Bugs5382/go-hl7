@@ -1,0 +1,11 @@
+version: "2"
+
+# ST1005 (error strings should not end with punctuation) is disabled: the HL7
+# validation messages mirror the source library's wording verbatim, including
+# trailing punctuation, and several are asserted exactly by the test suite.
+linters:
+  exclusions:
+    rules:
+      - linters:
+          - staticcheck
+        text: "ST1005"

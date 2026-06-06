@@ -1,0 +1,16 @@
+{
+  "id": "0423",
+  "tableId": "0423",
+  "tableType": "User",
+  "name": "Case category code",
+  "chapters": [
+    "CH_06"
+  ],
+  "entries": [
+    {
+      "value": "D",
+      "description": "Doctor’s Office Closed",
+      "comment": null
+    }
+  ]
+}
