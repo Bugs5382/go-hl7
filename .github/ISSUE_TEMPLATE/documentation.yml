@@ -1,0 +1,27 @@
+name: 📚 Documentation
+description: Something in the README, pages/, AGENTS.md, or godoc is wrong, missing, or unclear.
+title: "[docs]: "
+labels:
+  - documentation
+  - triage
+body:
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where in the docs?
+      options:
+        - Root README
+        - client/README or server/README
+        - pages/
+        - AGENTS.md
+        - godoc / pkg.go.dev
+        - other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's wrong or missing?
+      description: Quote the passage if you can, and say what would have helped.
+    validations:
+      required: true

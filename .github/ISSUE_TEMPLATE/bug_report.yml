@@ -1,0 +1,63 @@
+name: 🐛 Bug Report
+description: Report a defect — wrong output, panic, validation error, or regression.
+title: "[bug]: "
+labels:
+  - bug
+  - triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a report. The tighter the repro, the faster the fix. 🙏
+  - type: dropdown
+    id: package
+    attributes:
+      label: Which package?
+      options:
+        - builder (client/hl7)
+        - message/parser (client/builder)
+        - client (client/client)
+        - server (server)
+        - generators (cmd/genspec, cmd/gentables)
+        - not sure
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: go-hl7 version
+      description: Output of `go list -m github.com/Bugs5382/go-hl7`.
+      placeholder: "v1.0.0"
+    validations:
+      required: true
+  - type: input
+    id: go-version
+    attributes:
+      label: Go version
+      description: Output of `go version`.
+      placeholder: "go1.26"
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you observe, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: A minimal Go snippet (and a sample HL7 message, if relevant) that triggers it. Redact any PHI.
+      render: go
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Errors / logs
+      description: Any error value, panic stack, or log output.
+      render: text
+    validations:
+      required: false
