@@ -89,7 +89,7 @@ func main() {
 		ToMessage()
 
 	// 2) Open a persistent connection and send it.
-	c, _ := client.NewClient(client.ClientOptions{Host: "127.0.0.1"})
+	c, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "127.0.0.1"})
 	conn, _ := c.CreateConnection(
 		client.ClientListenerOptions{Port: ptr(3000)},
 		func(res *client.InboundResponse) error {
@@ -330,7 +330,7 @@ Receivers process each inner message individually — the [`server`](../server) 
 ```go
 import "github.com/Bugs5382/go-hl7/client/client"
 
-c, _ := client.NewClient(client.ClientOptions{Host: "127.0.0.1"})
+c, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "127.0.0.1"})
 
 conn, _ := c.CreateConnection(
 	client.ClientListenerOptions{
@@ -353,6 +353,21 @@ _ = conn.SendMessage(msg)
 
 The connection is persistent; you can send many messages over a single TCP/MLLP socket. `SendMessage` accepts any `MessageItem` (`*builder.Message`, `*builder.Batch`, or `*builder.FileBatch`).
 
+### 🔖 Required HL7 version (single‑set per client)
+
+`ClientOptions.Version` is **required** and pins the client to a single HL7 version. It must be one of the known versions — `2.1`, `2.2`, `2.3`, `2.3.1`, `2.4`, `2.5`, `2.5.1`, `2.6`, `2.7`, `2.7.1`, `2.8` — or `NewClient` returns an error (`version is not defined.` / `version is not a valid HL7 version.`).
+
+Every connection opened from a client inherits that one version, and `SendMessage` enforces it: before a message is queued or transmitted, its `MSH.12` must equal the configured version. If it differs, `SendMessage` returns an error and **does not send** (for a batch or file, *every* contained message's `MSH.12` must match). This is an intentional divergence from node-hl7, which leaves the transport version‑agnostic.
+
+```go
+c, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "127.0.0.1"})
+// ...
+// msg built at MSH.12 = 2.5 → rejected, never transmitted:
+if err := conn.SendMessage(msg); err != nil {
+	fmt.Println("⛔", err) // message version "2.5" does not match the connection version "2.7".
+}
+```
+
 Useful methods on `*Connection`: `Connect()` (when `AutoConnect` is false), `Close()`, `IsConnected()`, and `GetPort()`. On `*Client`: `CreateConnection`, `CloseAll()`, `TotalSent()`, `TotalAck()`, `TotalPending()`, and `GetHost()`.
 
 ### 🌐 IPv4 + IPv6 (Dual-Stack)
@@ -361,15 +376,15 @@ The client supports IPv4, IPv6, and FQDN hosts. **It runs IPv4‑only by default
 
 ```go
 // IPv4 only (default)
-c, _ := client.NewClient(client.ClientOptions{Host: "hl7.example.com"})
+c, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "hl7.example.com"})
 
 // Dual-stack with auto-fallback (opt-in)
 dual, _ := client.NewClient(client.ClientOptions{
-	Host: "hl7.example.com", IPv4: ptr(true), IPv6: ptr(true),
+	Version: "2.7", Host: "hl7.example.com", IPv4: ptr(true), IPv6: ptr(true),
 })
 
 // Force IPv6 only
-v6, _ := client.NewClient(client.ClientOptions{Host: "fd00::42", IPv6: ptr(true)})
+v6, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "fd00::42", IPv6: ptr(true)})
 ```
 
 | Option | Meaning |
@@ -386,6 +401,7 @@ When the socket drops, the connection schedules an exponential‑backoff reconne
 
 | `ClientOptions` | Default | Purpose |
 |---|---|---|
+| `Version` | — | **required** HL7 version (`2.1`..`2.8`); every sent message's `MSH.12` must match or `SendMessage` rejects it. |
 | `Host` | — | FQDN or IPv4/IPv6 address. |
 | `ConnectionTimeout` | `0` | ms before a stalled connection is ended and retried; `0` stays connected. |
 | `MaxAttempts` | `10` | message‑send retries while reconnecting (1..50). |
@@ -420,6 +436,7 @@ import (
 ca, _ := os.ReadFile("certs/server-ca-crt.pem")
 
 c, _ := client.NewClient(client.ClientOptions{
+	Version: "2.7",
 	Host: "hl7.example.local",
 	TLS: &client.TLSConfig{
 		// 🪪 Self-signed / in-house CA? Provide it explicitly.
@@ -453,6 +470,7 @@ crt, _ := os.ReadFile("certs/client-crt.pem")
 ca, _  := os.ReadFile("certs/server-ca-crt.pem")
 
 c, _ := client.NewClient(client.ClientOptions{
+	Version: "2.7",
 	Host: "hl7.example.local",
 	TLS: &client.TLSConfig{
 		Cert:       crt, // 🔑 the client's identity

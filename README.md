@@ -108,7 +108,7 @@ func main() {
 		BuildMSH(hl7.Props{"msh_9": "ADT^A01", "msh_10": "MSG00001", "msh_11": "P"}).
 		ToMessage()
 
-	c, _ := client.NewClient(client.ClientOptions{Host: "127.0.0.1"})
+	c, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "127.0.0.1"})
 	conn, _ := c.CreateConnection(
 		client.ClientListenerOptions{Port: ptr(3000)},
 		func(res *client.InboundResponse) error {
@@ -139,7 +139,7 @@ func main() {
 	srv, _ := server.NewServer(nil) // IPv4-only on 0.0.0.0 by default
 
 	in, _ := srv.CreateInbound(
-		server.ListenerOptions{Port: ptr(3000)},
+		server.ListenerOptions{Version: "2.7", Port: ptr(3000)},
 		func(req *server.InboundRequest, res server.ResponseSender) error {
 			fmt.Println("⬅️", req.GetMessage().Get("MSH.10").String())
 			return res.SendResponse("AA") // Application Accept

@@ -46,6 +46,21 @@ const (
 	V28  HL7Version = "2.8"
 )
 
+// KnownVersions lists every supported HL7 v2 version, in ascending order. It is
+// the canonical set used to validate a connection's or listener's required
+// version.
+var KnownVersions = []HL7Version{V21, V22, V23, V231, V24, V25, V251, V26, V27, V271, V28}
+
+// IsKnownVersion reports whether v is one of the supported HL7 v2 versions.
+func IsKnownVersion(v string) bool {
+	for _, known := range KnownVersions {
+		if string(known) == v {
+			return true
+		}
+	}
+	return false
+}
+
 // HL7UsageCode is an HL7 v2 spec usage code as defined by the HL7 standard.
 // It mirrors the HL7UsageCode union.
 //

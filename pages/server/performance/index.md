@@ -55,7 +55,7 @@ go func() {
 Don't do heavy work in the handler. Pop the `Message` onto a queue and let a worker process it.
 
 ```go
-srv.CreateInbound(server.ListenerOptions{Port: ptr(6661)}, func(req *server.InboundRequest, res server.ResponseSender) error {
+srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(6661)}, func(req *server.InboundRequest, res server.ResponseSender) error {
     if err := queue.Publish(req.GetMessage().String()); err != nil { // milliseconds
         return err
     }
@@ -70,9 +70,9 @@ This minimizes back-pressure on the sender and keeps your goroutines free.
 It's idiomatic for HL7 environments to dedicate a port per message type:
 
 ```go
-srv.CreateInbound(server.ListenerOptions{Port: ptr(6661), Name: "IB_ADT"}, handleADT)
-srv.CreateInbound(server.ListenerOptions{Port: ptr(6662), Name: "IB_ORU"}, handleORU)
-srv.CreateInbound(server.ListenerOptions{Port: ptr(6663), Name: "IB_SIU"}, handleSIU)
+srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(6661), Name: "IB_ADT"}, handleADT)
+srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(6662), Name: "IB_ORU"}, handleORU)
+srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(6663), Name: "IB_SIU"}, handleSIU)
 ```
 
 Each listener has its own handler, MSH overrides, and stats. Routing is implicit by port — they all share the same `Server`.

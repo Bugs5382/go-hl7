@@ -25,8 +25,10 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import (
 	"errors"
+	"strings"
 	"testing"
 
+	"github.com/Bugs5382/go-hl7/client/builder"
 	"github.com/Bugs5382/go-hl7/client/helpers"
 )
 
@@ -52,7 +54,7 @@ func expectHL7FatalError(t *testing.T, err error, message string) {
 
 func TestClientValid(t *testing.T) {
 	t.Run("valid - properties exist (createConnection available)", func(t *testing.T) {
-		client, err := NewClient(ClientOptions{Host: "hl7.server.local"})
+		client, err := NewClient(ClientOptions{Version: "2.7", Host: "hl7.server.local"})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -62,7 +64,7 @@ func TestClientValid(t *testing.T) {
 	})
 
 	t.Run("getHost returns the configured host", func(t *testing.T) {
-		client, err := NewClient(ClientOptions{Host: "hl7.server.local"})
+		client, err := NewClient(ClientOptions{Version: "2.7", Host: "hl7.server.local"})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -72,7 +74,7 @@ func TestClientValid(t *testing.T) {
 	})
 
 	t.Run("port is set on outbound connection", func(t *testing.T) {
-		client, err := NewClient(ClientOptions{Host: "hl7.server.local"})
+		client, err := NewClient(ClientOptions{Version: "2.7", Host: "hl7.server.local"})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -91,39 +93,39 @@ func TestClientValid(t *testing.T) {
 
 func TestClientErrors(t *testing.T) {
 	t.Run("accepts ipv4 and ipv6 both true (dual-stack)", func(t *testing.T) {
-		if _, err := NewClient(ClientOptions{Host: "5.8.6.1", IPv4: ptr(true), IPv6: ptr(true)}); err != nil {
+		if _, err := NewClient(ClientOptions{Version: "2.7", Host: "5.8.6.1", IPv4: ptr(true), IPv6: ptr(true)}); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 	})
 
 	t.Run("rejects malformed IPv4 host when ipv4 is exclusive", func(t *testing.T) {
-		_, err := NewClient(ClientOptions{Host: "123.34.52.455", IPv4: ptr(true)})
+		_, err := NewClient(ClientOptions{Version: "2.7", Host: "123.34.52.455", IPv4: ptr(true)})
 		if err == nil || err.Error() != "host is not a valid IPv4 address." {
 			t.Fatalf("err = %v, want host is not a valid IPv4 address.", err)
 		}
 	})
 
 	t.Run("accepts valid IPv4 host when ipv4 is exclusive", func(t *testing.T) {
-		if _, err := NewClient(ClientOptions{Host: "123.34.52.45", IPv4: ptr(true)}); err != nil {
+		if _, err := NewClient(ClientOptions{Version: "2.7", Host: "123.34.52.45", IPv4: ptr(true)}); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 	})
 
 	t.Run("rejects malformed IPv6 host when ipv6 is exclusive", func(t *testing.T) {
-		_, err := NewClient(ClientOptions{Host: "2001:0db8:85a3:0000:zz00:8a2e:0370:7334", IPv6: ptr(true)})
+		_, err := NewClient(ClientOptions{Version: "2.7", Host: "2001:0db8:85a3:0000:zz00:8a2e:0370:7334", IPv6: ptr(true)})
 		if err == nil || err.Error() != "host is not a valid IPv6 address." {
 			t.Fatalf("err = %v, want host is not a valid IPv6 address.", err)
 		}
 	})
 
 	t.Run("accepts valid IPv6 host when ipv6 is exclusive", func(t *testing.T) {
-		if _, err := NewClient(ClientOptions{Host: "2001:0db8:85a3:0000:0000:8a2e:0370:7334", IPv6: ptr(true)}); err != nil {
+		if _, err := NewClient(ClientOptions{Version: "2.7", Host: "2001:0db8:85a3:0000:0000:8a2e:0370:7334", IPv6: ptr(true)}); err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 	})
 
 	t.Run("rejects ipv4 and ipv6 both false", func(t *testing.T) {
-		_, err := NewClient(ClientOptions{Host: "192.0.2.1", IPv4: ptr(false), IPv6: ptr(false)})
+		_, err := NewClient(ClientOptions{Version: "2.7", Host: "192.0.2.1", IPv4: ptr(false), IPv6: ptr(false)})
 		want := "ipv4 and ipv6 cannot both be disabled — at least one address family must be enabled."
 		if err == nil || err.Error() != want {
 			t.Fatalf("err = %v, want %q", err, want)
@@ -134,12 +136,88 @@ func TestClientErrors(t *testing.T) {
 		_, err := NewClient(ClientOptions{})
 		expectHL7FatalError(t, err, "host is not defined or the length is less than 0.")
 	})
+
+	t.Run("rejects empty version", func(t *testing.T) {
+		_, err := NewClient(ClientOptions{Host: "hl7.server.local"})
+		expectHL7FatalError(t, err, "version is not defined.")
+	})
+
+	t.Run("rejects invalid version", func(t *testing.T) {
+		_, err := NewClient(ClientOptions{Host: "hl7.server.local", Version: "9.9"})
+		expectHL7FatalError(t, err, "version is not a valid HL7 version.")
+	})
+}
+
+// TestSendMessageVersionEnforcement covers the send-time version gate: a
+// message whose MSH.12 differs from the client's configured version is rejected
+// and not transmitted, while a matching message passes the gate.
+func TestSendMessageVersionEnforcement(t *testing.T) {
+	// The builder hardcodes MSH.12=2.7, so a client pinned to 2.5 must reject it.
+	mismatched, err := NewClient(ClientOptions{Version: "2.5", Host: "127.0.0.1", IPv4: ptr(true)})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	conn, err := mismatched.CreateConnection(
+		ClientListenerOptions{AutoConnect: ptr(false), Port: ptr(12_345)},
+		func(*InboundResponse) error { return nil },
+	)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	msg, err := builder.NewMessage(builder.MessageOptions{
+		Text: "MSH|^~\\&|||||20240101000000||ADT^A01|CTRL|D|2.7",
+	})
+	if err != nil {
+		t.Fatalf("build message: %v", err)
+	}
+
+	t.Run("rejects a message whose MSH.12 differs from the connection version", func(t *testing.T) {
+		err := conn.SendMessage(msg)
+		if err == nil {
+			t.Fatalf("expected a version-mismatch error, got nil")
+		}
+		if !strings.Contains(err.Error(), "does not match the connection version") {
+			t.Fatalf("error = %q, want a version-mismatch error", err.Error())
+		}
+		// The mismatch is rejected before queueing, so nothing was queued/sent.
+		if got := mismatched.TotalSent(); got != 0 {
+			t.Fatalf("TotalSent() = %d, want 0", got)
+		}
+		if got := mismatched.TotalPending(); got != 0 {
+			t.Fatalf("TotalPending() = %d, want 0", got)
+		}
+	})
+
+	t.Run("accepts a message whose MSH.12 matches the connection version", func(t *testing.T) {
+		matched, err := NewClient(ClientOptions{Version: "2.7", Host: "127.0.0.1", IPv4: ptr(true)})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		mConn, err := matched.CreateConnection(
+			ClientListenerOptions{AutoConnect: ptr(false), Port: ptr(12_346)},
+			func(*InboundResponse) error { return nil },
+		)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		// A matched version passes the gate; with no live socket the message is
+		// queued (no error from the version check).
+		if err := mConn.SendMessage(msg); err != nil {
+			t.Fatalf("unexpected error for a matched version: %v", err)
+		}
+		_ = mConn.Close()
+		matched.CloseAll()
+	})
+
+	_ = conn.Close()
+	mismatched.CloseAll()
 }
 
 func TestOutboundConnectionOptions(t *testing.T) {
 	newClient := func(t *testing.T) *Client {
 		t.Helper()
-		client, err := NewClient(ClientOptions{Host: "localhost"})
+		client, err := NewClient(ClientOptions{Version: "2.7", Host: "localhost"})
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}

@@ -35,8 +35,9 @@ func ptr[T any](v T) *T { return &v }
 // IPv4 only by default (binds 0.0.0.0). Pass nil for the defaults.
 srv, _ := server.NewServer(nil)
 
-IB_ADT, _ := srv.CreateInbound(server.ListenerOptions{Port: ptr(6661)}, func(req *server.InboundRequest, res server.ResponseSender) error { /* … */ return nil })
-IB_ORU, _ := srv.CreateInbound(server.ListenerOptions{Port: ptr(6662)}, func(req *server.InboundRequest, res server.ResponseSender) error { /* … */ return nil })
+// Each port enforces its own required HL7 version (here 2.5 on 6661, 2.7 on 6662).
+IB_ADT, _ := srv.CreateInbound(server.ListenerOptions{Version: "2.5", Port: ptr(6661)}, func(req *server.InboundRequest, res server.ResponseSender) error { /* … */ return nil })
+IB_ORU, _ := srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(6662)}, func(req *server.InboundRequest, res server.ResponseSender) error { /* … */ return nil })
 ```
 
 ---
@@ -99,6 +100,7 @@ v6Pin, _ := server.NewServer(&server.ServerOptions{BindAddress: ptr("fd12::4"), 
 ```go
 srv.CreateInbound(
     server.ListenerOptions{
+        Version: "2.7",                           // required, one of 2.1..2.8
         Port: ptr(6661),                          // required, 0 < port < 65353
         Name: "IB_EPIC_ADT",                      // optional, for logging
         Encoding: "utf8",
@@ -113,10 +115,15 @@ srv.CreateInbound(
 
 | Option | Type | Purpose |
 |---|---|---|
+| `Version` | `string` | **Required** HL7 version (`2.1`..`2.8`). Each port enforces its own version; an inbound message whose `MSH.12` differs is rejected with an `AR` ACK and the handler is not invoked. |
 | `Port` | `*int` | TCP port to listen on. Required. `0 < port < 65353`. |
 | `Name` | `string` | Human‑readable identifier; auto‑randomized if empty. |
 | `Encoding` | `string` | Retained for parity (default utf8). |
 | `MSHOverrides` | `map[string]server.MSHOverride` | Per‑field MSH overrides for the auto‑ACK. See [Responses](../responses/index.md). |
+
+### Per‑listener version enforcement
+
+`Version` is **required** and must be one of `2.1`, `2.2`, `2.3`, `2.3.1`, `2.4`, `2.5`, `2.5.1`, `2.6`, `2.7`, `2.7.1`, `2.8` — an empty or unknown value returns an error from `CreateInbound`. Each port enforces **its own** version: when an inbound message's `MSH.12` does not match, the server sends an **`AR`** (Application Reject) ACK, emits a version‑mismatch `data.error` event, and **returns without invoking your handler**. Dedicate a port per version by calling `CreateInbound` once per version. This is an intentional divergence from node-hl7, which leaves the transport version‑agnostic.
 
 ---
 
@@ -127,7 +134,7 @@ srv.CreateInbound(
 The handler runs **once per parsed message** — even if the frame was a BHS batch or FHS file containing many messages.
 
 ```go
-srv.CreateInbound(server.ListenerOptions{Port: ptr(6661)}, func(req *server.InboundRequest, res server.ResponseSender) error {
+srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(6661)}, func(req *server.InboundRequest, res server.ResponseSender) error {
     // 1) Inspect the message.
     msg := req.GetMessage()
     mrn := msg.Get("PID.3").String()

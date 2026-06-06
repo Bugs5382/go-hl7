@@ -25,6 +25,8 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import (
 	"net"
+	"strconv"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -74,7 +76,7 @@ func TestEnd2EndSimpleConnect(t *testing.T) {
 		t.Fatal(err)
 	}
 	var gotVersion atomic.Value
-	listener, err := srv.CreateInbound(server.ListenerOptions{Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
+	listener, err := srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
 		gotVersion.Store(req.GetMessage().Get("MSH.12").String())
 		return res.SendResponse("AA")
 	})
@@ -83,7 +85,7 @@ func TestEnd2EndSimpleConnect(t *testing.T) {
 	}
 	waitFor(t, listener.IsListening)
 
-	cli, err := client.NewClient(client.ClientOptions{Host: "127.0.0.1", IPv4: ptr(true)})
+	cli, err := client.NewClient(client.ClientOptions{Version: "2.7", Host: "127.0.0.1", IPv4: ptr(true)})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -127,7 +129,7 @@ func TestEnd2EndSendTwiceNoAck(t *testing.T) {
 
 	srv, _ := server.NewServer(&server.ServerOptions{BindAddress: ptr("127.0.0.1"), IPv4: ptr(true)})
 	var totalSent atomic.Int32
-	listener, err := srv.CreateInbound(server.ListenerOptions{Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
+	listener, err := srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(port)}, func(req *server.InboundRequest, res server.ResponseSender) error {
 		totalSent.Add(1)
 		return res.SendResponse("AA")
 	})
@@ -136,7 +138,7 @@ func TestEnd2EndSendTwiceNoAck(t *testing.T) {
 	}
 	waitFor(t, listener.IsListening)
 
-	cli, _ := client.NewClient(client.ClientOptions{Host: "127.0.0.1", IPv4: ptr(true)})
+	cli, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "127.0.0.1", IPv4: ptr(true)})
 	outbound, err := cli.CreateConnection(client.ClientListenerOptions{Port: ptr(port), WaitAck: ptr(false)}, func(*client.InboundResponse) error {
 		return nil
 	})
@@ -162,7 +164,7 @@ func TestEnd2EndSendTwiceNoAck(t *testing.T) {
 }
 
 func TestEnd2EndQueueAutoConnectFalse(t *testing.T) {
-	cli, _ := client.NewClient(client.ClientOptions{Host: "127.0.0.1", IPv4: ptr(true)})
+	cli, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "127.0.0.1", IPv4: ptr(true)})
 	// autoConnect false + a port with no server: the message must queue rather
 	// than send. (mocks _connect; here the dial just fails in the
 	// background and the message stays queued as pending.)
@@ -180,6 +182,70 @@ func TestEnd2EndQueueAutoConnectFalse(t *testing.T) {
 
 	_ = outbound.Close()
 	cli.CloseAll()
+}
+
+// TestEnd2EndListenerVersionMismatch covers the per-listener version gate: a
+// listener pinned to 2.7 receiving a raw 2.5 message rejects it with an AR
+// (Application Reject) ACK, does NOT invoke the handler, and emits a
+// version-mismatch event (data.error). A raw socket is used because the go-hl7
+// client enforces its own version on send and would reject the mismatch before
+// it left the wire.
+func TestEnd2EndListenerVersionMismatch(t *testing.T) {
+	port := freePort(t)
+	var handlerCalls atomic.Int32
+	var dataErrors atomic.Int32
+	ackReceived := make(chan string, 1)
+
+	srv, _ := server.NewServer(&server.ServerOptions{BindAddress: ptr("127.0.0.1"), IPv4: ptr(true)})
+	listener, err := srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(port)}, func(_ *server.InboundRequest, res server.ResponseSender) error {
+		handlerCalls.Add(1)
+		return res.SendResponse("AA")
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	listener.On("data.error", func(...any) { dataErrors.Add(1) })
+	waitFor(t, listener.IsListening)
+
+	// A raw 2.5 message framed in MLLP; the listener wants 2.7.
+	bodyText := joinSegs(
+		`MSH|^~\&|EPIC|HOSP|RECV|RFAC|20240101000000||ADT^A08|MISMATCH_001|P|2.5`,
+		`EVN|A08|20240101000000`,
+	)
+	const VT, FS, CR = 0x0b, 0x1c, 0x0d
+	framed := append([]byte{VT}, append([]byte(bodyText), FS, CR)...)
+
+	raw, err := net.Dial("tcp", "127.0.0.1:"+strconv.Itoa(port))
+	if err != nil {
+		t.Fatal(err)
+	}
+	go func() {
+		buf := make([]byte, 4096)
+		n, _ := raw.Read(buf)
+		ackReceived <- string(buf[:n])
+	}()
+
+	if _, err := raw.Write(framed); err != nil {
+		t.Fatal(err)
+	}
+
+	select {
+	case ack := <-ackReceived:
+		if !strings.Contains(ack, "MSA|AR|MISMATCH_001") {
+			t.Fatalf("ack was not an AR for the mismatch: %q", ack)
+		}
+	case <-time.After(10 * time.Second):
+		t.Fatal("timed out waiting for AR ack")
+	}
+
+	// The handler must NOT have run, and the mismatch event must have fired.
+	if got := handlerCalls.Load(); got != 0 {
+		t.Fatalf("handler was invoked %d times, want 0", got)
+	}
+	waitFor(t, func() bool { return dataErrors.Load() == 1 })
+
+	_ = raw.Close()
+	_ = listener.Close()
 }
 
 // waitFor polls cond until true or the deadline, mirroring the implicit

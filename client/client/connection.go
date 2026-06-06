@@ -219,6 +219,15 @@ func (c *Connection) IsConnected() bool {
 // maxAttempts retry loop and the waitAck serialization gate.
 func (c *Connection) SendMessage(message MessageItem) error {
 	theMessage := message.String()
+
+	// Enforce the client's required HL7 version before queueing or sending: every
+	// outgoing message's MSH.12 must equal the configured version. For a batch or
+	// file, every contained message must match. A mismatch is rejected and not
+	// sent (an intentional divergence from node-hl7).
+	if err := c.assertVersion(theMessage); err != nil {
+		return err
+	}
+
 	// The codec's only argument is the return character (the \r default); the
 	// encoding the source threaded through is dropped since Go bodies are UTF-8
 	// byte slices. Passing encoding here would wrongly set the join character.
@@ -277,6 +286,54 @@ func (c *Connection) SendMessage(message MessageItem) error {
 	sent := c.stats.sent
 	c.mu.Unlock()
 	c.emit("client.sent", sent)
+	return nil
+}
+
+// assertVersion verifies that the outgoing message body declares the client's
+// configured HL7 version in MSH.12. For a batch or file body, every contained
+// message must match. It returns an error (and the caller must not send) on any
+// mismatch or on a body that cannot be parsed.
+func (c *Connection) assertVersion(body string) error {
+	want := c.main.opt.version
+
+	switch {
+	case utils.IsFile(body):
+		parser, err := builder.NewFileBatch(builder.FileOptions{Text: body})
+		if err != nil {
+			return err
+		}
+		for _, msg := range parser.Messages() {
+			if err := assertMessageVersion(msg, want); err != nil {
+				return err
+			}
+		}
+		return nil
+	case utils.IsBatch(body):
+		parser, err := builder.NewBatch(builder.BatchOptions{Text: body})
+		if err != nil {
+			return err
+		}
+		for _, msg := range parser.Messages() {
+			if err := assertMessageVersion(msg, want); err != nil {
+				return err
+			}
+		}
+		return nil
+	default:
+		parsed, err := builder.NewMessage(builder.MessageOptions{Text: body})
+		if err != nil {
+			return err
+		}
+		return assertMessageVersion(parsed, want)
+	}
+}
+
+// assertMessageVersion compares a single parsed message's MSH.12 to want.
+func assertMessageVersion(msg *builder.Message, want string) error {
+	got := msg.Get("MSH.12").String()
+	if got != want {
+		return helpers.NewHL7FatalErrorf("message version %q does not match the connection version %q.", got, want)
+	}
 	return nil
 }
 

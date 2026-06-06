@@ -80,6 +80,14 @@ type ClientOptions struct {
 	RetryLow *int
 	// TLS enables and configures TLS; non-nil turns it on (tls).
 	TLS *TLSConfig
+	// Version is the REQUIRED HL7 version every message sent over this client's
+	// connections must declare in MSH.12. It must be one of the known HL7
+	// versions (2.1, 2.2, 2.3, 2.3.1, 2.4, 2.5, 2.5.1, 2.6, 2.7, 2.7.1, 2.8).
+	// This is an intentional divergence from node-hl7, which leaves the
+	// transport version-agnostic: here each client is pinned to a single
+	// version and outgoing messages whose MSH.12 differs are rejected before
+	// they are sent.
+	Version string
 }
 
 // ClientListenerOptions mirrors the ClientListenerOptions (the per-port
@@ -157,6 +165,9 @@ type validatedClientOptions struct {
 	retryHigh  int
 	retryLow   int
 	tls        *TLSConfig
+	// version is the validated, required HL7 version pinned to this client; every
+	// message sent over its connections must declare it in MSH.12.
+	version string
 }
 
 // validatedClientListenerOptions is the fully-resolved per-port option set,

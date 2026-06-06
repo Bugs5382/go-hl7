@@ -178,8 +178,8 @@ import "github.com/Bugs5382/go-hl7/server"
 func ptr[T any](v T) *T { return &v }
 
 srv, _ := server.NewServer(&server.ServerOptions{BindAddress: ptr("0.0.0.0")}) // ⬅️ no TLS
-srv.CreateInbound(server.ListenerOptions{Port: ptr(6661)}, handleADT)
-srv.CreateInbound(server.ListenerOptions{Port: ptr(6662)}, handleORU)
+srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(6661)}, handleADT)
+srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(6662)}, handleORU)
 select {} // keep the process alive
 ```
 
@@ -244,8 +244,8 @@ srv, _ := server.NewServer(&server.ServerOptions{
     },
 })
 
-srv.CreateInbound(server.ListenerOptions{Port: ptr(6661)}, handleADT)
-srv.CreateInbound(server.ListenerOptions{Port: ptr(6662)}, handleORU)
+srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(6661)}, handleADT)
+srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(6662)}, handleORU)
 ```
 
 ### And the Service / LB needs to **passthrough**
@@ -292,7 +292,7 @@ ctx := context.Background()
 
 srv, _ := server.NewServer(&server.ServerOptions{BindAddress: ptr("0.0.0.0")})
 
-srv.CreateInbound(server.ListenerOptions{Port: ptr(6661), Name: "IB_ADT"}, func(req *server.InboundRequest, res server.ResponseSender) error {
+srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(6661), Name: "IB_ADT"}, func(req *server.InboundRequest, res server.ResponseSender) error {
     msg := req.GetMessage()
 
     // 1️⃣  Push the parsed message onto the queue. Sub-millisecond.
@@ -366,7 +366,7 @@ confirms := ch.NotifyPublish(make(chan amqp.Confirmation, 1))
 
 srv, _ := server.NewServer(&server.ServerOptions{BindAddress: ptr("0.0.0.0")})
 
-srv.CreateInbound(server.ListenerOptions{Port: ptr(6661)}, func(req *server.InboundRequest, res server.ResponseSender) error {
+srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(6661)}, func(req *server.InboundRequest, res server.ResponseSender) error {
     body := []byte(req.GetMessage().String())
 
     // Publish with a confirm so we know the broker has it before we ACK.

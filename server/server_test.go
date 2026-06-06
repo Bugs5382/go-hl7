@@ -226,4 +226,20 @@ func TestListenerClass(t *testing.T) {
 			t.Fatalf("err = %v", err)
 		}
 	})
+
+	t.Run("rejects createInbound with no version", func(t *testing.T) {
+		s := newServer(t, nil)
+		_, err := s.CreateInbound(ListenerOptions{Port: ptr(4000)}, func(*InboundRequest, ResponseSender) error { return nil })
+		if err == nil || err.Error() != "version is not defined." {
+			t.Fatalf("err = %v", err)
+		}
+	})
+
+	t.Run("rejects createInbound with an invalid version", func(t *testing.T) {
+		s := newServer(t, nil)
+		_, err := s.CreateInbound(ListenerOptions{Port: ptr(4000), Version: "9.9"}, func(*InboundRequest, ResponseSender) error { return nil })
+		if err == nil || err.Error() != "version is not a valid HL7 version." {
+			t.Fatalf("err = %v", err)
+		}
+	})
 }

@@ -81,7 +81,8 @@ import "github.com/Bugs5382/go-hl7/client/builder"
 
 srv.CreateInbound(
     server.ListenerOptions{
-        Port: ptr(3000),
+        Version: "2.7",
+        Port:    ptr(3000),
         MSHOverrides: map[string]server.MSHOverride{
             "3":   server.StringOverride("MY_APP"),                                          // literal
             "9.3": server.StringOverride("ACK"),                                             // composite trigger
@@ -121,7 +122,7 @@ import (
     "github.com/Bugs5382/go-hl7/client/utils"
 )
 
-srv.CreateInbound(server.ListenerOptions{Port: ptr(3000)}, func(req *server.InboundRequest, res server.ResponseSender) error {
+srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(3000)}, func(req *server.InboundRequest, res server.ResponseSender) error {
     original := req.GetMessage()
     ctrlID := original.Get("MSH.10").String()
 
@@ -170,7 +171,7 @@ If you need full control (custom framing, instrumentation hooks, a hand-rolled A
 ```go
 import "github.com/Bugs5382/go-hl7/client/modules"
 
-srv.CreateInbound(server.ListenerOptions{Port: ptr(3000)}, func(req *server.InboundRequest, res server.ResponseSender) error {
+srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(3000)}, func(req *server.InboundRequest, res server.ResponseSender) error {
     codec := res.GetCodec()  // *modules.MLLPCodec
     sock := res.GetSocket()  // net.Conn
 
