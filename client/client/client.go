@@ -26,31 +26,28 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 import "sync"
 
 // Client is the main entry point: it holds the remote-server connection
-// defaults and opens per-port Connections. It mirrors the Client, which
-// extends EventEmitter (here via the embedded eventEmitter); the "limitExceeded"
-// event is re-emitted from connections.
+// defaults and opens per-port Connections. It embeds EventEmitter and
+// re-emits the "limitExceeded" event from its connections.
 type Client struct {
-	eventEmitter
-	// connections holds every Connection created off this client (the
-	// _connections).
+	EventEmitter
+	// connections holds every Connection created off this client.
 	connections []*Connection
-	// opt is the validated client option set (the _opt).
+	// opt is the validated client option set.
 	opt validatedClientOptions
-	// stats tracks the aggregate counters the spec exposes (the stats).
+	// stats tracks the aggregate counters the client exposes.
 	stats clientStats
 	mu    sync.Mutex
 }
 
-// clientStats mirrors the Client.stats aggregate counters.
+// clientStats holds the Client aggregate counters.
 type clientStats struct {
 	totalAck     int
 	totalPending int
 	totalSent    int
 }
 
-// NewClient creates a client to a remote server, validating the options.
-// It mirrors the `new Client(properties)`; the spec throws on bad options, Go
-// returns the error (the client tests catch these by message).
+// NewClient creates a client to a remote server, validating the options and
+// returning an error on bad options.
 func NewClient(properties ClientOptions) (*Client, error) {
 	opt, err := normalizeClientOptions(properties)
 	if err != nil {
@@ -59,8 +56,7 @@ func NewClient(properties ClientOptions) (*Client, error) {
 	return &Client{opt: opt}, nil
 }
 
-// CloseAll closes every connection and clears the list, mirroring the
-// closeAll.
+// CloseAll closes every connection and clears the list.
 func (c *Client) CloseAll() {
 	c.mu.Lock()
 	conns := c.connections
@@ -73,8 +69,7 @@ func (c *Client) CloseAll() {
 
 // CreateConnection opens a connection to a specified port, wiring the
 // per-connection stat events back to the client aggregate counters and
-// re-emitting limitExceeded. It mirrors the createConnection; the spec throws on
-// bad per-port options, Go returns the error.
+// re-emitting limitExceeded. It returns an error on bad per-port options.
 func (c *Client) CreateConnection(properties ClientListenerOptions, callback OutboundHandler) (*Connection, error) {
 	outbound, err := newConnection(c, properties, callback)
 	if err != nil {
@@ -107,25 +102,24 @@ func (c *Client) CreateConnection(properties ClientListenerOptions, callback Out
 	return outbound, nil
 }
 
-// GetHost returns the configured host, mirroring the getHost.
+// GetHost returns the configured host.
 func (c *Client) GetHost() string { return c.opt.host }
 
-// TotalAck returns the lifetime acknowledged count, mirroring the totalAck.
+// TotalAck returns the lifetime acknowledged count.
 func (c *Client) TotalAck() int {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	return c.stats.totalAck
 }
 
-// TotalPending returns the count of messages pending a (re)connection,
-// mirroring the totalPending.
+// TotalPending returns the count of messages pending a (re)connection.
 func (c *Client) TotalPending() int {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	return c.stats.totalPending
 }
 
-// TotalSent returns the lifetime sent count, mirroring the totalSent.
+// TotalSent returns the lifetime sent count.
 func (c *Client) TotalSent() int {
 	c.mu.Lock()
 	defer c.mu.Unlock()

@@ -1,6 +1,5 @@
 // Package modules carries the MLLP codec, parser plan, and option/handler type
-// aliases. It mirrors the modules/ folder (codec.ts, parserPlan.ts,
-// types.ts).
+// aliases.
 package modules
 
 /*
@@ -27,8 +26,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
 // ParserPlan derives the five delimiter characters from the MSH/BHS/FHS header
-// bytes. It mirrors the ParserPlan, including the defaults applied when
-// the input is shorter than expected.
+// bytes, applying defaults when the input is shorter than expected.
 type ParserPlan struct {
 	// SeparatorField is the field separator (default "|").
 	SeparatorField string
@@ -43,8 +41,7 @@ type ParserPlan struct {
 }
 
 // NewParserPlan derives a ParserPlan from the delimiter run that follows the
-// segment name (passes text.slice(3, 8)). It mirrors the reference's
-// ParserPlan constructor.
+// segment name (the bytes at offsets 3..8).
 func NewParserPlan(data string) *ParserPlan {
 	seps := []rune(data)
 	p := &ParserPlan{

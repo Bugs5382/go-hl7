@@ -32,7 +32,7 @@ import (
 	"github.com/Bugs5382/go-hl7/client/utils"
 )
 
-// Default client option values, mirroring the DEFAULT_CLIENT_OPTS.
+// Default client option values.
 const (
 	defaultAutoSelectFamily               = true
 	defaultAutoSelectFamilyAttemptTimeout = 250
@@ -46,8 +46,7 @@ const (
 	defaultRetryLow                       = 1000
 )
 
-// Default per-port listener option values, mirroring the
-// DEFAULT_LISTEN_CLIENT_OPTS.
+// Default per-port listener option values.
 const (
 	defaultAutoConnect = true
 	defaultMaxLimit    = 10_000
@@ -76,9 +75,9 @@ func intOr(p *int, def int) int {
 	return def
 }
 
-// normalizeClientListenerOptions validates and fills the per-port options,
-// mirroring the normalizeClientListenerOptions. It returns an error where
-// the spec throws (HL7FatalError) or assertNumber throws (plain error).
+// normalizeClientListenerOptions validates and fills the per-port options. It
+// returns an *HL7FatalError on invalid options or a plain error on a failed
+// numeric bound check.
 func normalizeClientListenerOptions(client validatedClientOptions, raw ClientListenerOptions) (validatedClientListenerOptions, error) {
 	out := validatedClientListenerOptions{
 		autoConnect:           boolOr(raw.AutoConnect, defaultAutoConnect),
@@ -98,10 +97,7 @@ func normalizeClientListenerOptions(client validatedClientOptions, raw ClientLis
 		out.encoding = defaultEncoding
 	}
 
-	// Reject a missing port: `if (port === undefined) throw "port is not
-	// defined."`. Go can't tell a string-typed port from a number at the type
-	// level (the "port is not valid number." path is a TypeScript-only check),
-	// so a nil pointer is the "not defined" case.
+	// Reject a missing port: a nil pointer is the "not defined" case.
 	if raw.Port == nil {
 		return validatedClientListenerOptions{}, helpers.NewHL7FatalError("port is not defined.")
 	}
@@ -131,9 +127,8 @@ func normalizeClientListenerOptions(client validatedClientOptions, raw ClientLis
 	return out, nil
 }
 
-// normalizeClientOptions validates and fills the client options, mirroring
-// the normalizeClientOptions including the ipv4/ipv6 dual-stack semantics
-// and IP-literal family validation.
+// normalizeClientOptions validates and fills the client options, including the
+// ipv4/ipv6 dual-stack semantics and IP-literal family validation.
 func normalizeClientOptions(raw ClientOptions) (validatedClientOptions, error) {
 	out := validatedClientOptions{
 		autoSelectFamily:               boolOr(raw.AutoSelectFamily, defaultAutoSelectFamily),
@@ -150,8 +145,8 @@ func normalizeClientOptions(raw ClientOptions) (validatedClientOptions, error) {
 	}
 
 	// Backward-compatible semantics: passing only one of ipv4/ipv6 explicitly
-	// (true) is "that family only". The spec checks hasOwnProperty; the pointer's
-	// non-nil-ness is the Go equivalent of the key being present.
+	// (true) is "that family only". A non-nil pointer marks the field as
+	// explicitly provided.
 	rawIPv4 := raw.IPv4 != nil
 	rawIPv6 := raw.IPv6 != nil
 	if rawIPv4 && *raw.IPv4 && !rawIPv6 {
@@ -209,7 +204,7 @@ func normalizeClientOptions(raw ClientOptions) (validatedClientOptions, error) {
 
 	// Version is required and must be one of the known HL7 versions. This pins
 	// the client to a single HL7 version; SendMessage rejects any message whose
-	// MSH.12 differs (an intentional divergence from node-hl7).
+	// MSH.12 differs.
 	if out.version == "" {
 		return validatedClientOptions{}, helpers.NewHL7FatalError("version is not defined.")
 	}

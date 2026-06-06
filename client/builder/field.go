@@ -23,9 +23,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-import "github.com/Bugs5382/go-hl7/client/declaration"
+import "github.com/Bugs5382/go-hl7/client/internal/declaration"
 
-// Field is one field of a segment (the Field). Its children are field
+// Field is one field of a segment. Its children are field
 // repetitions.
 type Field struct{ valueNode }
 
@@ -36,7 +36,7 @@ func newField(parent node, key, text string) *Field {
 	return f
 }
 
-// Read descends into the first repetition (the Field.read).
+// Read descends into the first repetition.
 func (f *Field) Read(path []string) HL7Node {
 	ch := f.childrenOf()
 	if len(ch) > 0 {
@@ -45,12 +45,12 @@ func (f *Field) Read(path []string) HL7Node {
 	return f
 }
 
-// createChild builds a FieldRepetition (the Field.createChild).
+// createChild builds a FieldRepetition.
 func (f *Field) createChild(text string, index int) HL7Node {
 	return newFieldRepetition(f, f.key, text)
 }
 
-// writeCore writes into the first repetition (the Field.writeCore).
+// writeCore writes into the first repetition.
 func (f *Field) writeCore(path []string, value string) HL7Node {
 	return f.ensureChild().Write(path, value)
 }

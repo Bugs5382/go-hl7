@@ -27,11 +27,11 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/Bugs5382/go-hl7/client/declaration"
+	"github.com/Bugs5382/go-hl7/client/internal/declaration"
 	"github.com/Bugs5382/go-hl7/client/utils"
 )
 
-// RootBase is the root of a tree (the RootBase). It holds the assembled
+// RootBase is the root of a tree. It holds the assembled
 // delimiter string and the escape/unescape machinery.
 type RootBase struct {
 	nodeBase
@@ -52,20 +52,18 @@ func (r *RootBase) asRoot() *RootBase { return r }
 // Delimiters returns the assembled delimiter string (the delimiters getter).
 func (r *RootBase) Delimiters() string { return r.delimiters }
 
-// makeMatchUnescape builds the escape-sequence matcher for the delimiter set
-// (the _makeMatchUnescape).
+// makeMatchUnescape builds the escape-sequence matcher for the delimiter set.
 func makeMatchUnescape(delimiters string) *regexp.Regexp {
 	d := []rune(delimiters)
 	esc := utils.EscapeForRegExp(string(d[declaration.DelimiterEscape]))
 	return regexp.MustCompile(esc + "[^" + esc + "]*" + esc)
 }
 
-// escape returns the text unchanged (the escape currently passes text
-// through; the encoding branch is commented out in the reference).
+// escape returns the text unchanged; encoding on write is not currently
+// applied.
 func (r *RootBase) escape(text string) string { return text }
 
-// unescape resolves HL7 escape sequences back to their delimiter characters
-// (the unescape).
+// unescape resolves HL7 escape sequences back to their delimiter characters.
 func (r *RootBase) unescape(text string) string {
 	d := []rune(r.delimiters)
 	escCh := string(d[declaration.DelimiterEscape])

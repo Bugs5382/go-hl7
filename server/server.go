@@ -26,12 +26,12 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 import "github.com/Bugs5382/go-hl7/server/utils"
 
 // Re-export the option/error types so callers use server.ServerOptions,
-// server.ListenerOptions, server.HL7ListenerError, etc., mirroring the
-// barrel that re-exports them from the server package root.
+// server.ListenerOptions, server.HL7ListenerError, etc. from the server
+// package root.
 type (
 	// ServerOptions configures a Server (see utils.ServerOptions).
 	ServerOptions = utils.ServerOptions
-	// ListenerOptions configures a createInbound listener (see
+	// ListenerOptions configures a CreateInbound listener (see
 	// utils.ListenerOptions).
 	ListenerOptions = utils.ListenerOptions
 	// TLSConfig configures server TLS (see utils.TLSConfig).
@@ -50,16 +50,14 @@ var StringOverride = utils.StringOverride
 // FuncOverride builds a computed MSH override (see utils.FuncOverride).
 var FuncOverride = utils.FuncOverride
 
-// Server starts listeners on network addresses. It mirrors the reference's
-// Server (an EventEmitter) via the embedded eventEmitter.
+// Server starts listeners on network addresses. It embeds EventEmitter.
 type Server struct {
-	eventEmitter
+	EventEmitter
 	opt utils.NormalizedServerOptions
 }
 
-// NewServer constructs a Server, validating the options. It mirrors the
-// `new Server(properties)`; the spec throws on bad options, Go returns the error.
-// Pass nil for the defaults (IPv4-only on 0.0.0.0).
+// NewServer constructs a Server, validating the options and returning an error
+// on bad options. Pass nil for the defaults (IPv4-only on 0.0.0.0).
 func NewServer(properties *ServerOptions) (*Server, error) {
 	opt, err := utils.NormalizeServerOptions(properties)
 	if err != nil {
@@ -68,9 +66,8 @@ func NewServer(properties *ServerOptions) (*Server, error) {
 	return &Server{opt: opt}, nil
 }
 
-// CreateInbound creates and starts an inbound listener on a port, mirroring
-// the createInbound. The spec throws on bad per-listener options, Go returns the
-// error.
+// CreateInbound creates and starts an inbound listener on a port, returning an
+// error on bad per-listener options.
 func (s *Server) CreateInbound(properties ListenerOptions, callback InboundHandler) (*Inbound, error) {
 	return newInbound(s, properties, callback)
 }

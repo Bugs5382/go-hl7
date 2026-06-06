@@ -31,14 +31,13 @@ import (
 	"github.com/Bugs5382/go-hl7/client/hl7"
 )
 
-// These tests mirror the hl7.ecd.test.ts: ECD per-version availability.
+// These tests check ECD per-version availability.
 // ECD did not exist before v2.4; ECD.4 is O in 2.4-2.5.1, B (deprecated, warns)
 // in 2.6-2.7.1, and W (withdrawn, hard reject) in 2.8 — already withdrawn in 2.7
-// per the catalog. The compile-time "no buildECD before v2.4" check is a
-// TypeScript-only construct; its Go mirror is the runtime version rejection
-// (covered by the segment-specs tests).
+// per the catalog. The "no ECD before v2.4" rule is enforced at runtime by the
+// version rejection (covered by the segment-specs tests).
 
-func ecdHeader(b *hl7.HL7_BASE) {
+func ecdHeader(b *hl7.Builder) {
 	b.On("error", func(string) {})
 	b.BuildMSH(hl7.Props{
 		"msh_10": "X", "msh_11_1": "P",
@@ -49,14 +48,14 @@ func ecdHeader(b *hl7.HL7_BASE) {
 
 func TestECDPerVersion(t *testing.T) {
 	t.Run("v2.4 accepts ecd_4", func(t *testing.T) {
-		b := hl7.NewHL7_2_4()
+		b := hl7.New(hl7.V2_4)
 		ecdHeader(b)
 		b.BuildECD(hl7.Props{"ecd_1": "1", "ecd_2": "RC", "ecd_4": "20260101"})
 		contains(t, b.String(), "ECD|1|RC||20260101")
 	})
 
 	t.Run("v2.6 accepts ecd_4 but warns deprecated", func(t *testing.T) {
-		b := hl7.NewHL7_2_6()
+		b := hl7.New(hl7.V2_6)
 		var warned string
 		b.On("warning", func(m string) { warned += m })
 		ecdHeader(b)
@@ -68,15 +67,15 @@ func TestECDPerVersion(t *testing.T) {
 	})
 
 	t.Run("v2.8 rejects ecd_4 with a hard error", func(t *testing.T) {
-		b := hl7.NewHL7_2_8()
+		b := hl7.New(hl7.V2_8)
 		ecdHeader(b)
-		expectThrows(t, "", func() {
-			b.BuildECD(hl7.Props{"ecd_1": "1", "ecd_2": "RC", "ecd_4": "20260101"})
+		expectError(t, "", func() error {
+			return b.BuildECD(hl7.Props{"ecd_1": "1", "ecd_2": "RC", "ecd_4": "20260101"}).Err()
 		})
 	})
 
 	t.Run("v2.8 succeeds when ecd_4 is omitted", func(t *testing.T) {
-		b := hl7.NewHL7_2_8()
+		b := hl7.New(hl7.V2_8)
 		ecdHeader(b)
 		b.BuildECD(hl7.Props{"ecd_1": "1", "ecd_2": "RC"})
 		contains(t, b.String(), "ECD|1|RC")
@@ -86,8 +85,8 @@ func TestECDPerVersion(t *testing.T) {
 	})
 
 	t.Run("required ECD.1 unset throws", func(t *testing.T) {
-		b := hl7.NewHL7_2_4()
+		b := hl7.New(hl7.V2_4)
 		ecdHeader(b)
-		expectThrows(t, "", func() { b.BuildECD(hl7.Props{"ecd_2": "RC"}) })
+		expectError(t, "", func() error { return b.BuildECD(hl7.Props{"ecd_2": "RC"}).Err() })
 	})
 }

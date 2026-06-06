@@ -1,4 +1,4 @@
-// Mirrors __tests__/client/hl7.parser.test.ts.
+// Tests for HL7 message parsing.
 package builder
 
 /*

@@ -1,5 +1,5 @@
 // Package helpers carries the client package's error hierarchy and shared
-// constants. It mirrors the helpers/ folder (exception.ts, constants.ts).
+// constants.
 package helpers
 
 /*
@@ -31,9 +31,7 @@ import (
 )
 
 // Sentinel errors back the HL7Error hierarchy so callers can match with
-// errors.Is where the reference used `instanceof`. Go necessity: the spec throws typed
-// Error subclasses; Go has no exceptions, so each error type unwraps to one of
-// these sentinels.
+// errors.Is. Each typed error unwraps to one of these sentinels.
 var (
 	// ErrFatal indicates a fatal failure of a connection (HL7FatalError, 500).
 	ErrFatal = errors.New("hl7: fatal")
@@ -44,7 +42,7 @@ var (
 )
 
 // HL7Error is the parent of the HL7 error hierarchy. It carries a numeric code
-// and a stable name, mirroring the HL7Error class.
+// and a stable name.
 type HL7Error struct {
 	// Code is the numeric error code (e.g. 500, 404).
 	Code int
@@ -63,8 +61,7 @@ func (e *HL7Error) Error() string { return e.Msg }
 // resolve through the typed error.
 func (e *HL7Error) Unwrap() error { return e.sentinel }
 
-// HL7FatalError indicates a fatal failure of a connection. It mirrors
-// the HL7FatalError (code 500).
+// HL7FatalError indicates a fatal failure of a connection (code 500).
 type HL7FatalError struct{ HL7Error }
 
 // NewHL7FatalError constructs an HL7FatalError with the given message.
@@ -72,8 +69,7 @@ func NewHL7FatalError(message string) *HL7FatalError {
 	return &HL7FatalError{HL7Error{Code: 500, Name: "HL7FatalError", Msg: message, sentinel: ErrFatal}}
 }
 
-// HL7ParserError indicates a failure while parsing an HL7 message. It mirrors
-// the HL7ParserError (code 404).
+// HL7ParserError indicates a failure while parsing an HL7 message (code 404).
 type HL7ParserError struct{ HL7Error }
 
 // NewHL7ParserError constructs an HL7ParserError with the given message.
@@ -81,8 +77,8 @@ func NewHL7ParserError(message string) *HL7ParserError {
 	return &HL7ParserError{HL7Error{Code: 404, Name: "HL7ParserError", Msg: message, sentinel: ErrParser}}
 }
 
-// HL7ValidationError indicates a failure of the spec-driven field validator.
-// It mirrors the HL7ValidationError (code 404).
+// HL7ValidationError indicates a failure of the spec-driven field validator
+// (code 404).
 type HL7ValidationError struct{ HL7Error }
 
 // NewHL7ValidationError constructs an HL7ValidationError with the given message.

@@ -47,9 +47,8 @@ func ipv6Loopback(t *testing.T) bool {
 	return true
 }
 
-// TestEnd2EndBatchTwoMessages mirrors the no-tls "send batch with two message,
-// get proper ACK": one frame carries a Batch of two messages, the client
-// receives two ACKs (totalSent 1, totalAck 2).
+// TestEnd2EndBatchTwoMessages sends a batch of two messages in one frame
+// without TLS; the client receives two ACKs (totalSent 1, totalAck 2).
 func TestEnd2EndBatchTwoMessages(t *testing.T) {
 	port := freePort(t)
 	var acks atomic.Int32
@@ -106,8 +105,8 @@ func TestEnd2EndBatchTwoMessages(t *testing.T) {
 	cli.CloseAll()
 }
 
-// TestEnd2EndTLS mirrors the "...tls ...simple" block: a self-signed server
-// cert, a client that skips verification, AA round-trip.
+// TestEnd2EndTLS uses a self-signed server cert and a client that skips
+// verification, for an AA round-trip.
 func TestEnd2EndTLS(t *testing.T) {
 	port := freePort(t)
 	certs := tlsTestCerts(t)
@@ -163,8 +162,8 @@ func TestEnd2EndTLS(t *testing.T) {
 	cli.CloseAll()
 }
 
-// TestEnd2EndLargeData mirrors the large-encapsulated-data check: an OBX with a
-// large base64 payload round-trips and the server reads OBX.3.1.
+// TestEnd2EndLargeData checks that an OBX with a large base64 payload
+// round-trips and the server reads OBX.3.1.
 func TestEnd2EndLargeData(t *testing.T) {
 	port := freePort(t)
 	done := newEventWaiter()
@@ -230,12 +229,12 @@ func TestEnd2EndLargeData(t *testing.T) {
 	cli.CloseAll()
 }
 
-// TestDualStackIPv4 mirrors "IPv4 client -> IPv4 server (loopback)".
+// TestDualStackIPv4 checks an IPv4 client -> IPv4 server (loopback).
 func TestDualStackIPv4(t *testing.T) {
 	runLoopback(t, "127.0.0.1", "127.0.0.1", ptr(true), ptr(false), ptr(true), ptr(false))
 }
 
-// TestDualStackIPv6 mirrors "IPv6 client -> IPv6 server (loopback)".
+// TestDualStackIPv6 checks an IPv6 client -> IPv6 server (loopback).
 func TestDualStackIPv6(t *testing.T) {
 	if !ipv6Loopback(t) {
 		t.Skip("::1 not available on this host")
@@ -243,8 +242,8 @@ func TestDualStackIPv6(t *testing.T) {
 	runLoopback(t, "::1", "::1", ptr(false), ptr(true), ptr(false), ptr(true))
 }
 
-// TestDualStackServerBoth mirrors "dual-stack server accepts both IPv4 and IPv6
-// clients": a single dual-stack listener serves a v4 then a v6 client.
+// TestDualStackServerBoth checks a dual-stack server accepting both IPv4 and
+// IPv6 clients: a single dual-stack listener serves a v4 then a v6 client.
 func TestDualStackServerBoth(t *testing.T) {
 	if !ipv6Loopback(t) {
 		t.Skip("::1 not available on this host")
@@ -293,8 +292,8 @@ func TestDualStackServerBoth(t *testing.T) {
 	_ = listener.Close()
 }
 
-// TestDualStackHappyEyeballs mirrors "dual-stack client falls back from IPv6 to
-// IPv4 via Happy Eyeballs": the server binds IPv4 only, the dual-stack client
+// TestDualStackHappyEyeballs checks a dual-stack client falling back from IPv6
+// to IPv4 via Happy Eyeballs: the server binds IPv4 only, the dual-stack client
 // connects to localhost and must land on the IPv4 address.
 func TestDualStackHappyEyeballs(t *testing.T) {
 	port := freePort(t)

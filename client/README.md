@@ -16,10 +16,10 @@ import (
 ## ✨ Features
 
 - ⚡ **Zero runtime dependencies** — fast, small, easy to audit (standard library only).
-- 🧱 **Typed segment builders** — `NewHL7_2_1` through `NewHL7_2_8`, with `BuildMSH`, `BuildPID`, `BuildEVN`, `BuildOBX`, `BuildORC`, … all the segments you actually use.
-- 🧮 **Per-version field availability** — every segment carries an HL7 v2 usage code per version (R/O/B/W/D/X). Withdrawn fields error, deprecated (B) fields warn, segments that didn't exist in your version are rejected. The full catalogue is exported as `metadata.SEGMENT_SPECS`.
-- 📑 **Version-aware HL7 value tables** — the **complete** set of HL7-defined value tables ships with the library (generated from Caristix, no runtime network), keyed by version. Every table-bound field and composite component is validated against the value set for your version, so an out-of-table code is a hard `HL7ValidationError` — and a code valid in one version can be rejected in another. Tables with no fixed value set for a version are not enforced. Exported as `tables.TABLES`.
-- 🔗 **Chainable builders** — every `Build*` returns the builder, so you can compose `hl7.NewHL7_2_8().BuildMSH(...).BuildPID(...).String()` top‑to‑bottom.
+- 🧱 **Typed segment builders** — `New(V2_1)` through `New(V2_8)`, with `BuildMSH`, `BuildPID`, `BuildEVN`, `BuildOBX`, `BuildORC`, … all the segments you actually use.
+- 🧮 **Per-version field availability** — every segment carries an HL7 v2 usage code per version (R/O/B/W/D/X). Withdrawn fields error, deprecated (B) fields warn, segments that didn't exist in your version are rejected. The full catalogue is exported as `metadata.SegmentSpecs`.
+- 📑 **Version-aware HL7 value tables** — the **complete** set of HL7-defined value tables ships with the library (generated from Caristix, no runtime network), keyed by version. Every table-bound field and composite component is validated against the value set for your version, so an out-of-table code is a hard `HL7ValidationError` — and a code valid in one version can be rejected in another. Tables with no fixed value set for a version are not enforced. Exported as `tables.Tables`.
+- 🔗 **Chainable builders** — every `Build*` returns the builder, so you can compose `hl7.New(hl7.V2_8).BuildMSH(...).BuildPID(...).String()` top‑to‑bottom.
 - 🧰 **`BuildSegment(name, props)`** — universal spec‑driven builder for the long tail of segments when a hand‑tuned method isn't available.
 - 🧬 **Typed composite inputs** — composite fields accept either a `^`‑delimited string or a typed component object (a `map[string]any`). Per‑component length, required, withdrawn, and not‑supported rules are enforced.
 - 🔁 **Auto reconnect & retry** — exponential backoff, configurable attempt cap.
@@ -70,7 +70,7 @@ func ptr[T any](v T) *T { return &v }
 
 func main() {
 	// 1) Build an ADT^A01. Every Build* returns the builder, so you can chain.
-	msg := hl7.NewHL7_2_5().
+	msg, err := hl7.New(hl7.V2_5).
 		BuildMSH(hl7.Props{
 			"msh_3":  "MY_APP",
 			"msh_4":  "MY_FAC",
@@ -87,6 +87,9 @@ func main() {
 			"pid_8": "F",
 		}).
 		ToMessage()
+	if err != nil {
+		panic(err) // the first validation failure in the chain
+	}
 
 	// 2) Open a persistent connection and send it.
 	c, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "127.0.0.1"})
@@ -113,9 +116,9 @@ The class‑based builder validates segment fields against the complete, version
 
 ```mermaid
 flowchart LR
-    A[hl7.NewHL7_2_x] --> B[BuildMSH<br/>required first]
+    A["hl7.New(version)"] --> B[BuildMSH<br/>required first]
     B --> C[BuildEVN<br/>BuildPID<br/>BuildOBR<br/>BuildOBX<br/>BuildORC<br/>BuildPV1<br/>...]
-    C --> D[ToMessage / String]
+    C --> D["ToMessage (msg, err) / String"]
     D --> E[ ✉️ Message ready to send]
 ```
 
@@ -124,17 +127,17 @@ flowchart LR
 ```go
 import "github.com/Bugs5382/go-hl7/client/hl7"
 
-b := hl7.NewHL7_2_5(hl7.Options{
+b := hl7.New(hl7.V2_5, hl7.Options{
 	// Optional: override the default date format.
 	// "8" = YYYYMMDD, "12" = YYYYMMDDHHMM, "14" = YYYYMMDDHHMMSS (default).
 	Date: "14",
-	// Optional: HardError makes validation issues panic immediately
-	// instead of being collected and emitted as "error" events.
+	// Optional: HardError promotes soft validation issues to a recorded
+	// error immediately, instead of collecting them as "error" events.
 	HardError: true,
 })
 ```
 
-The constructors are `NewHL7_2_1`, `NewHL7_2_2`, `NewHL7_2_3`, `NewHL7_2_3_1`, `NewHL7_2_4`, `NewHL7_2_5`, `NewHL7_2_5_1`, `NewHL7_2_6`, `NewHL7_2_7`, `NewHL7_2_7_1`, and `NewHL7_2_8`. There is **no implicit default** — you select the spec version by which constructor you call, and that version drives every field‑usage check. `Options` is optional (`hl7.NewHL7_2_5()` is valid).
+`New` takes a `Version` constant: `V2_1`, `V2_2`, `V2_3`, `V2_3_1`, `V2_4`, `V2_5`, `V2_5_1`, `V2_6`, `V2_7`, `V2_7_1`, or `V2_8`. There is **no implicit default** — you select the spec version by the constant you pass, and that version drives every field‑usage check. `Options` is optional (`hl7.New(hl7.V2_5)` is valid).
 
 ### Step 2 — Build MSH (always first)
 
@@ -150,7 +153,7 @@ b.BuildMSH(hl7.Props{
 })
 ```
 
-> ⚠️ Calling any other `Build*` method before `BuildMSH` panics with `HL7FatalError("MSH Header must be built first.")`. Calling `BuildMSH` twice panics with `HL7FatalError("You can only have one MSH Header per HL7 Message.")`.
+> ⚠️ Calling any other `Build*` method before `BuildMSH` records `HL7FatalError("MSH Header must be built first.")` and short-circuits the rest of the chain. Calling `BuildMSH` twice records `HL7FatalError("You can only have one MSH Header per HL7 Message.")`. Either way, the error comes back from `ToMessage()`/`Err()`.
 
 `Props` is `map[string]any`. It accepts the spec property keys (`msh_3`, `pid_5`, `obx_5`, …), bare field numbers as strings (`"3"`), human‑friendly aliases on MSH (`sendingApplication`, `receivingFacility`, …), and — for composite fields — a typed component object (see below). Values may be `string`, `int`, `time.Time`, or a `map[string]any` composite.
 
@@ -243,8 +246,11 @@ Component keys are resolved by numeric position (`"1"`), by a trailing `_<num>` 
 ### Step 4 — Convert
 
 ```go
-msg := b.ToMessage()  // returns a *builder.Message
-text := b.String()    // returns the HL7 text
+msg, err := b.ToMessage()  // (*builder.Message, error) — err is the first validation failure
+if err != nil {
+	// handle the bad input; msg is the partial tree built so far
+}
+text := b.String()         // the HL7 text built so far
 ```
 
 The resulting MSH for the example above:
@@ -258,10 +264,13 @@ OBX|1|TX|NOTE^Discharge Note^L||Patient stable, discharged home.||||||F
 
 ### 🛠️ Direct edits with `msg.Set(...)`
 
-`ToMessage()` returns a real `builder.Message` you can keep mutating after the builder is done — useful for fields the builder doesn't surface:
+`ToMessage()` returns a real `builder.Message` (alongside the first build error) you can keep mutating after the builder is done — useful for fields the builder doesn't surface:
 
 ```go
-msg := b.ToMessage()
+msg, err := b.ToMessage()
+if err != nil {
+	return err
+}
 msg.Set("PID.13", "555-0100")          // home phone, dotted path
 msg.Get("PV1.7").SetIndex(0, "Jones")  // 0-based child position (the Index/SetIndex split)
 ```
@@ -273,7 +282,7 @@ msg.Get("PV1.7").SetIndex(0, "Jones")  // 0-based child position (the Index/SetI
 Defaults are the HL7 standard: `|` field, `^` component, `&` sub‑component, `~` repetition, `\` escape. To send through a system that uses non‑standard delimiters, set them once on the builder options:
 
 ```go
-b := hl7.NewHL7_2_5(hl7.Options{
+b := hl7.New(hl7.V2_5, hl7.Options{
 	SeparatorField:        "!",
 	SeparatorComponent:    "+",
 	SeparatorSubComponent: "]",
@@ -357,7 +366,7 @@ The connection is persistent; you can send many messages over a single TCP/MLLP 
 
 `ClientOptions.Version` is **required** and pins the client to a single HL7 version. It must be one of the known versions — `2.1`, `2.2`, `2.3`, `2.3.1`, `2.4`, `2.5`, `2.5.1`, `2.6`, `2.7`, `2.7.1`, `2.8` — or `NewClient` returns an error (`version is not defined.` / `version is not a valid HL7 version.`).
 
-Every connection opened from a client inherits that one version, and `SendMessage` enforces it: before a message is queued or transmitted, its `MSH.12` must equal the configured version. If it differs, `SendMessage` returns an error and **does not send** (for a batch or file, *every* contained message's `MSH.12` must match). This is an intentional divergence from node-hl7, which leaves the transport version‑agnostic.
+Every connection opened from a client inherits that one version, and `SendMessage` enforces it: before a message is queued or transmitted, its `MSH.12` must equal the configured version. If it differs, `SendMessage` returns an error and **does not send** (for a batch or file, *every* contained message's `MSH.12` must match).
 
 ```go
 c, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "127.0.0.1"})
@@ -561,7 +570,7 @@ conn.On("data.raw", func(args ...any) { fmt.Println("📥", args[0]) })
 | `data.raw` | `string` | The full de‑framed payload, before parsing. |
 | `data.error` | `error` | A frame couldn't be parsed. |
 
-The typed builders (`*hl7.HL7_BASE`) expose their own `On("error", func(string))` and `On("warning", func(string))` for soft validation findings (collected unless `HardError` is set).
+The typed builders (`*hl7.Builder`) expose their own `On("error", func(string))` and `On("warning", func(string))` for soft validation findings (collected unless `HardError` is set).
 
 ---
 
@@ -607,7 +616,7 @@ conn, _ := c.CreateConnection(
 
 ## 🧯 Errors
 
-Constructors and senders return `error`; the spec‑driven builders and some structural reads panic with a typed error. The error hierarchy is in the `helpers` package and is matchable with `errors.Is`:
+Constructors and senders return `error`; the spec‑driven builders accumulate the first failure and return it from `ToMessage()`/`Err()` (and `CheckMSH` returns its error directly). Only genuine programmer misuse — undefined `InboundRequest` accessors and abstract node stubs — still panics. The error hierarchy is in the `helpers` package and is matchable with `errors.Is`:
 
 ```go
 import (
@@ -628,7 +637,7 @@ if errors.Is(err, helpers.ErrParser) {
 | `helpers.ErrParser` | `HL7ParserError` (404) | A parser failure. |
 | `helpers.ErrValidation` | `HL7ValidationError` (404) | A spec‑driven field‑validation failure. |
 
-Because the typed builders panic on hard validation failures (the Go analog of the spec's `throw`), wrap a builder run in `recover` if you need to turn those into errors at a boundary.
+The typed builders record hard validation failures (the Go analog of the spec's `throw`) onto the builder. Check `b.ToMessage()`'s error — or `b.Err()` mid-chain — to handle them at a boundary; no `recover` needed.
 
 ---
 

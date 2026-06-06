@@ -31,8 +31,7 @@ import (
 	"github.com/Bugs5382/go-hl7/client/utils"
 )
 
-// These mirror the Batch/FileBatch portions of __tests__/client/hl7.sanity.test.ts
-// and hl7.misc-coverage.test.ts.
+// These cover the Batch/FileBatch sanity and edge-case behavior.
 
 func TestBatchRejectsSingleMSH(t *testing.T) {
 	_, err := builder.NewBatch(builder.BatchOptions{

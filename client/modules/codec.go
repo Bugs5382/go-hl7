@@ -32,23 +32,21 @@ import (
 )
 
 // MLLPCodec frames HL7 messages over the Minimal Lower Layer Protocol: a
-// message body is wrapped <VT>body<FS><CR> (0x0B body 0x1C 0x0D). It mirrors
-// the modules/codec.ts MLLPCodec, including the split-frame buffering:
-// receiveData accumulates bytes until a complete <FS><CR> end marker arrives.
+// message body is wrapped <VT>body<FS><CR> (0x0B body 0x1C 0x0D). It buffers
+// split frames, accumulating bytes until a complete <FS><CR> end marker
+// arrives.
 type MLLPCodec struct {
-	// returnCharacter joins the decoded message parts. The spec defaults to "\r".
+	// returnCharacter joins the decoded message parts; it defaults to "\r".
 	returnCharacter string
-	// dataBuffer accumulates incoming bytes across receiveData calls until a
-	// full frame is present (the dataBuffer Buffer).
+	// dataBuffer accumulates incoming bytes across ReceiveData calls until a
+	// full frame is present.
 	dataBuffer []byte
 	// lastMessage holds the most recently decoded message, or nil when none has
-	// been decoded yet (the lastMessage: string | undefined).
+	// been decoded yet.
 	lastMessage *string
 }
 
-// NewMLLPCodec constructs an MLLPCodec. The spec takes (encoding = "utf8",
-// returnCharacter = "\r"); Go strings are already UTF-8 byte slices so the
-// encoding argument is unnecessary here. Pass "" for returnCharacter to use the
+// NewMLLPCodec constructs an MLLPCodec. Pass "" for returnCharacter to use the
 // "\r" default.
 func NewMLLPCodec(returnCharacter string) *MLLPCodec {
 	if returnCharacter == "" {
@@ -58,7 +56,7 @@ func NewMLLPCodec(returnCharacter string) *MLLPCodec {
 }
 
 // GetLastMessage returns the last decoded message, or nil when none has been
-// decoded (the getLastMessage(): null | string).
+// decoded.
 func (c *MLLPCodec) GetLastMessage() *string {
 	return c.lastMessage
 }
@@ -66,7 +64,7 @@ func (c *MLLPCodec) GetLastMessage() *string {
 // ReceiveData appends incoming bytes and processes a complete frame when the
 // buffer holds both the end byte (FS, 0x1C) and footer byte (CR, 0x0D). It
 // returns true when a message was processed, or false while still waiting for
-// the rest of a split frame. Mirrors the receiveData.
+// the rest of a split frame.
 func (c *MLLPCodec) ReceiveData(data []byte) bool {
 	c.dataBuffer = append(c.dataBuffer, data...)
 
@@ -87,10 +85,8 @@ func (c *MLLPCodec) ReceiveString(data string) bool {
 	return c.ReceiveData([]byte(data))
 }
 
-// SendMessage frames message as <VT>message<FS><CR> and writes it to w. The spec
-// takes (socket, message, encoding); Go uses an io.Writer so any net.Conn or
-// buffer works, and the body is already a UTF-8 string. A nil writer is a
-// no-op, mirroring the optional `socket?.write`.
+// SendMessage frames message as <VT>message<FS><CR> and writes it to w, where w
+// may be any net.Conn or buffer. A nil writer is a no-op.
 func (c *MLLPCodec) SendMessage(w io.Writer, message string) error {
 	if w == nil {
 		return nil
@@ -138,8 +134,8 @@ func (c *MLLPCodec) processMessage() {
 	c.dataBuffer = remainder
 }
 
-// stripMLLPCharacters removes the VT (0x0B, "") and FS (0x1C, "")
-// control characters from a message body. Mirrors the stripMLLPCharacters.
+// stripMLLPCharacters removes the VT (0x0B) and FS (0x1C) control characters
+// from a message body.
 func stripMLLPCharacters(message string) string {
 	message = strings.ReplaceAll(message, "\x0b", "")
 	message = strings.ReplaceAll(message, "\x1c", "")

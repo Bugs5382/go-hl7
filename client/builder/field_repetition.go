@@ -26,10 +26,10 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 import (
 	"strconv"
 
-	"github.com/Bugs5382/go-hl7/client/declaration"
+	"github.com/Bugs5382/go-hl7/client/internal/declaration"
 )
 
-// FieldRepetition is one repetition of a field (the FieldRepetition). Its
+// FieldRepetition is one repetition of a field. Its
 // children are components.
 type FieldRepetition struct{ valueNode }
 
@@ -40,8 +40,7 @@ func newFieldRepetition(parent node, key, text string) *FieldRepetition {
 	return r
 }
 
-// Read descends into the component at the 1-based head of path (the
-// FieldRepetition.read).
+// Read descends into the component at the 1-based head of path.
 func (r *FieldRepetition) Read(path []string) HL7Node {
 	idx, _ := strconv.Atoi(path[0])
 	rest := path[1:]
@@ -56,16 +55,15 @@ func (r *FieldRepetition) Read(path []string) HL7Node {
 	return component
 }
 
-// createChild builds a Component (the FieldRepetition.createChild).
+// createChild builds a Component.
 func (r *FieldRepetition) createChild(text string, index int) HL7Node {
 	return newComponent(r, strconv.Itoa(index+1), text)
 }
 
-// pathCore returns the parent path (the FieldRepetition.pathCore).
+// pathCore returns the parent path.
 func (r *FieldRepetition) pathCore() []string { return r.parent.Path() }
 
-// writeCore writes into the component at the 1-based head of path (the
-// FieldRepetition.writeCore).
+// writeCore writes into the component at the 1-based head of path.
 func (r *FieldRepetition) writeCore(path []string, value string) HL7Node {
 	idx, _ := strconv.Atoi(path[0])
 	return r.writeAtIndex(path[1:], value, idx-1, "")

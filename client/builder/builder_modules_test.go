@@ -29,12 +29,10 @@ import (
 	"github.com/Bugs5382/go-hl7/client/builder"
 )
 
-// These tests mirror the hl7.builder-modules.test.ts: ValueNode value
-// coercions and the EmptyNode contract, exercised through the public Message
-// API. Go necessities (documented adaptations): the value coercions return
-// (T, ok) rather than throwing, and EmptyNode panics only on structural access
-// (Raw/Name/Path/ForEach/Read) per operator answer #5 — the coercions return
-// (zero, false) instead of throwing.
+// These tests cover ValueNode value coercions and the EmptyNode contract,
+// exercised through the public Message API. The value coercions return (T, ok),
+// and EmptyNode panics only on structural access (Raw/Name/Path/ForEach/Read)
+// while the coercions return (zero, false).
 
 func sampleMessage(t *testing.T) *builder.Message {
 	t.Helper()

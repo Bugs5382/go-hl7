@@ -2,7 +2,7 @@
 
 > A quick-lookup matrix for every HL7 v2.x segment supported by go-hl7's typed builders, plus links to the canonical [Caristix](https://hl7-definition.caristix.com/v2/) field reference.
 
-Every segment is exposed by `*hl7.HL7_BASE` as a public `Build<SEGNAME>(props)` method. Version-specific constructors (`NewHL7_2_1` … `NewHL7_2_8`) configure the segments that exist in their version. Calling a `Build<SEGNAME>` for a segment that doesn't exist in the active version raises `HL7ValidationError("Segment <NAME> is not part of HL7 v<X>")` at runtime — sourced from the per-segment `SegmentSpec` (see below).
+Every segment is exposed by `*hl7.Builder` as a public `Build<SEGNAME>(props)` method. Version-specific constructors (`New(V2_1)` … `New(V2_8)`) configure the segments that exist in their version. Calling a `Build<SEGNAME>` for a segment that doesn't exist in the active version raises `HL7ValidationError("Segment <NAME> is not part of HL7 v<X>")` at runtime — sourced from the per-segment `SegmentSpec` (see below).
 
 ## 🧾 Table of Contents
 
@@ -21,9 +21,9 @@ Every segment is exposed by `*hl7.HL7_BASE` as a public `Build<SEGNAME>(props)` 
 - ✅ — segment is supported in this version's builder.
 - ➖ — segment was not yet defined in HL7 at that version (or simply isn't implemented).
 - 🔁 — same segment was extended in this version (more fields). The library uses the most recent definition automatically when you instantiate that version's constructor.
-- All segments are inherited downstream — once a segment first appears in version V, every later version (`NewHL7_2_(V+1)`, … `NewHL7_2_8`) also supports it.
+- All segments are inherited downstream — once a segment first appears in version V, every later version up to `New(V2_8)` also supports it.
 
-> 💡 **Tip:** Always start the message with `BuildMSH(...)`. Calling any other `Build*` first panics with `HL7FatalError("MSH Header must be built first.")`.
+> 💡 **Tip:** Always start the message with `BuildMSH(...)`. Calling any other `Build*` first records `HL7FatalError("MSH Header must be built first.")`, which surfaces from `ToMessage()`/`Err()`.
 
 ---
 
@@ -35,13 +35,13 @@ Beyond the typed builders below, the library ships a complete **machine-readable
 import "github.com/Bugs5382/go-hl7/client/hl7/metadata"
 
 // Every spec carries per-version field-level usage codes (R/O/B/W/D/X).
-ecd := metadata.SEGMENT_SPECS["ECD"]
+ecd := metadata.SegmentSpecs["ECD"]
 ecd.Versions                          // [2.4 2.5 … 2.8]
 ecd.Fields[3].Usage["2.8"]            // "W" — ECD.4 was withdrawn in 2.8
 
 // Composite fields (XAD, XPN, CE, CWE, …) carry sub-component metadata too.
 var pid11 metadata.FieldSpec
-for _, f := range metadata.SEGMENT_SPECS["PID"].Fields {
+for _, f := range metadata.SegmentSpecs["PID"].Fields {
     if f.Num == 11 {
         pid11 = f
         break
@@ -64,13 +64,13 @@ builder.
     BuildSegment("ADJ", hl7.Props{ /* … */ })
 ```
 
-Field-level enforcement is identical to the typed methods: required fields throw if missing, withdrawn fields throw if set, deprecated (B) fields warn but still serialize. See the [Validation & errors section](../builder/index.md#-validation--errors) in the builder docs for the full per-code behavior.
+Field-level enforcement is identical to the typed methods: required fields record an error if missing, withdrawn fields record an error if set, deprecated (B) fields warn but still serialize. See the [Validation & errors section](../builder/index.md#-validation--errors) in the builder docs for the full per-code behavior.
 
 ---
 
 ## 📑 HL7 value tables (version-aware enforcement)
 
-Many HL7 fields and composite components are bound to an **HL7 value table** — a fixed set of allowed codes (e.g. table `0001` Sex = `F`/`M`/`O`/`U`, table `0003` Event Type, table `0125` Value Type). go-hl7 ships the **complete** set of HL7-defined value tables, generated from the [Caristix HL7 Definition API](https://hl7-definition.caristix.com/v2/) and committed to the repo (no runtime network calls). They live in the `client/hl7/tables` package as `tables.TABLES`.
+Many HL7 fields and composite components are bound to an **HL7 value table** — a fixed set of allowed codes (e.g. table `0001` Sex = `F`/`M`/`O`/`U`, table `0003` Event Type, table `0125` Value Type). go-hl7 ships the **complete** set of HL7-defined value tables, generated from the [Caristix HL7 Definition API](https://hl7-definition.caristix.com/v2/) and committed to the repo (no runtime network calls). They live in the `client/hl7/tables` package as `tables.Tables`.
 
 This goes **beyond** the upstream library, which only ever hand-populated a couple dozen tables. Every table-bound field (and every composite component) is now validated against its table automatically.
 
@@ -81,20 +81,20 @@ HL7 value sets change between versions, so the registry is keyed **version → t
 ```go
 import "github.com/Bugs5382/go-hl7/client/hl7/tables"
 
-tables.TABLES["2.1"]["0125"] // → [AD CK FT PN ST TM TS TX]  (v2.1 value types)
-tables.TABLES["2.8"]["0125"] // → [AD CE CF … NM … XPN XTN]  (v2.8 value types)
+tables.Tables["2.1"]["0125"] // → [AD CK FT PN ST TM TS TX]  (v2.1 value types)
+tables.Tables["2.8"]["0125"] // → [AD CE CF … NM … XPN XTN]  (v2.8 value types)
 ```
 
 The builder always validates against the table set for **its** version. A value that is valid in one version can be rejected in another:
 
 ```go
-b28 := hl7.NewHL7_2_8()
+b28 := hl7.New(hl7.V2_8)
 b28.BuildMSH(/* … */)
 b28.BuildOBX(hl7.Props{"obx_2": "NM", /* … */}) // ✅ NM is a v2.8 value type
 
-b21 := hl7.NewHL7_2_1()
+b21 := hl7.New(hl7.V2_1)
 b21.BuildMSH(/* … */)
-b21.BuildOBX(hl7.Props{"obx_2": "NM", /* … */}) // ❌ panics: Field 2 must be one of: AD, CK, FT, PN, ST, TM, TS, TX
+b21.BuildOBX(hl7.Props{"obx_2": "NM", /* … */}) // ❌ records an error: Field 2 must be one of: AD, CK, FT, PN, ST, TM, TS, TX
 ```
 
 ### Hard error, no lenient mode
@@ -106,7 +106,7 @@ An out-of-table value is a **hard `HL7ValidationError`** — the same rejection 
 Some HL7 tables are user-defined or carry no published code list for a given version (e.g. `0296` Primary Language). When a table has **no values** for the active version, the field is **not** enforced — there is nothing to check against — so any value is accepted:
 
 ```go
-b := hl7.NewHL7_2_1()
+b := hl7.New(hl7.V2_1)
 b.BuildMSH(/* … */)
 b.BuildPID(hl7.Props{"pid_15": "anything-goes", /* … */}) // ✅ table 0296 is empty in v2.1
 ```
@@ -115,7 +115,7 @@ b.BuildPID(hl7.Props{"pid_15": "anything-goes", /* … */}) // ✅ table 0296 is
 
 ## 🧱 Always-available (base) segments
 
-These four are implemented directly on `HL7_BASE` (not gated by version) and are available on every `NewHL7_2_x` builder.
+These four are implemented directly on `Builder` (not gated by version) and are available on every builder regardless of the `Version` passed to `New`.
 
 | Segment | Builder | Purpose | Caristix |
 |:---:|---|---|:---:|

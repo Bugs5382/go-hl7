@@ -1,6 +1,5 @@
 // Package declaration carries the client package's enums and pure type/contract
-// declarations. It mirrors the declaration/ folder (enum.ts,
-// validationRule.ts, deferred.ts).
+// declarations.
 package declaration
 
 /*
@@ -27,8 +26,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
 // Delimiters identifies a kind of HL7 delimiter. Each member is used during
-// tree construction to give each level its own index value. It mirrors
-// the Delimiters enum, preserving the same member order.
+// tree construction to give each level its own index value.
 type Delimiters int
 
 const (
@@ -47,8 +45,7 @@ const (
 )
 
 // ReadyState is the state of the connection to the server. It tracks the
-// connecting state and the auto-reconnect phase. It mirrors the reference's
-// ReadyState enum, preserving the same member order.
+// connecting state and the auto-reconnect phase.
 type ReadyState int
 
 const (

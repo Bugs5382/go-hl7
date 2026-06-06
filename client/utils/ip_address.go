@@ -28,8 +28,7 @@ import (
 	"strings"
 )
 
-// ValidIPv4 reports whether ip is a valid IPv4 literal. It mirrors the reference's
-// validIPv4 (backed by The net.isIPv4, dotted-decimal only).
+// ValidIPv4 reports whether ip is a valid IPv4 literal (dotted-decimal only).
 func ValidIPv4(ip string) bool {
 	if ip == "" {
 		return false
@@ -38,14 +37,13 @@ func ValidIPv4(ip string) bool {
 	if parsed == nil {
 		return false
 	}
-	// net.ParseIP accepts both families; restrict to dotted-decimal IPv4 to
-	// match The net.isIPv4.
+	// net.ParseIP accepts both families; restrict to dotted-decimal IPv4.
 	return strings.Count(ip, ".") == 3 && parsed.To4() != nil
 }
 
-// ValidIPv6 reports whether ip is a valid IPv6 literal. It mirrors the reference's
-// validIPv6: bracketed forms ([::1]) and zone-id suffixes (fe80::1%eth0) are
-// stripped before validation, and IPv4-mapped IPv6 addresses are accepted.
+// ValidIPv6 reports whether ip is a valid IPv6 literal: bracketed forms ([::1])
+// and zone-id suffixes (fe80::1%eth0) are stripped before validation, and
+// IPv4-mapped IPv6 addresses are accepted.
 func ValidIPv6(ip string) bool {
 	if ip == "" {
 		return false
@@ -65,8 +63,7 @@ func ValidIPv6(ip string) bool {
 }
 
 // DetectIPFamily returns 4 for valid IPv4 literals, 6 for valid IPv6 literals,
-// or 0 for hostnames/FQDNs that should be resolved via DNS. It mirrors
-// the detectIPFamily.
+// or 0 for hostnames/FQDNs that should be resolved via DNS.
 func DetectIPFamily(value string) int {
 	if ValidIPv4(value) {
 		return 4

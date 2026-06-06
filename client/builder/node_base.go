@@ -28,21 +28,21 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Bugs5382/go-hl7/client/declaration"
 	"github.com/Bugs5382/go-hl7/client/helpers"
+	"github.com/Bugs5382/go-hl7/client/internal/declaration"
 	"github.com/Bugs5382/go-hl7/client/utils"
 )
 
 // emptySingleton is the shared sentinel returned for a missing path, so chained
-// Get(...).String() never panics. It mirrors the NodeBase.empty.
+// Get(...).String() never panics.
 var emptySingleton = &EmptyNode{}
 
-// nodeBase carries the shared behavior of every tree node. It mirrors
-// the NodeBase. The self field holds the most-derived node so base
-// methods dispatch overridden behavior (Go's stand-in for virtual methods).
+// nodeBase carries the shared behavior of every tree node. The self field holds
+// the most-derived node so base methods dispatch overridden behavior (Go's
+// stand-in for virtual methods).
 type nodeBase struct {
 	// self is the most-derived node, set by each constructor for virtual
-	// dispatch. Go necessity: base methods call self to reach overrides.
+	// dispatch: base methods call self to reach overrides.
 	self node
 	// parent is the owning node, or nil for a root.
 	parent node
@@ -153,7 +153,7 @@ func (n *nodeBase) ExistsIndex(i int) bool {
 	return !v.IsEmpty()
 }
 
-// ForEach iterates over the children (the forEach).
+// ForEach iterates over the children.
 func (n *nodeBase) ForEach(cb func(value HL7Node, index int)) {
 	ch := n.self.childrenOf()
 	for i, c := range ch {
@@ -183,7 +183,7 @@ func (n *nodeBase) Get(path string) HL7Node {
 	return rv
 }
 
-// IsEmpty reports whether the node has no children (the isEmpty).
+// IsEmpty reports whether the node has no children.
 func (n *nodeBase) IsEmpty() bool { return len(n.self.childrenOf()) == 0 }
 
 // Read resolves an already-split path. The base implementation is not
@@ -218,7 +218,7 @@ func (n *nodeBase) SetIndex(i int, value any) HL7Node {
 	return n.self
 }
 
-// Write writes value at an already-split path (the write).
+// Write writes value at an already-split path.
 func (n *nodeBase) Write(path []string, value string) HL7Node {
 	n.setDirty()
 	if value == "" {
@@ -227,10 +227,10 @@ func (n *nodeBase) Write(path []string, value string) HL7Node {
 	return n.self.writeCore(path, value)
 }
 
-// ToArray returns the child nodes (the toArray).
+// ToArray returns the child nodes.
 func (n *nodeBase) ToArray() []HL7Node { return n.self.childrenOf() }
 
-// Raw renders the raw text (the toRaw).
+// Raw renders the raw text.
 func (n *nodeBase) Raw() string {
 	if !n.dirty {
 		return n.text
@@ -244,10 +244,10 @@ func (n *nodeBase) Raw() string {
 	return n.text
 }
 
-// String renders the de-framed text. The base mirrors the toString -> toRaw.
+// String renders the de-framed text. The base delegates to rawText.
 func (n *nodeBase) String() string { return n.self.rawText() }
 
-// rawText is the default String backing (the toString = toRaw).
+// rawText is the default String backing, returning the raw text.
 func (n *nodeBase) rawText() string { return n.self.Raw() }
 
 // Int coerces to an integer; not implemented on the base (ValueNode overrides).
@@ -262,7 +262,7 @@ func (n *nodeBase) Bool() (bool, bool) { return false, false }
 // Date coerces to a time.Time; not implemented on the base.
 func (n *nodeBase) Date() (time.Time, bool) { return time.Time{}, false }
 
-// addChild appends a child built from text (the addChild).
+// addChild appends a child built from text.
 func (n *nodeBase) addChild(text string) HL7Node {
 	n.setDirty()
 	child := n.self.createChild(text, len(n.self.childrenOf()))
@@ -289,8 +289,7 @@ func (n *nodeBase) pathCore() []string {
 	panic(helpers.NewHL7FatalError("Method not implemented."))
 }
 
-// preparePath splits and validates a path relative to this node (the
-// preparePath).
+// preparePath splits and validates a path relative to this node.
 func (n *nodeBase) preparePath(path string) []string {
 	parts := strings.Split(path, ".")
 	if len(parts) > 0 && parts[0] == "" {
@@ -303,7 +302,7 @@ func (n *nodeBase) preparePath(path string) []string {
 	return n.remainderOf(parts)
 }
 
-// prepareValue coerces a Go value to its HL7 string form (the prepareValue).
+// prepareValue coerces a Go value to its HL7 string form.
 func (n *nodeBase) prepareValue(value any) string {
 	switch v := value.(type) {
 	case nil:
@@ -331,8 +330,7 @@ func (n *nodeBase) prepareValue(value any) string {
 	}
 }
 
-// setChild places a child at index, growing with empties as needed (the
-// setChild).
+// setChild places a child at index, growing with empties as needed.
 func (n *nodeBase) setChild(child HL7Node, index int) HL7Node {
 	n.setDirty()
 	ch := n.self.childrenOf()
@@ -349,7 +347,7 @@ func (n *nodeBase) setChild(child HL7Node, index int) HL7Node {
 	return child
 }
 
-// setDirty marks the node and its ancestors dirty (the setDirty).
+// setDirty marks the node and its ancestors dirty.
 func (n *nodeBase) setDirty() {
 	if !n.dirty {
 		n.dirty = true
@@ -365,7 +363,7 @@ func (n *nodeBase) setDirty() {
 func (n *nodeBase) setDirtyPublic() { n.setDirty() }
 
 // writeAtIndex writes value into the child at index, descending the remaining
-// path (the writeAtIndex).
+// path.
 func (n *nodeBase) writeAtIndex(path []string, value string, index int, emptyValue string) HL7Node {
 	var child HL7Node
 	ch := n.self.childrenOf()
@@ -394,7 +392,7 @@ func (n *nodeBase) writeCore(path []string, value string) HL7Node {
 	panic(helpers.NewHL7FatalError("Method not implemented."))
 }
 
-// isSubPath reports whether other extends this the path (the _isSubPath).
+// isSubPath reports whether other extends this the path.
 func (n *nodeBase) isSubPath(other []string) bool {
 	p := n.self.Path()
 	if len(p) >= len(other) {
@@ -408,19 +406,17 @@ func (n *nodeBase) isSubPath(other []string) bool {
 	return true
 }
 
-// remainderOf returns the portion of other beyond this the path (the
-// _remainderOf).
+// remainderOf returns the portion of other beyond this the path.
 func (n *nodeBase) remainderOf(other []string) []string {
 	return other[len(n.self.Path()):]
 }
 
-// formatDate renders a Date as YYYYMMDD (the _formatDate).
+// formatDate renders a Date as YYYYMMDD.
 func formatDate(date time.Time) string {
 	return strconv.Itoa(date.Year()) + utils.PadHL7Date(int(date.Month()), 2, "0") + utils.PadHL7Date(date.Day(), 2, "0")
 }
 
-// formatDateTime renders a Date, adding the time when present (the
-// _formatDateTime).
+// formatDateTime renders a Date, adding the time when present.
 func formatDateTime(date time.Time) string {
 	if date.Hour() != 0 || date.Minute() != 0 || date.Second() != 0 || date.Nanosecond() != 0 {
 		return formatDate(date) + utils.PadHL7Date(date.Hour(), 2, "0") + utils.PadHL7Date(date.Minute(), 2, "0") + utils.PadHL7Date(date.Second(), 2, "0")

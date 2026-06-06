@@ -36,9 +36,8 @@ import (
 	srvutils "github.com/Bugs5382/go-hl7/server/utils"
 )
 
-// ResponseSender is the ACK-sending contract a handler's response satisfies. It
-// mirrors the ISendRequest / the BaseSendResponse | SendResponse union the
-// InboundHandler receives, so a caller may supply a custom response type.
+// ResponseSender is the ACK-sending contract a handler's response satisfies, so
+// a caller may supply a custom response type.
 type ResponseSender interface {
 	// GetAckMessage returns the ACK that was sent, or nil before one is sent.
 	GetAckMessage() *builder.Message
@@ -56,9 +55,9 @@ type ResponseSender interface {
 // SendResponse builds and sends an ACK back to the client. It folds the
 // BaseSendResponse and SendResponse into one type: the base codec/socket/ack
 // accessors plus sendResponse/sendCustomResponse and the ACK builder. It is an
-// EventEmitter (response.sent) via the embedded eventEmitter.
+// EventEmitter (response.sent) via the embedded EventEmitter.
 type SendResponse struct {
-	eventEmitter
+	EventEmitter
 	ack          *builder.Message
 	codec        *modules.MLLPCodec
 	message      *builder.Message
@@ -70,7 +69,7 @@ type SendResponse struct {
 var _ ResponseSender = (*SendResponse)(nil)
 
 // NewSendResponse constructs a SendResponse over the client socket and inbound
-// message, mirroring the SendResponse/BaseSendResponse constructor.
+// message.
 func NewSendResponse(socket net.Conn, message *builder.Message, mshOverrides map[string]srvutils.MSHOverride) *SendResponse {
 	return &SendResponse{
 		codec:        modules.NewMLLPCodec(""),
@@ -80,20 +79,18 @@ func NewSendResponse(socket net.Conn, message *builder.Message, mshOverrides map
 	}
 }
 
-// GetAckMessage returns the sent ACK (nil before send), mirroring the
-// getAckMessage.
+// GetAckMessage returns the sent ACK (nil before send).
 func (r *SendResponse) GetAckMessage() *builder.Message { return r.ack }
 
-// GetCodec returns the MLLP codec, mirroring the getCodec.
+// GetCodec returns the MLLP codec.
 func (r *SendResponse) GetCodec() *modules.MLLPCodec { return r.codec }
 
-// GetSocket returns the client socket, mirroring the getSocket.
+// GetSocket returns the client socket.
 func (r *SendResponse) GetSocket() net.Conn { return r.socket }
 
 // SendResponse builds the ACK for the given code and writes it to the client.
-// It mirrors the sendResponse: an HL7ServerError from the MSA.1 validation
-// is propagated; any other failure falls back to an AE/Z99 ACK. On success it
-// emits response.sent.
+// An HL7ServerError from the MSA.1 validation is propagated; any other failure
+// falls back to an AE/Z99 ACK. On success it emits response.sent.
 func (r *SendResponse) SendResponse(ackType string) error {
 	ack, err := r.createAckMessage(ackType, r.message)
 	if err != nil {
@@ -116,8 +113,7 @@ func (r *SendResponse) SendResponse(ackType string) error {
 }
 
 // SendCustomResponse sends a fully-formed ACK verbatim (no validation, swapping,
-// or overrides). message is a *builder.Message or a raw HL7 string. It mirrors
-// the sendCustomResponse.
+// or overrides). message is a *builder.Message or a raw HL7 string.
 func (r *SendResponse) SendCustomResponse(message any) error {
 	var ack *builder.Message
 	switch v := message.(type) {
@@ -143,8 +139,7 @@ func (r *SendResponse) SendCustomResponse(message any) error {
 
 // createAckMessage builds the standard ACK: validate the code against the
 // inbound MSH.12 version, swap sender/receiver, echo MSH.11 and the control id,
-// set MSH.9 to ACK^<event>, then apply any MSH overrides. Mirrors the
-// _createAckMessage.
+// set MSH.9 to ACK^<event>, then apply any MSH overrides.
 func (r *SendResponse) createAckMessage(ackType string, message *builder.Message) (*builder.Message, error) {
 	spec := message.Get("MSH.12").String()
 	if err := validateMSA1(spec, ackType); err != nil {
@@ -187,8 +182,7 @@ func (r *SendResponse) createAckMessage(ackType string, message *builder.Message
 	return ackMessage, nil
 }
 
-// createAEAckMessage builds the AE/Z99 fallback ACK, mirroring the
-// _createAEAckMessage.
+// createAEAckMessage builds the AE/Z99 fallback ACK.
 func (r *SendResponse) createAEAckMessage() (*builder.Message, error) {
 	text := strings.Join([]string{
 		"MSH|^~\\&|||||" + utils.CreateHL7Date(time.Now(), "") + "||ACK^Z99^ACK|" + utils.RandomString(20) + "|P|2.7",
@@ -197,8 +191,8 @@ func (r *SendResponse) createAEAckMessage() (*builder.Message, error) {
 	return builder.NewMessage(builder.MessageOptions{Text: text})
 }
 
-// validateMSA1 checks an ACK code against the inbound version, mirroring the
-// _validateMSA1: 2.1 allows AA/AR/AE only; later versions add CA/CR/CE.
+// validateMSA1 checks an ACK code against the inbound version: 2.1 allows
+// AA/AR/AE only; later versions add CA/CR/CE.
 func validateMSA1(spec, ackType string) error {
 	switch spec {
 	case "2.1":

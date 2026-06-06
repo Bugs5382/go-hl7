@@ -29,34 +29,34 @@ import (
 	"github.com/Bugs5382/go-hl7/client/hl7"
 )
 
-// These tests mirror the hl7.segments.v24-v26.test.ts: the v2.4 typed
+// These tests cover the v2.4 typed
 // segment builders (DRG/GOL/IAM/OM1-6/PRB/PTH/TXA plus the OBR/ORC/PID
 // extensions), the v2.5 SFT/SPM builders, v2.5.1 inheritance, and the v2.6
 // BPX/BTX/ITM/IVT/REL builders.
 
-func v24() *hl7.HL7_BASE {
-	b := hl7.NewHL7_2_4()
+func v24() *hl7.Builder {
+	b := hl7.New(hl7.V2_4)
 	b.On("error", func(string) {})
 	b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": segDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 	return b
 }
 
-func v25() *hl7.HL7_BASE {
-	b := hl7.NewHL7_2_5()
+func v25() *hl7.Builder {
+	b := hl7.New(hl7.V2_5)
 	b.On("error", func(string) {})
 	b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": segDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 	return b
 }
 
-func v251() *hl7.HL7_BASE {
-	b := hl7.NewHL7_2_5_1()
+func v251() *hl7.Builder {
+	b := hl7.New(hl7.V2_5_1)
 	b.On("error", func(string) {})
 	b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": segDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 	return b
 }
 
-func v26() *hl7.HL7_BASE {
-	b := hl7.NewHL7_2_6()
+func v26() *hl7.Builder {
+	b := hl7.New(hl7.V2_6)
 	b.On("error", func(string) {})
 	b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": segDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 	return b
@@ -173,7 +173,7 @@ func TestHL725SegmentBuilders(t *testing.T) {
 		})
 		contains(t, b.String(), "MSH")
 	})
-	t.Run("HL7_2_5 still exposes 2.4 builders", func(t *testing.T) {
+	t.Run("v2.5 still exposes 2.4 builders", func(t *testing.T) {
 		b := v25()
 		b.BuildOM2(hl7.Props{"om2_1": "1"})
 		contains(t, b.String(), "\rOM2|1")
@@ -184,7 +184,7 @@ func TestHL7251SegmentBuilders(t *testing.T) {
 	t.Run("buildMSH stamps version 2.5.1", func(t *testing.T) {
 		contains(t, v251().String(), "|2.5.1")
 	})
-	t.Run("HL7_2_5_1 still exposes inherited builders", func(t *testing.T) {
+	t.Run("v2.5.1 still exposes inherited builders", func(t *testing.T) {
 		b := v251()
 		tryBuild(func() {
 			b.BuildSPM(hl7.Props{"spm_1": "1", "spm_4": "FLD"})
@@ -232,7 +232,7 @@ func TestHL726SegmentBuilders(t *testing.T) {
 		})
 		contains(t, b.String(), "MSH")
 	})
-	t.Run("HL7_2_6 still exposes inherited 2.4 builders", func(t *testing.T) {
+	t.Run("v2.6 still exposes inherited 2.4 builders", func(t *testing.T) {
 		b := v26()
 		b.BuildDRG(hl7.Props{"drg_1": "DRG123", "drg_3": "Y"})
 		contains(t, b.String(), "\rDRG|DRG123")

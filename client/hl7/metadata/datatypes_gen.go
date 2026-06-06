@@ -25,10 +25,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-// DATA_TYPES is the generated registry of composite HL7 data-type component
-// layouts (XAD, XPN, CE, CWE, CX, ...), mirroring the DATA_TYPES. The
-// builder assembles composite-object field inputs from these component lists.
-var DATA_TYPES = map[string][]ComponentSpec{
+// DataTypes is the generated registry of composite HL7 data-type component
+// layouts (XAD, XPN, CE, CWE, CX, ...). The builder assembles
+// composite-object field inputs from these component lists.
+var DataTypes = map[string][]ComponentSpec{
 	"AD": {
 		{Num: 1, Name: "Street Address", HL7Type: "ST", Rpt: "1", Usage: "O"},
 		{Num: 2, Name: "Other Designation", HL7Type: "ST", Rpt: "1", Usage: "O"},

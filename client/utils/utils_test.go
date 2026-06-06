@@ -1,4 +1,4 @@
-// Mirrors __tests__/client/hl7.utils.test.ts.
+// Tests for the utils helpers.
 package utils
 
 /*

@@ -30,9 +30,8 @@ import (
 	"github.com/Bugs5382/go-hl7/client/modules"
 )
 
-// These tests mirror the MLLPCodec behavior (modules/codec.ts): VT/FS/CR
-// framing on send, accumulate-and-decode on receive, and the split-frame
-// buffering the spec server-level issue test exercises end-to-end.
+// These tests cover the MLLPCodec: VT/FS/CR framing on send,
+// accumulate-and-decode on receive, and split-frame buffering.
 
 const (
 	vt = "\x0b"

@@ -32,8 +32,7 @@ import (
 	"github.com/Bugs5382/go-hl7/client/utils"
 )
 
-// MessageHeader carries the required header values for building a message. It
-// mirrors the messageHeader option fields.
+// MessageHeader carries the required header values for building a message.
 type MessageHeader struct {
 	MSH9_1  string
 	MSH9_2  string
@@ -44,7 +43,7 @@ type MessageHeader struct {
 	MSH11_2 string
 
 	// hasMSH9_3, hasMSH10, hasMSH11, hasMSH11_1, hasMSH11_2 distinguish an unset
-	// field from an empty one, mirroring the `undefined` checks.
+	// field from an empty one.
 	hasMSH9_3  bool
 	hasMSH10   bool
 	hasMSH11   bool
@@ -90,9 +89,8 @@ func (h *MessageHeader) WithMSH11_2(v string) *MessageHeader {
 	return h
 }
 
-// MessageOptions configures a Message. It mirrors the reference's
-// ClientBuilderMessageOptions: parse Text, or build from MessageHeader, with
-// optional separator and date overrides.
+// MessageOptions configures a Message: parse Text, or build from
+// MessageHeader, with optional separator and date overrides.
 type MessageOptions struct {
 	Text          string
 	MessageHeader *MessageHeader
@@ -119,7 +117,7 @@ type builderOptions struct {
 	MessageHeader         *MessageHeader
 }
 
-// defaultBuilderOptions returns the DEFAULT_CLIENT_BUILDER_OPTS.
+// defaultBuilderOptions returns the default builder options.
 func defaultBuilderOptions() builderOptions {
 	return builderOptions{
 		NewLine:               "\r",
@@ -194,9 +192,8 @@ func normalizedClientMessageParserOptions(raw MessageOptions) (builderOptions, e
 	return p, nil
 }
 
-// BatchOptions configures a Batch. It mirrors the ClientBuilderMessageOptions
-// as consumed by the Batch constructor: parse Text (a BHS- or multi-MSH body),
-// or build an empty BHS, with optional separator and date overrides.
+// BatchOptions configures a Batch: parse Text (a BHS- or multi-MSH body), or
+// build an empty BHS, with optional separator and date overrides.
 type BatchOptions struct {
 	Text          string
 	MessageHeader *MessageHeader
@@ -210,9 +207,9 @@ type BatchOptions struct {
 	SeparatorSubComponent string
 }
 
-// FileOptions configures a FileBatch. It mirrors the ClientBuilderFileOptions:
-// parse Text (an FHS body), read from FullFilePath or FileBuffer, or build an
-// empty FHS, with an Extension and Location for createFile.
+// FileOptions configures a FileBatch: parse Text (an FHS body), read from
+// FullFilePath or FileBuffer, or build an empty FHS, with an Extension and
+// Location for the written file.
 type FileOptions struct {
 	Text         string
 	Date         string
@@ -300,8 +297,8 @@ type fileBuilderOptions struct {
 	Location  string
 }
 
-// defaultFileBuilderOptions returns the DEFAULT_CLIENT_FILE_OPTS merged over the
-// DEFAULT_CLIENT_BUILDER_OPTS.
+// defaultFileBuilderOptions returns the default file-builder options merged
+// over the default builder options.
 func defaultFileBuilderOptions() fileBuilderOptions {
 	return fileBuilderOptions{
 		builderOptions: defaultBuilderOptions(),

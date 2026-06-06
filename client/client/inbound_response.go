@@ -1,8 +1,7 @@
-// Package client ports the client/ folder: Client, Connection,
-// InboundResponse, and the option normalization. It connects to a remote HL7
-// MLLP/TCP (or TLS) server, frames messages with the MLLP codec, parses ACKs,
-// and exposes the same EventEmitter-style event set the spec does via On(event,
-// handler).
+// Package client provides Client, Connection, InboundResponse, and option
+// normalization. It connects to a remote HL7 MLLP/TCP (or TLS) server, frames
+// messages with the MLLP codec, parses ACKs, and exposes an EventEmitter-style
+// event set via On(event, handler).
 package client
 
 /*
@@ -35,16 +34,14 @@ import (
 )
 
 // InboundResponse wraps the parsed response a server sends back after a
-// message. It mirrors the InboundResponse: the raw string is trimmed and
-// parsed into a Message that the outbound handler reads (e.g. MSA.1 for the ACK
-// code).
+// message. The raw string is trimmed and parsed into a Message that the
+// outbound handler reads (e.g. MSA.1 for the ACK code).
 type InboundResponse struct {
 	message *builder.Message
 }
 
-// NewInboundResponse parses data into a Message, mirroring the
-// InboundResponse constructor (new Message({ text: data.trimEnd() })). the
-// constructor throws on a malformed body; Go returns the error.
+// NewInboundResponse parses data (trimmed) into a Message, returning an error
+// on a malformed body.
 func NewInboundResponse(data string) (*InboundResponse, error) {
 	message, err := builder.NewMessage(builder.MessageOptions{Text: strings.TrimRight(data, " \t\r\n")})
 	if err != nil {
@@ -53,5 +50,5 @@ func NewInboundResponse(data string) (*InboundResponse, error) {
 	return &InboundResponse{message: message}, nil
 }
 
-// GetMessage returns the parsed response Message, mirroring the getMessage.
+// GetMessage returns the parsed response Message.
 func (r *InboundResponse) GetMessage() *builder.Message { return r.message }

@@ -23,26 +23,28 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-// These BuildXXX methods port the HL7_2_3 typed segment builders (the
+// These BuildXXX methods build the v2.3 segments (the
 // scheduling/clinical-study/provider segments introduced in v2.3). Each is a
 // validatorSetField sequence over the shared base; the version guard rejects
-// the segment on earlier versions just as the HL7_BASE._buildXXX stub
-// throws "Not Implemented". The NK1/OBR/OBX/ORC/PID version extensions the spec
-// adds in HL7_2_3 live in build_segments_v21.go, gated by the usage catalog.
+// the segment on earlier versions. The NK1/OBR/OBX/ORC/PID version extensions
+// added in v2.3 live in build_segments_v21.go, gated by the usage catalog.
 
-// aigStyle builds the AIG/AIL/AIP/AIS-shared field layout, which the spec repeats
+// aigStyle builds the AIG/AIL/AIP/AIS-shared field layout, repeated
 // verbatim across those four scheduling segments. The date field index differs
 // (AIS dates field 4, the others field 6/8), so the shared body is only the
 // common prefix; each builder supplies its own field sequence.
 
-// BuildAIG builds an AIG (Appointment Information - General Resource) segment
-// (the HL7_2_3._buildAIG). Chainable.
-func (b *HL7_BASE) BuildAIG(p Props) *HL7_BASE {
+// BuildAIG builds an AIG (Appointment Information - General Resource) segment.
+// Chainable.
+func (b *Builder) BuildAIG(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.3")
-	s := spec("AIG")
+	s := b.spec("AIG")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "AIG")
+	b.segment = b.mustAddSegment("AIG")
 	b.setField(s, 1, jsString(pick(p, "aig_1")), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "aig_2"), &ValidationRule{AllowedValues: []string{"A", "D", "U"}, Length: lenExact(1)})
 	b.setField(s, 3, pick(p, "aig_3"), &ValidationRule{Length: lenMinMax(1, 200)})
@@ -60,14 +62,17 @@ func (b *HL7_BASE) BuildAIG(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildAIL builds an AIL (Appointment Information - Location Resource) segment
-// (the HL7_2_3._buildAIL). Chainable.
-func (b *HL7_BASE) BuildAIL(p Props) *HL7_BASE {
+// BuildAIL builds an AIL (Appointment Information - Location Resource) segment.
+// Chainable.
+func (b *Builder) BuildAIL(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.3")
-	s := spec("AIL")
+	s := b.spec("AIL")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "AIL")
+	b.segment = b.mustAddSegment("AIL")
 	b.setField(s, 1, jsString(pick(p, "ail_1")), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "ail_2"), &ValidationRule{AllowedValues: []string{"A", "D", "U"}, Length: lenExact(1)})
 	b.setField(s, 3, pick(p, "ail_3"), &ValidationRule{Length: lenMinMax(1, 200)})
@@ -83,14 +88,17 @@ func (b *HL7_BASE) BuildAIL(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildAIP builds an AIP (Appointment Information - Personnel Resource) segment
-// (the HL7_2_3._buildAIP). Chainable.
-func (b *HL7_BASE) BuildAIP(p Props) *HL7_BASE {
+// BuildAIP builds an AIP (Appointment Information - Personnel Resource) segment.
+// Chainable.
+func (b *Builder) BuildAIP(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.3")
-	s := spec("AIP")
+	s := b.spec("AIP")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "AIP")
+	b.segment = b.mustAddSegment("AIP")
 	b.setField(s, 1, jsString(pick(p, "aip_1")), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "aip_2"), &ValidationRule{AllowedValues: []string{"A", "D", "U"}, Length: lenExact(1)})
 	b.setField(s, 3, pick(p, "aip_3"), &ValidationRule{Length: lenMinMax(1, 200)})
@@ -106,14 +114,16 @@ func (b *HL7_BASE) BuildAIP(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildAIS builds an AIS (Appointment Information - Service) segment (the
-// HL7_2_3._buildAIS). Chainable.
-func (b *HL7_BASE) BuildAIS(p Props) *HL7_BASE {
+// BuildAIS builds an AIS (Appointment Information - Service) segment. Chainable.
+func (b *Builder) BuildAIS(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.3")
-	s := spec("AIS")
+	s := b.spec("AIS")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "AIS")
+	b.segment = b.mustAddSegment("AIS")
 	b.setField(s, 1, jsString(pick(p, "ais_1")), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "ais_2"), &ValidationRule{AllowedValues: []string{"A", "D", "U"}, Length: lenExact(1)})
 	b.setField(s, 3, pick(p, "ais_3"), &ValidationRule{Length: lenMinMax(1, 200)})
@@ -127,14 +137,16 @@ func (b *HL7_BASE) BuildAIS(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildAPR builds an APR (Appointment Preferences) segment (the
-// HL7_2_3._buildAPR). Chainable.
-func (b *HL7_BASE) BuildAPR(p Props) *HL7_BASE {
+// BuildAPR builds an APR (Appointment Preferences) segment. Chainable.
+func (b *Builder) BuildAPR(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.3")
-	s := spec("APR")
+	s := b.spec("APR")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "APR")
+	b.segment = b.mustAddSegment("APR")
 	b.setField(s, 1, pick(p, "apr_1"), &ValidationRule{Length: lenMinMax(1, 80)})
 	b.setField(s, 2, pick(p, "apr_2"), &ValidationRule{Length: lenMinMax(1, 80)})
 	b.setField(s, 3, pick(p, "apr_3"), &ValidationRule{Length: lenMinMax(1, 80)})
@@ -143,14 +155,16 @@ func (b *HL7_BASE) BuildAPR(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildCSP builds a CSP (Clinical Study Phase) segment (the
-// HL7_2_3._buildCSP). Chainable.
-func (b *HL7_BASE) BuildCSP(p Props) *HL7_BASE {
+// BuildCSP builds a CSP (Clinical Study Phase) segment. Chainable.
+func (b *Builder) BuildCSP(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.3")
-	s := spec("CSP")
+	s := b.spec("CSP")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "CSP")
+	b.segment = b.mustAddSegment("CSP")
 	b.setField(s, 1, pick(p, "csp_1"), &ValidationRule{Length: lenMinMax(1, 60)})
 	b.setField(s, 2, b.dv(pick(p, "csp_2"), ""), dateRule())
 	b.setField(s, 3, b.dv(pick(p, "csp_3"), ""), dateRule())
@@ -158,14 +172,16 @@ func (b *HL7_BASE) BuildCSP(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildCSR builds a CSR (Clinical Study Registration) segment (the
-// HL7_2_3._buildCSR). Chainable.
-func (b *HL7_BASE) BuildCSR(p Props) *HL7_BASE {
+// BuildCSR builds a CSR (Clinical Study Registration) segment. Chainable.
+func (b *Builder) BuildCSR(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.3")
-	s := spec("CSR")
+	s := b.spec("CSR")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "CSR")
+	b.segment = b.mustAddSegment("CSR")
 	b.setField(s, 1, pick(p, "csr_1"), &ValidationRule{Length: lenMinMax(1, 60)})
 	b.setField(s, 2, pick(p, "csr_2"), &ValidationRule{Length: lenMinMax(1, 60)})
 	b.setField(s, 3, pick(p, "csr_3"), &ValidationRule{Length: lenMinMax(1, 60)})
@@ -185,28 +201,33 @@ func (b *HL7_BASE) BuildCSR(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildCSS builds a CSS (Clinical Study Data Schedule) segment (the
-// HL7_2_3._buildCSS). Chainable.
-func (b *HL7_BASE) BuildCSS(p Props) *HL7_BASE {
+// BuildCSS builds a CSS (Clinical Study Data Schedule) segment. Chainable.
+func (b *Builder) BuildCSS(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.3")
-	s := spec("CSS")
+	s := b.spec("CSS")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "CSS")
+	b.segment = b.mustAddSegment("CSS")
 	b.setField(s, 1, pick(p, "css_1"), &ValidationRule{Length: lenMinMax(1, 60)})
 	b.setField(s, 2, b.dv(pick(p, "css_2"), ""), dateRule())
 	b.setField(s, 3, pick(p, "css_3"), &ValidationRule{Length: lenMinMax(1, 60)})
 	return b
 }
 
-// BuildCTD builds a CTD (Contact Data) segment (the HL7_2_3._buildCTD).
+// BuildCTD builds a CTD (Contact Data) segment.
 // Chainable.
-func (b *HL7_BASE) BuildCTD(p Props) *HL7_BASE {
+func (b *Builder) BuildCTD(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.3")
-	s := spec("CTD")
+	s := b.spec("CTD")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "CTD")
+	b.segment = b.mustAddSegment("CTD")
 	b.setField(s, 1, pick(p, "ctd_1"), &ValidationRule{Length: lenMinMax(1, 200)})
 	b.setField(s, 2, pick(p, "ctd_2"), &ValidationRule{Length: lenMinMax(1, 106)})
 	b.setField(s, 3, pick(p, "ctd_3"), &ValidationRule{Length: lenMinMax(1, 60)})
@@ -217,14 +238,16 @@ func (b *HL7_BASE) BuildCTD(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildPCR builds a PCR (Possible Causal Relationship) segment (the
-// HL7_2_3._buildPCR). Chainable.
-func (b *HL7_BASE) BuildPCR(p Props) *HL7_BASE {
+// BuildPCR builds a PCR (Possible Causal Relationship) segment. Chainable.
+func (b *Builder) BuildPCR(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.3")
-	s := spec("PCR")
+	s := b.spec("PCR")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "PCR")
+	b.segment = b.mustAddSegment("PCR")
 	b.setField(s, 1, pick(p, "pcr_1"), &ValidationRule{Length: lenMinMax(1, 60)})
 	b.setField(s, 2, pick(p, "pcr_2"), &ValidationRule{AllowedValues: []string{"Y", "N", "NA"}, Length: lenMinMax(1, 2)})
 	b.setField(s, 3, pick(p, "pcr_3"), &ValidationRule{Length: lenMinMax(1, 60)})
@@ -251,14 +274,16 @@ func (b *HL7_BASE) BuildPCR(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildPD1 builds a PD1 (Patient Additional Demographic) segment (the
-// HL7_2_3._buildPD1). Chainable.
-func (b *HL7_BASE) BuildPD1(p Props) *HL7_BASE {
+// BuildPD1 builds a PD1 (Patient Additional Demographic) segment. Chainable.
+func (b *Builder) BuildPD1(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.3")
-	s := spec("PD1")
+	s := b.spec("PD1")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "PD1")
+	b.segment = b.mustAddSegment("PD1")
 	b.setField(s, 1, pick(p, "pd1_1"), &ValidationRule{Length: lenMinMax(1, 2)})
 	b.setField(s, 2, pick(p, "pd1_2"), &ValidationRule{Length: lenMinMax(1, 2)})
 	b.setField(s, 3, pick(p, "pd1_3"), &ValidationRule{Length: lenMinMax(1, 90)})
@@ -274,14 +299,16 @@ func (b *HL7_BASE) BuildPD1(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildPRA builds a PRA (Practitioner Detail) segment (the
-// HL7_2_3._buildPRA). Chainable.
-func (b *HL7_BASE) BuildPRA(p Props) *HL7_BASE {
+// BuildPRA builds a PRA (Practitioner Detail) segment. Chainable.
+func (b *Builder) BuildPRA(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.3")
-	s := spec("PRA")
+	s := b.spec("PRA")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "PRA")
+	b.segment = b.mustAddSegment("PRA")
 	b.setField(s, 1, pick(p, "pra_1"), &ValidationRule{Length: lenMinMax(1, 60)})
 	b.setField(s, 2, pick(p, "pra_2"), &ValidationRule{Length: lenMinMax(1, 60)})
 	b.setField(s, 3, pick(p, "pra_3"), &ValidationRule{Length: lenMinMax(1, 3)})
@@ -293,14 +320,17 @@ func (b *HL7_BASE) BuildPRA(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildPRD builds a PRD (Provider Data) segment (the HL7_2_3._buildPRD).
+// BuildPRD builds a PRD (Provider Data) segment.
 // Chainable.
-func (b *HL7_BASE) BuildPRD(p Props) *HL7_BASE {
+func (b *Builder) BuildPRD(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.3")
-	s := spec("PRD")
+	s := b.spec("PRD")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "PRD")
+	b.segment = b.mustAddSegment("PRD")
 	b.setField(s, 1, pick(p, "prd_1"), &ValidationRule{Length: lenMinMax(1, 200)})
 	b.setField(s, 2, pick(p, "prd_2"), &ValidationRule{Length: lenMinMax(1, 106)})
 	b.setField(s, 3, pick(p, "prd_3"), &ValidationRule{Length: lenMinMax(1, 60)})
@@ -313,14 +343,16 @@ func (b *HL7_BASE) BuildPRD(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildPSH builds a PSH (Product Summary Header) segment (the
-// HL7_2_3._buildPSH). Chainable.
-func (b *HL7_BASE) BuildPSH(p Props) *HL7_BASE {
+// BuildPSH builds a PSH (Product Summary Header) segment. Chainable.
+func (b *Builder) BuildPSH(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.3")
-	s := spec("PSH")
+	s := b.spec("PSH")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "PSH")
+	b.segment = b.mustAddSegment("PSH")
 	b.setField(s, 1, pick(p, "psh_1"), &ValidationRule{Length: lenMinMax(1, 60)})
 	b.setField(s, 2, pick(p, "psh_2"), &ValidationRule{Length: lenMinMax(1, 60)})
 	b.setField(s, 3, b.dv(pick(p, "psh_3"), ""), dateRule())
@@ -338,52 +370,63 @@ func (b *HL7_BASE) BuildPSH(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildRDF builds an RDF (Table Row Definition) segment (the
-// HL7_2_3._buildRDF). Chainable.
-func (b *HL7_BASE) BuildRDF(p Props) *HL7_BASE {
+// BuildRDF builds an RDF (Table Row Definition) segment. Chainable.
+func (b *Builder) BuildRDF(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.3")
-	s := spec("RDF")
+	s := b.spec("RDF")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "RDF")
+	b.segment = b.mustAddSegment("RDF")
 	b.setField(s, 1, pick(p, "rdf_1"), &ValidationRule{Length: lenMinMax(1, 3)})
 	b.setField(s, 2, pick(p, "rdf_2"), &ValidationRule{Length: lenMinMax(1, 40)})
 	return b
 }
 
-// BuildRDT builds an RDT (Table Row Data) segment (the HL7_2_3._buildRDT).
+// BuildRDT builds an RDT (Table Row Data) segment.
 // Chainable.
-func (b *HL7_BASE) BuildRDT(p Props) *HL7_BASE {
+func (b *Builder) BuildRDT(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.3")
-	s := spec("RDT")
+	s := b.spec("RDT")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "RDT")
+	b.segment = b.mustAddSegment("RDT")
 	b.setField(s, 1, pick(p, "rdt_1"), &ValidationRule{Length: lenMinMax(1, 99999)})
 	return b
 }
 
-// BuildRGS builds an RGS (Resource Group) segment (the HL7_2_3._buildRGS).
+// BuildRGS builds an RGS (Resource Group) segment.
 // Chainable.
-func (b *HL7_BASE) BuildRGS(p Props) *HL7_BASE {
+func (b *Builder) BuildRGS(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.3")
-	s := spec("RGS")
+	s := b.spec("RGS")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "RGS")
+	b.segment = b.mustAddSegment("RGS")
 	b.setField(s, 1, jsString(pick(p, "rgs_1")), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "rgs_2"), &ValidationRule{AllowedValues: []string{"A", "D", "U"}, Length: lenExact(1)})
 	b.setField(s, 3, pick(p, "rgs_3"), &ValidationRule{Length: lenMinMax(1, 200)})
 	return b
 }
 
-// BuildROL builds a ROL (Role) segment (the HL7_2_3._buildROL). Chainable.
-func (b *HL7_BASE) BuildROL(p Props) *HL7_BASE {
+// BuildROL builds a ROL (Role) segment. Chainable.
+func (b *Builder) BuildROL(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.3")
-	s := spec("ROL")
+	s := b.spec("ROL")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "ROL")
+	b.segment = b.mustAddSegment("ROL")
 	b.setField(s, 1, pick(p, "rol_1"), &ValidationRule{Length: lenMinMax(1, 60)})
 	b.setField(s, 2, pick(p, "rol_2"), &ValidationRule{AllowedValues: []string{"A", "D", "U"}})
 	b.setField(s, 3, pick(p, "rol_3"), &ValidationRule{Length: lenMinMax(1, 200)})
@@ -395,14 +438,16 @@ func (b *HL7_BASE) BuildROL(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildSCH builds an SCH (Scheduling Activity Information) segment (the
-// HL7_2_3._buildSCH). Chainable.
-func (b *HL7_BASE) BuildSCH(p Props) *HL7_BASE {
+// BuildSCH builds an SCH (Scheduling Activity Information) segment. Chainable.
+func (b *Builder) BuildSCH(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.3")
-	s := spec("SCH")
+	s := b.spec("SCH")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "SCH")
+	b.segment = b.mustAddSegment("SCH")
 	b.setField(s, 1, pick(p, "sch_1"), &ValidationRule{Length: lenMinMax(1, 75)})
 	b.setField(s, 2, pick(p, "sch_2"), &ValidationRule{Length: lenMinMax(1, 75)})
 	b.setField(s, 3, pick(p, "sch_3"), &ValidationRule{Length: lenMinMax(1, 5)})
@@ -431,14 +476,17 @@ func (b *HL7_BASE) BuildSCH(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildVAR builds a VAR (Variance) segment (the HL7_2_3._buildVAR).
+// BuildVAR builds a VAR (Variance) segment.
 // Chainable.
-func (b *HL7_BASE) BuildVAR(p Props) *HL7_BASE {
+func (b *Builder) BuildVAR(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.3")
-	s := spec("VAR")
+	s := b.spec("VAR")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "VAR")
+	b.segment = b.mustAddSegment("VAR")
 	b.setField(s, 1, pick(p, "var_1"), &ValidationRule{Length: lenMinMax(1, 60)})
 	b.setField(s, 2, b.dv(pick(p, "var_2"), ""), dateRule())
 	b.setField(s, 3, b.dv(pick(p, "var_3"), ""), dateRule())

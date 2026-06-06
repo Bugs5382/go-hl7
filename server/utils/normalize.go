@@ -31,30 +31,30 @@ import (
 	clientutils "github.com/Bugs5382/go-hl7/client/utils"
 )
 
-// TLSConfig mirrors the subset of the tls.ConnectionOptions the server uses
-// (ca, cert, key, requestCert). A non-nil *TLSConfig enables TLS.
+// TLSConfig configures server-side TLS (ca, cert, key, requestCert). A non-nil
+// *TLSConfig enables TLS.
 type TLSConfig struct {
-	// CA is the PEM-encoded CA bundle (tls `ca`).
+	// CA is the PEM-encoded CA bundle.
 	CA []byte
-	// Cert is the PEM-encoded server certificate (tls `cert`).
+	// Cert is the PEM-encoded server certificate.
 	Cert []byte
-	// Key is the PEM-encoded private key (tls `key`).
+	// Key is the PEM-encoded private key.
 	Key []byte
-	// RequestCert requests a client certificate (tls `requestCert`).
+	// RequestCert requests a client certificate.
 	RequestCert bool
 }
 
 // MSHOverride is a single MSH-field override value: either a literal string or
-// a function computing the value from the inbound message. the
-// `Record<string, ((message) => string) | string>` becomes a map of these;
-// exactly one of String/Func is meaningful (Func wins when non-nil).
+// a function computing the value from the inbound message. Overrides are keyed
+// by MSH field; exactly one of String/Func is meaningful (Func wins when
+// non-nil).
 type MSHOverride struct {
 	// String is the literal override value.
 	String string
 	// Func computes the override from the inbound message.
 	Func func(message *builder.Message) string
 	// isString records that this override was built from a string (so an empty
-	// literal still validates), mirroring the typeof === "string" check.
+	// literal still validates).
 	isString bool
 }
 
@@ -66,50 +66,45 @@ func FuncOverride(fn func(message *builder.Message) string) MSHOverride {
 	return MSHOverride{Func: fn}
 }
 
-// valid reports whether the override carries a usable value, mirroring the
-// "must be a string or a function" guard.
+// valid reports whether the override carries a usable value (a string or a
+// function).
 func (o MSHOverride) valid() bool { return o.isString || o.Func != nil }
 
-// ServerOptions mirrors the ServerOptions. Pointer fields
-// distinguish "not provided" from explicit, matching the hasOwnProperty
-// checks for the dual-stack ipv4/ipv6 semantics.
+// ServerOptions configures a Server. Pointer fields distinguish "not provided"
+// from explicit, which the dual-stack ipv4/ipv6 defaults rely on.
 type ServerOptions struct {
 	// BindAddress is the network address to listen on; defaults depend on
-	// ipv4/ipv6 (bindAddress).
+	// ipv4/ipv6.
 	BindAddress *string
-	// Encoding is retained for parity; Go bodies are UTF-8 (encoding).
+	// Encoding is retained for parity; HL7 bodies are UTF-8.
 	Encoding string
-	// IPv4 accepts IPv4 connections (ipv4, default true).
+	// IPv4 accepts IPv4 connections (default true).
 	IPv4 *bool
-	// IPv6 accepts IPv6 connections (ipv6, default false).
+	// IPv6 accepts IPv6 connections (default false).
 	IPv6 *bool
-	// TLS enables TLS when non-nil (tls).
+	// TLS enables TLS when non-nil.
 	TLS *TLSConfig
 }
 
-// ListenerOptions mirrors the ListenerOptions (per-inbound
-// createInbound options).
+// ListenerOptions configures a single inbound listener (port).
 type ListenerOptions struct {
-	// Encoding is retained for parity (encoding).
+	// Encoding is retained for parity.
 	Encoding string
-	// MSHOverrides optionally overrides ACK MSH fields keyed by path (
-	// mshOverrides).
+	// MSHOverrides optionally overrides ACK MSH fields keyed by path.
 	MSHOverrides map[string]MSHOverride
-	// Name names the listener; defaults to a random string (name).
+	// Name names the listener; defaults to a random string.
 	Name string
-	// Port is the network address to listen on, 0..65353 (port, required).
+	// Port is the network address to listen on, 0..65353 (required).
 	Port *int
 	// Version is the REQUIRED HL7 version this listener accepts. It must be one
 	// of the known HL7 versions (2.1, 2.2, 2.3, 2.3.1, 2.4, 2.5, 2.5.1, 2.6,
-	// 2.7, 2.7.1, 2.8). This is an intentional divergence from node-hl7, which
-	// leaves the transport version-agnostic: here each port enforces its own
-	// version and an inbound message whose MSH.12 differs is rejected with an
-	// AR (Application Reject) ACK before the handler runs.
+	// 2.7, 2.7.1, 2.8). Each port enforces its own version; an inbound message
+	// whose MSH.12 differs is rejected with an AR (Application Reject) ACK
+	// before the handler runs.
 	Version string
 }
 
-// NormalizedServerOptions is the fully-resolved server option set, mirroring
-// the NormalizedServerOptions.
+// NormalizedServerOptions is the fully-resolved server option set.
 type NormalizedServerOptions struct {
 	// BindAddress is the resolved listen address.
 	BindAddress string
@@ -125,8 +120,7 @@ type NormalizedServerOptions struct {
 	TLS *TLSConfig
 }
 
-// ValidatedListenerOptions is the fully-resolved per-inbound option set,
-// mirroring the ValidatedOptions.
+// ValidatedListenerOptions is the fully-resolved per-inbound option set.
 type ValidatedListenerOptions struct {
 	// Encoding is the resolved encoding.
 	Encoding string
@@ -143,9 +137,9 @@ type ValidatedListenerOptions struct {
 
 var nameFormatRE = regexp.MustCompile("[ `!@#$%^&*()+\\-=\\[\\]{};':\"\\\\|,.<>/?~]")
 
-// NormalizeListenerOptions validates and fills the per-inbound options,
-// mirroring the normalizeListenerOptions. It returns an error where the spec
-// throws (HL7ListenerError) or assertNumber throws (plain error).
+// NormalizeListenerOptions validates and fills the per-inbound options. It
+// returns an *HL7ListenerError on invalid options or a plain error on a failed
+// numeric bound check.
 func NormalizeListenerOptions(properties ListenerOptions) (ValidatedListenerOptions, error) {
 	out := ValidatedListenerOptions{
 		Encoding:     properties.Encoding,
@@ -180,7 +174,7 @@ func NormalizeListenerOptions(properties ListenerOptions) (ValidatedListenerOpti
 
 	// Version is required and must be one of the known HL7 versions. Each port
 	// enforces its own version; an inbound message whose MSH.12 differs is
-	// rejected with an AR ACK (an intentional divergence from node-hl7).
+	// rejected with an AR ACK.
 	if out.Version == "" {
 		return ValidatedListenerOptions{}, NewHL7ListenerError("version is not defined.")
 	}
@@ -191,9 +185,8 @@ func NormalizeListenerOptions(properties ListenerOptions) (ValidatedListenerOpti
 	return out, nil
 }
 
-// NormalizeServerOptions validates and fills the server options, mirroring
-// the normalizeServerOptions including the dual-stack ipv4/ipv6 semantics
-// and bindAddress family validation.
+// NormalizeServerOptions validates and fills the server options, including the
+// dual-stack ipv4/ipv6 semantics and bindAddress family validation.
 func NormalizeServerOptions(properties *ServerOptions) (NormalizedServerOptions, error) {
 	if properties == nil {
 		properties = &ServerOptions{}

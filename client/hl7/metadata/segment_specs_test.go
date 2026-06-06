@@ -28,9 +28,8 @@ import (
 	"testing"
 )
 
-// These tests mirror the catalogue-coverage half of the reference's
-// hl7.segment-specs.test.ts ("SegmentSpec catalogue coverage"). The generic
-// buildSegment runtime cases live with the spec-driven builder (phase 2).
+// These tests cover the SegmentSpec catalogue. The generic BuildSegment
+// runtime cases live with the spec-driven builder.
 
 func findField(spec SegmentSpec, num int) (FieldSpec, bool) {
 	for _, f := range spec.Fields {
@@ -43,13 +42,13 @@ func findField(spec SegmentSpec, num int) (FieldSpec, bool) {
 
 func TestSegmentSpecCatalogueCoverage(t *testing.T) {
 	t.Run("catalogue covers a substantial number of segments", func(t *testing.T) {
-		if got := len(SEGMENT_SPECS); got <= 150 {
+		if got := len(SegmentSpecs); got <= 150 {
 			t.Fatalf("expected >150 segments, got %d", got)
 		}
 	})
 
 	t.Run("every spec lists at least one supported version", func(t *testing.T) {
-		for name, spec := range SEGMENT_SPECS {
+		for name, spec := range SegmentSpecs {
 			if len(spec.Versions) == 0 {
 				t.Fatalf("segment %s: no versions", name)
 			}
@@ -57,7 +56,7 @@ func TestSegmentSpecCatalogueCoverage(t *testing.T) {
 	})
 
 	t.Run("every field's usage map only references declared segment versions", func(t *testing.T) {
-		for name, spec := range SEGMENT_SPECS {
+		for name, spec := range SegmentSpecs {
 			declared := map[HL7Version]bool{}
 			for _, v := range spec.Versions {
 				declared[v] = true
@@ -73,7 +72,7 @@ func TestSegmentSpecCatalogueCoverage(t *testing.T) {
 	})
 
 	t.Run("ECD spec — ECD.4 is W in v2.8 (the user-flagged canonical case)", func(t *testing.T) {
-		ecd := SEGMENT_SPECS["ECD"]
+		ecd := SegmentSpecs["ECD"]
 		ecd4, ok := findField(ecd, 4)
 		if !ok {
 			t.Fatal("ECD.4 not found")
@@ -89,7 +88,7 @@ func TestSegmentSpecCatalogueCoverage(t *testing.T) {
 	})
 
 	t.Run("composite fields carry sub-component metadata (PID.11 / XAD)", func(t *testing.T) {
-		pid11, ok := findField(SEGMENT_SPECS["PID"], 11)
+		pid11, ok := findField(SegmentSpecs["PID"], 11)
 		if !ok {
 			t.Fatal("PID.11 not found")
 		}
@@ -115,7 +114,7 @@ func TestSegmentSpecCatalogueCoverage(t *testing.T) {
 	})
 
 	t.Run("primitive fields have no sub-components", func(t *testing.T) {
-		pid1, ok := findField(SEGMENT_SPECS["PID"], 1)
+		pid1, ok := findField(SegmentSpecs["PID"], 1)
 		if !ok {
 			t.Fatal("PID.1 not found")
 		}
@@ -128,7 +127,7 @@ func TestSegmentSpecCatalogueCoverage(t *testing.T) {
 	})
 
 	t.Run("composite components track HL7 tables when applicable", func(t *testing.T) {
-		pid11, _ := findField(SEGMENT_SPECS["PID"], 11)
+		pid11, _ := findField(SegmentSpecs["PID"], 11)
 		var country *ComponentSpec
 		for i := range pid11.Components {
 			if pid11.Components[i].Name == "Country" {
@@ -146,13 +145,13 @@ func TestSegmentSpecCatalogueCoverage(t *testing.T) {
 }
 
 func TestDataTypesCatalogue(t *testing.T) {
-	if _, ok := DATA_TYPES["XAD"]; !ok {
-		t.Fatal("DATA_TYPES missing XAD")
+	if _, ok := DataTypes["XAD"]; !ok {
+		t.Fatal("DataTypes missing XAD")
 	}
-	if _, ok := DATA_TYPES["XPN"]; !ok {
-		t.Fatal("DATA_TYPES missing XPN")
+	if _, ok := DataTypes["XPN"]; !ok {
+		t.Fatal("DataTypes missing XPN")
 	}
-	xad := DATA_TYPES["XAD"]
+	xad := DataTypes["XAD"]
 	if len(xad) < 5 {
 		t.Fatalf("XAD components = %d, want >=5", len(xad))
 	}

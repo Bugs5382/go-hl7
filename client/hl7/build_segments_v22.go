@@ -25,17 +25,16 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import "fmt"
 
-// These BuildXXX methods port the HL7_2_2 typed segment builders
+// These BuildXXX methods build the v2.2 segments
 // (AL1, MFE, MFI, ODS, ODT, RXA, RXD, RXE, RXG, RXO, RXR, STF, UB2). Each is a
 // validatorSetField sequence over the shared base; the segment did not exist
-// before v2.2, so the version guard rejects it on earlier versions just as
-// the HL7_BASE._buildXXX stub throws "Not Implemented". The OBR/OBX/ORC/PV1
-// version extensions the spec adds in HL7_2_2 live in build_segments_v21.go, gated
-// by the usage catalog.
+// before v2.2, so the version guard rejects it on earlier versions. The
+// OBR/OBX/ORC/PV1 version extensions added in v2.2 live in
+// build_segments_v21.go, gated by the usage catalog.
 
-// jsString mirrors JavaScript's String(x): an absent value coerces to the
-// literal "undefined". The spec uses String(properties.xxx_1) (no ?? "") for the
-// set-ID field of several segments, which the tests always populate.
+// jsString stringifies v, coercing an absent value to the literal "undefined".
+// It is used for the set-ID field of several segments, which is always
+// populated in practice.
 func jsString(v any) string {
 	if v == nil {
 		return "undefined"
@@ -43,7 +42,7 @@ func jsString(v any) string {
 	return fmt.Sprint(v)
 }
 
-// jsStringOr mirrors String(x ?? ""): an absent value coerces to "".
+// jsStringOr stringifies v, coercing an absent value to "".
 func jsStringOr(v any) string {
 	if v == nil {
 		return ""
@@ -51,14 +50,17 @@ func jsStringOr(v any) string {
 	return fmt.Sprint(v)
 }
 
-// BuildAL1 builds an AL1 (Allergy Information) segment (the HL7_2_2._buildAL1).
+// BuildAL1 builds an AL1 (Allergy Information) segment.
 // Introduced in v2.2. Chainable.
-func (b *HL7_BASE) BuildAL1(p Props) *HL7_BASE {
+func (b *Builder) BuildAL1(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.2")
-	s := spec("AL1")
+	s := b.spec("AL1")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "AL1")
+	b.segment = b.mustAddSegment("AL1")
 	b.setField(s, 1, jsString(pick(p, "al1_1")), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "al1_2"), &ValidationRule{AllowedValues: b.codeTable("0127")})
 	b.setField(s, 3, pick(p, "al1_3"), &ValidationRule{Length: lenMinMax(1, 60)})
@@ -68,14 +70,17 @@ func (b *HL7_BASE) BuildAL1(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildMFE builds an MFE (Master File Entry) segment (the HL7_2_2._buildMFE).
+// BuildMFE builds an MFE (Master File Entry) segment.
 // Chainable.
-func (b *HL7_BASE) BuildMFE(p Props) *HL7_BASE {
+func (b *Builder) BuildMFE(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.2")
-	s := spec("MFE")
+	s := b.spec("MFE")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "MFE")
+	b.segment = b.mustAddSegment("MFE")
 	b.setField(s, 1, pick(p, "mfe_1"), &ValidationRule{AllowedValues: []string{"MAD", "MDC", "MDL", "MUP", "MAC"}})
 	b.setField(s, 2, pick(p, "mfe_2"), &ValidationRule{Length: lenMinMax(1, 20)})
 	b.setField(s, 3, b.dv(pick(p, "mfe_3"), ""), dateRule())
@@ -83,14 +88,16 @@ func (b *HL7_BASE) BuildMFE(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildMFI builds an MFI (Master File Identification) segment (the
-// HL7_2_2._buildMFI). Chainable.
-func (b *HL7_BASE) BuildMFI(p Props) *HL7_BASE {
+// BuildMFI builds an MFI (Master File Identification) segment. Chainable.
+func (b *Builder) BuildMFI(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.2")
-	s := spec("MFI")
+	s := b.spec("MFI")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "MFI")
+	b.segment = b.mustAddSegment("MFI")
 	b.setField(s, 1, pick(p, "mfi_1"), &ValidationRule{Length: lenMinMax(1, 60)})
 	b.setField(s, 2, pick(p, "mfi_2"), &ValidationRule{Length: lenMinMax(1, 60)})
 	b.setField(s, 3, pick(p, "mfi_3"), &ValidationRule{AllowedValues: []string{"REP", "UPD"}})
@@ -100,14 +107,17 @@ func (b *HL7_BASE) BuildMFI(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildODS builds an ODS (Dietary Orders) segment (the HL7_2_2._buildODS).
+// BuildODS builds an ODS (Dietary Orders) segment.
 // Chainable.
-func (b *HL7_BASE) BuildODS(p Props) *HL7_BASE {
+func (b *Builder) BuildODS(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.2")
-	s := spec("ODS")
+	s := b.spec("ODS")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "ODS")
+	b.segment = b.mustAddSegment("ODS")
 	b.setField(s, 1, pick(p, "ods_1"), &ValidationRule{AllowedValues: []string{"D", "S", "P"}, Length: lenExact(1)})
 	b.setField(s, 2, pick(p, "ods_2"), &ValidationRule{Length: lenMinMax(1, 60)})
 	b.setField(s, 3, pick(p, "ods_3"), &ValidationRule{Length: lenMinMax(1, 60)})
@@ -115,28 +125,32 @@ func (b *HL7_BASE) BuildODS(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildODT builds an ODT (Diet Tray Instructions) segment (the
-// HL7_2_2._buildODT). Chainable.
-func (b *HL7_BASE) BuildODT(p Props) *HL7_BASE {
+// BuildODT builds an ODT (Diet Tray Instructions) segment. Chainable.
+func (b *Builder) BuildODT(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.2")
-	s := spec("ODT")
+	s := b.spec("ODT")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "ODT")
+	b.segment = b.mustAddSegment("ODT")
 	b.setField(s, 1, pick(p, "odt_1"), &ValidationRule{Length: lenMinMax(1, 60)})
 	b.setField(s, 2, pick(p, "odt_2"), &ValidationRule{Length: lenMinMax(1, 60)})
 	b.setField(s, 3, pick(p, "odt_3"), &ValidationRule{Length: lenMinMax(1, 60)})
 	return b
 }
 
-// BuildRXA builds an RXA (Pharmacy/Treatment Administration) segment (the
-// HL7_2_2._buildRXA). Chainable.
-func (b *HL7_BASE) BuildRXA(p Props) *HL7_BASE {
+// BuildRXA builds an RXA (Pharmacy/Treatment Administration) segment. Chainable.
+func (b *Builder) BuildRXA(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.2")
-	s := spec("RXA")
+	s := b.spec("RXA")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "RXA")
+	b.segment = b.mustAddSegment("RXA")
 	b.setField(s, 1, strOrNil(p, "rxa_1"), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, strOrNil(p, "rxa_2"), nil)
 	b.setField(s, 3, b.dv(pick(p, "rxa_3"), ""), dateRule())
@@ -152,14 +166,16 @@ func (b *HL7_BASE) BuildRXA(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildRXD builds an RXD (Pharmacy/Treatment Dispense) segment (the
-// HL7_2_2._buildRXD). Chainable.
-func (b *HL7_BASE) BuildRXD(p Props) *HL7_BASE {
+// BuildRXD builds an RXD (Pharmacy/Treatment Dispense) segment. Chainable.
+func (b *Builder) BuildRXD(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.2")
-	s := spec("RXD")
+	s := b.spec("RXD")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "RXD")
+	b.segment = b.mustAddSegment("RXD")
 	b.setField(s, 1, pick(p, "rxd_1"), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "rxd_2"), &ValidationRule{Length: lenMinMax(1, 100)})
 	b.setField(s, 3, b.dv(pick(p, "rxd_3"), ""), dateRule())
@@ -178,14 +194,16 @@ func (b *HL7_BASE) BuildRXD(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildRXE builds an RXE (Pharmacy/Treatment Encoded Order) segment (the
-// HL7_2_2._buildRXE). Chainable.
-func (b *HL7_BASE) BuildRXE(p Props) *HL7_BASE {
+// BuildRXE builds an RXE (Pharmacy/Treatment Encoded Order) segment. Chainable.
+func (b *Builder) BuildRXE(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.2")
-	s := spec("RXE")
+	s := b.spec("RXE")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "RXE")
+	b.segment = b.mustAddSegment("RXE")
 	b.setField(s, 1, pick(p, "rxe_1"), &ValidationRule{Length: lenMinMax(1, 200)})
 	b.setField(s, 2, pick(p, "rxe_2"), &ValidationRule{Length: lenMinMax(1, 100)})
 	b.setField(s, 3, pick(p, "rxe_3"), &ValidationRule{Length: lenMinMax(1, 20)})
@@ -213,14 +231,16 @@ func (b *HL7_BASE) BuildRXE(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildRXG builds an RXG (Pharmacy/Treatment Give) segment (the
-// HL7_2_2._buildRXG). Chainable.
-func (b *HL7_BASE) BuildRXG(p Props) *HL7_BASE {
+// BuildRXG builds an RXG (Pharmacy/Treatment Give) segment. Chainable.
+func (b *Builder) BuildRXG(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.2")
-	s := spec("RXG")
+	s := b.spec("RXG")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "RXG")
+	b.segment = b.mustAddSegment("RXG")
 	b.setField(s, 1, pick(p, "rxg_1"), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "rxg_2"), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 3, pick(p, "rxg_3"), &ValidationRule{Length: lenMinMax(1, 200)})
@@ -240,14 +260,16 @@ func (b *HL7_BASE) BuildRXG(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildRXO builds an RXO (Pharmacy/Treatment Order) segment (the
-// HL7_2_2._buildRXO). Chainable.
-func (b *HL7_BASE) BuildRXO(p Props) *HL7_BASE {
+// BuildRXO builds an RXO (Pharmacy/Treatment Order) segment. Chainable.
+func (b *Builder) BuildRXO(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.2")
-	s := spec("RXO")
+	s := b.spec("RXO")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "RXO")
+	b.segment = b.mustAddSegment("RXO")
 	b.setField(s, 1, pick(p, "rxo_1"), &ValidationRule{Length: lenMinMax(1, 100)})
 	b.setField(s, 2, pick(p, "rxo_2"), &ValidationRule{Length: lenMinMax(1, 20)})
 	b.setField(s, 3, pick(p, "rxo_3"), &ValidationRule{Length: lenMinMax(1, 20)})
@@ -268,14 +290,16 @@ func (b *HL7_BASE) BuildRXO(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildRXR builds an RXR (Pharmacy/Treatment Route) segment (the
-// HL7_2_2._buildRXR). Chainable.
-func (b *HL7_BASE) BuildRXR(p Props) *HL7_BASE {
+// BuildRXR builds an RXR (Pharmacy/Treatment Route) segment. Chainable.
+func (b *Builder) BuildRXR(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.2")
-	s := spec("RXR")
+	s := b.spec("RXR")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "RXR")
+	b.segment = b.mustAddSegment("RXR")
 	b.setField(s, 1, pick(p, "rxr_1"), &ValidationRule{Length: lenMinMax(1, 60)})
 	b.setField(s, 2, pick(p, "rxr_2"), &ValidationRule{Length: lenMinMax(1, 60)})
 	b.setField(s, 3, pick(p, "rxr_3"), &ValidationRule{Length: lenMinMax(1, 60)})
@@ -283,14 +307,16 @@ func (b *HL7_BASE) BuildRXR(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildSTF builds an STF (Staff Identification) segment (the
-// HL7_2_2._buildSTF). Chainable.
-func (b *HL7_BASE) BuildSTF(p Props) *HL7_BASE {
+// BuildSTF builds an STF (Staff Identification) segment. Chainable.
+func (b *Builder) BuildSTF(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.2")
-	s := spec("STF")
+	s := b.spec("STF")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "STF")
+	b.segment = b.mustAddSegment("STF")
 	b.setField(s, 1, pick(p, "stf_1"), &ValidationRule{Length: lenMinMax(1, 60)})
 	b.setField(s, 2, pick(p, "stf_2", "staffIdCode"), &ValidationRule{Length: lenMinMax(1, 60)})
 	b.setField(s, 3, pick(p, "stf_3", "staffName"), &ValidationRule{Length: lenMinMax(1, 48)})
@@ -308,14 +334,17 @@ func (b *HL7_BASE) BuildSTF(p Props) *HL7_BASE {
 	return b
 }
 
-// BuildUB2 builds a UB2 (UB92 Data) segment (the HL7_2_2._buildUB2).
+// BuildUB2 builds a UB2 (UB92 Data) segment.
 // Chainable.
-func (b *HL7_BASE) BuildUB2(p Props) *HL7_BASE {
+func (b *Builder) BuildUB2(p Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.notImplementedBefore("2.2")
-	s := spec("UB2")
+	s := b.spec("UB2")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "UB2")
+	b.segment = b.mustAddSegment("UB2")
 	b.setField(s, 1, strOrNil(p, "ub2_1"), &ValidationRule{Length: lenMinMax(1, 4)})
 	b.setField(s, 2, pick(p, "ub2_2"), &ValidationRule{Length: lenMinMax(1, 3)})
 	b.setField(s, 3, pick(p, "ub2_3"), &ValidationRule{Length: lenMinMax(1, 14)})
@@ -337,7 +366,6 @@ func (b *HL7_BASE) BuildUB2(p Props) *HL7_BASE {
 }
 
 // strOrNil returns the string form of a present prop value, or nil when absent.
-// It mirrors the `properties.x === undefined ? undefined : String(properties.x)`.
 func strOrNil(p Props, keys ...string) any {
 	v := pick(p, keys...)
 	if v == nil {

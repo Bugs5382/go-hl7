@@ -1,7 +1,7 @@
 // Package metadata carries the machine-readable HL7 segment and data-type
-// specs that drive the spec-driven builder and per-version usage validation. It
-// mirrors the hl7/metadata tree (types.ts plus the generated segment and
-// data-type catalogs aggregated into SegmentSpecs and DataTypes).
+// specs that drive the spec-driven builder and per-version usage validation.
+// The generated segment and data-type catalogs are exposed as SegmentSpecs and
+// DataTypes.
 package metadata
 
 /*
@@ -27,11 +27,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-// HL7Version is a supported HL7 v2 spec version. It mirrors the reference's
-// HL7Version union ("2.1".."2.8").
+// HL7Version is a supported HL7 v2 spec version ("2.1".."2.8").
 type HL7Version string
 
-// Supported HL7 versions. The list mirrors the HL7Version union.
+// Supported HL7 versions.
 const (
 	V21  HL7Version = "2.1"
 	V22  HL7Version = "2.2"
@@ -62,7 +61,6 @@ func IsKnownVersion(v string) bool {
 }
 
 // HL7UsageCode is an HL7 v2 spec usage code as defined by the HL7 standard.
-// It mirrors the HL7UsageCode union.
 //
 //   - R Required: field must be populated.
 //   - O Optional: field may or may not be present.
@@ -72,7 +70,7 @@ func IsKnownVersion(v string) bool {
 //   - X Not Supported: element cannot be present.
 type HL7UsageCode string
 
-// Usage codes. The set mirrors the HL7UsageCode union.
+// Usage codes.
 const (
 	UsageRequired   HL7UsageCode = "R"
 	UsageOptional   HL7UsageCode = "O"
@@ -83,8 +81,8 @@ const (
 )
 
 // Length is the exact length or min/max bounds for a field or component value.
-// The reference models this as `number | { min?, max? }`; Go has no union, so Length
-// carries an exact value or a min/max with a flag indicating which form is set.
+// It carries either an exact value or a min/max, with a flag indicating which
+// form is set.
 type Length struct {
 	// Exact is the exact length when HasExact is true.
 	Exact int
@@ -100,7 +98,7 @@ type Length struct {
 
 // Depends is a conditional dependency used when the usage code is "D". If
 // present, the dependency must resolve before the field is considered
-// satisfied. It mirrors the dependsOn shape.
+// satisfied.
 type Depends struct {
 	// Path is the dependent field path.
 	Path string
@@ -115,8 +113,7 @@ type Depends struct {
 // ComponentSpec describes one sub-component inside a composite field. For
 // composite HL7 data types (XAD, XPN, CE/CWE, CX, ...) the field value is a
 // ^-delimited list whose pieces each have their own data type, length,
-// optionality, and possibly a table reference. It mirrors the reference's
-// ComponentSpec.
+// optionality, and possibly a table reference.
 type ComponentSpec struct {
 	// Num is the 1-based position within the field.
 	Num int
@@ -136,8 +133,7 @@ type ComponentSpec struct {
 
 // FieldSpec describes a single field within a segment, with per-version usage
 // codes. A version missing from Usage means the field does NOT exist in that
-// version of the spec; attempting to set it must be rejected at runtime. It
-// mirrors the FieldSpec.
+// version of the spec; attempting to set it must be rejected at runtime.
 type FieldSpec struct {
 	// Num is the field number within the segment, e.g. ECD.4 -> 4.
 	Num int
@@ -162,7 +158,7 @@ type FieldSpec struct {
 }
 
 // SegmentSpec describes an HL7 segment, with per-version availability and field
-// set. It mirrors the SegmentSpec.
+// set.
 type SegmentSpec struct {
 	// Name is the three-letter segment name, e.g. "ECD".
 	Name string
@@ -176,8 +172,7 @@ type SegmentSpec struct {
 }
 
 // DataTypeSpec describes a composite HL7 data type (XAD, XPN, CE, ...) as a
-// list of component positions. It mirrors the data-type definitions used
-// by the composite-object field assembly.
+// list of component positions, used by the composite-object field assembly.
 type DataTypeSpec struct {
 	// Name is the data type name, e.g. "XAD".
 	Name string

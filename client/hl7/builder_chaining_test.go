@@ -30,14 +30,14 @@ import (
 	"github.com/Bugs5382/go-hl7/client/hl7"
 )
 
-// These tests mirror the hl7.builder-chaining.test.ts: BuildXXX returns
-// the receiver, and chained and imperative builds produce identical output.
+// These tests check builder chaining: BuildXXX returns the receiver, and
+// chained and imperative builds produce identical output.
 
 func TestBuilderChaining(t *testing.T) {
 	date := time.Date(2024, 1, 15, 10, 20, 30, 0, time.UTC)
 
 	t.Run("buildXXX returns the builder instance", func(t *testing.T) {
-		b := hl7.NewHL7_2_8()
+		b := hl7.New(hl7.V2_8)
 		rv := b.BuildMSH(hl7.Props{"msh_10": "X", "msh_11_1": "P", "msh_7": date, "msh_9_1": "ADT", "msh_9_2": "A01"})
 		if rv != b {
 			t.Fatal("expected BuildMSH to return the receiver")
@@ -45,7 +45,7 @@ func TestBuilderChaining(t *testing.T) {
 	})
 
 	t.Run("chained calls keep working on the version builder", func(t *testing.T) {
-		out := hl7.NewHL7_2_4().
+		out := hl7.New(hl7.V2_4).
 			BuildMSH(hl7.Props{"msh_10": "X", "msh_11_1": "P", "msh_7": date, "msh_9_1": "ADT", "msh_9_2": "A01"}).
 			BuildECD(hl7.Props{"ecd_1": "1", "ecd_2": "RC"}).
 			String()
@@ -54,12 +54,12 @@ func TestBuilderChaining(t *testing.T) {
 	})
 
 	t.Run("chained and imperative builds produce identical output", func(t *testing.T) {
-		chained := hl7.NewHL7_2_4().
+		chained := hl7.New(hl7.V2_4).
 			BuildMSH(hl7.Props{"msh_10": "ID1", "msh_11_1": "P", "msh_7": date, "msh_9_1": "ADT", "msh_9_2": "A01"}).
 			BuildECD(hl7.Props{"ecd_1": "1", "ecd_2": "RC", "ecd_3": "Y"}).
 			String()
 
-		imperative := hl7.NewHL7_2_4()
+		imperative := hl7.New(hl7.V2_4)
 		imperative.BuildMSH(hl7.Props{"msh_10": "ID1", "msh_11_1": "P", "msh_7": date, "msh_9_1": "ADT", "msh_9_2": "A01"})
 		imperative.BuildECD(hl7.Props{"ecd_1": "1", "ecd_2": "RC", "ecd_3": "Y"})
 

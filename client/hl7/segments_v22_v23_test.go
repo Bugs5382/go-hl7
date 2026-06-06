@@ -29,26 +29,28 @@ import (
 	"github.com/Bugs5382/go-hl7/client/hl7"
 )
 
-// These tests mirror the hl7.segments.v22-v23.test.ts: the v2.2 and
+// These tests cover the v2.2 and
 // v2.3 typed segment builders, including the version-gated OBR/OBX/ORC/PID/PV1
 // extensions and the new scheduling/clinical-study/provider segments.
 
-func v22() *hl7.HL7_BASE {
-	b := hl7.NewHL7_2_2()
+func v22() *hl7.Builder {
+	b := hl7.New(hl7.V2_2)
 	b.On("error", func(string) {})
 	b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11": "P", "msh_7": segDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 	return b
 }
 
-func v23() *hl7.HL7_BASE {
-	b := hl7.NewHL7_2_3()
+func v23() *hl7.Builder {
+	b := hl7.New(hl7.V2_3)
 	b.On("error", func(string) {})
 	b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": segDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 	return b
 }
 
-// tryBuild runs fn, swallowing any builder validation panic (mirrors the
-// try/catch around the coverage-only segment scenarios).
+// tryBuild runs fn for its side effects only. The coverage-only segment
+// scenarios may record a validation error on their (discarded) builder; we
+// don't assert on it here, we just exercise the code path. The recover stays as
+// a guard in case a path still panics on genuine programmer misuse.
 func tryBuild(fn func()) {
 	defer func() { _ = recover() }()
 	fn()
@@ -163,7 +165,7 @@ func TestHL723SegmentBuilders(t *testing.T) {
 		contains(t, v23().String(), "|2.3")
 	})
 	t.Run("buildMSH with msh_11_2 processing mode", func(t *testing.T) {
-		c := hl7.NewHL7_2_3()
+		c := hl7.New(hl7.V2_3)
 		c.On("error", func(string) {})
 		c.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_11_2": "A", "msh_7": segDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 		contains(t, c.String(), "|P^A|")

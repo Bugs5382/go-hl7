@@ -50,7 +50,7 @@ v6Only, _ := client.NewClient(client.ClientOptions{Version: "2.7", Host: "2001:d
 
 This initializes a client targeting the host, but does not yet establish a connection.
 
-`Version` is **required** and pins the client to a single HL7 version — one of `2.1`, `2.2`, `2.3`, `2.3.1`, `2.4`, `2.5`, `2.5.1`, `2.6`, `2.7`, `2.7.1`, `2.8`. An empty or unknown version returns an error from `NewClient`. Every connection opened from this client inherits that one version. This is an intentional divergence from node-hl7, which leaves the transport version-agnostic.
+`Version` is **required** and pins the client to a single HL7 version — one of `2.1`, `2.2`, `2.3`, `2.3.1`, `2.4`, `2.5`, `2.5.1`, `2.6`, `2.7`, `2.7.1`, `2.8`. An empty or unknown version returns an error from `NewClient`. Every connection opened from this client inherits that one version.
 
 #### Address-family options
 

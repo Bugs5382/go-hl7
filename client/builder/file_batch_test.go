@@ -87,7 +87,9 @@ func TestFileBatchAddBatch(t *testing.T) {
 	b.Start("")
 	b.Set("BHS.7", "20081231")
 	b.End()
-	f.AddBatch(b)
+	if err := f.AddBatch(b); err != nil {
+		t.Fatalf("AddBatch: %v", err)
+	}
 	f.End()
 
 	want := strings.Join([]string{
@@ -109,7 +111,9 @@ func TestFileBatchWrapsBatchWithMessage(t *testing.T) {
 	m := newControlMessage(t, "CONTROL_ID", "20081231")
 	b.Add(m, -1)
 	b.End()
-	f.AddBatch(b)
+	if err := f.AddBatch(b); err != nil {
+		t.Fatalf("AddBatch: %v", err)
+	}
 	f.End()
 
 	want := strings.Join([]string{
@@ -131,7 +135,9 @@ func TestFileBatchRoutesMessagesIntoOpenBatch(t *testing.T) {
 	b.Set("BHS.7", "20081231")
 	b.Add(newControlMessage(t, "CONTROL_ID1", "20081231"), -1)
 	b.End()
-	f.AddBatch(b)
+	if err := f.AddBatch(b); err != nil {
+		t.Fatalf("AddBatch: %v", err)
+	}
 
 	f.AddMessage(newControlMessage(t, "CONTROL_ID2", "20081231"))
 	f.AddMessage(newControlMessage(t, "CONTROL_ID3", "20081231"))
@@ -158,13 +164,17 @@ func TestFileBatchTwoConsecutiveBatches(t *testing.T) {
 	b1.Start("")
 	b1.Set("BHS.7", "20081231")
 	b1.End()
-	f.AddBatch(b1)
+	if err := f.AddBatch(b1); err != nil {
+		t.Fatalf("AddBatch: %v", err)
+	}
 
 	b2, _ := builder.NewBatch(builder.BatchOptions{})
 	b2.Start("")
 	b2.Set("BHS.7", "20081231")
 	b2.End()
-	f.AddBatch(b2)
+	if err := f.AddBatch(b2); err != nil {
+		t.Fatalf("AddBatch: %v", err)
+	}
 	f.End()
 
 	want := strings.Join([]string{

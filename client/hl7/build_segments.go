@@ -30,48 +30,65 @@ import (
 	"github.com/Bugs5382/go-hl7/client/hl7/metadata"
 )
 
-// spec returns a registered SegmentSpec by name, panicking when absent (the
-// per-version builders reference compile-time-known specs).
-func spec(name string) metadata.SegmentSpec {
-	s, ok := metadata.SEGMENT_SPECS[name]
+// spec returns a registered SegmentSpec by name. The per-version builders
+// reference compile-time-known specs, so an absent name is a fatal mismatch: it
+// is recorded into the build chain and a zero spec returned (the downstream
+// setField calls then short-circuit on b.err).
+func (b *Builder) spec(name string) metadata.SegmentSpec {
+	if b.err != nil {
+		return metadata.SegmentSpec{}
+	}
+	s, ok := metadata.SegmentSpecs[name]
 	if !ok {
-		panic(helpers.NewHL7ValidationError("Unknown HL7 segment " + name))
+		b.fail(helpers.NewHL7ValidationError("Unknown HL7 segment " + name))
+		return metadata.SegmentSpec{}
 	}
 	return s
 }
 
-// notImplementedBefore panics with HL7FatalError("Not Implemented") when the
-// current version predates the version that introduced a typed builder. It
-// mirrors the HL7_BASE._buildXXX stubs: a segment-builder method is only
-// defined from the version that introduced the segment onward, so on an earlier
-// version the call falls through to the base stub that throws.
-func (b *HL7_BASE) notImplementedBefore(introduced string) {
+// notImplementedBefore records HL7FatalError("Not Implemented") when the
+// current version predates the version that introduced a typed builder. A
+// segment builder is only valid from the version that introduced the segment
+// onward; calling it on an earlier version is an error.
+func (b *Builder) notImplementedBefore(introduced string) {
+	if b.err != nil {
+		return
+	}
 	if compareVersions(b.version, introduced) < 0 {
-		panic(helpers.NewHL7FatalError("Not Implemented"))
+		b.fail(helpers.NewHL7FatalError("Not Implemented"))
 	}
 }
 
 // setField is shorthand for validatorSetField with an optional override rule.
-func (b *HL7_BASE) setField(s metadata.SegmentSpec, num int, value any, rule *ValidationRule) {
+func (b *Builder) setField(s metadata.SegmentSpec, num int, value any, rule *ValidationRule) {
 	b.validatorSetField(s, num, value, rule)
 }
 
-// BuildSegment builds any segment by name from its generated spec (the
-// buildSegment). Chainable.
-func (b *HL7_BASE) BuildSegment(name string, properties Props) *HL7_BASE {
+// BuildSegment builds any segment by name from its generated spec. Chainable.
+func (b *Builder) BuildSegment(name string, properties Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.buildSegmentGeneric(name, properties)
 	return b
 }
 
-// BuildADD builds an ADD (Addendum) segment (the buildADD). It must not
+// BuildADD builds an ADD (Addendum) segment. It must not
 // follow MSH/BHS/FHS. Chainable.
-func (b *HL7_BASE) BuildADD(properties Props) *HL7_BASE {
+func (b *Builder) BuildADD(properties Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
+	if b.err != nil {
+		return b
+	}
 	last := b.message.GetLastSegment()
 	if last != nil && (last.Name() == "BHS" || last.Name() == "FHS" || last.Name() == "MSH") {
-		panic(helpers.NewHL7ValidationError("This segment must not follow a MSH, BHS, or FHS"))
+		b.fail(helpers.NewHL7ValidationError("This segment must not follow a MSH, BHS, or FHS"))
+		return b
 	}
-	b.segment = mustAddSegment(b.message, "ADD")
+	b.segment = b.mustAddSegment("ADD")
 	rule := &ValidationRule{}
 	if b.hasMaxAddSegment {
 		rule.Length = lenMax(b.maxAddSegmentLength)
@@ -81,11 +98,18 @@ func (b *HL7_BASE) BuildADD(properties Props) *HL7_BASE {
 }
 
 // BuildNCK builds an NCK (System Clock) segment with the version-appropriate
-// timestamp (the buildNCK + _buildNCK). Chainable.
-func (b *HL7_BASE) BuildNCK() *HL7_BASE {
+// timestamp. Chainable.
+func (b *Builder) BuildNCK() *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
+	if b.err != nil {
+		return b
+	}
 	if b.message.TotalSegment("NCK") > 0 {
-		panic(helpers.NewHL7FatalError("You can only have one NCK segment per HL7 Message."))
+		b.fail(helpers.NewHL7FatalError("You can only have one NCK segment per HL7 Message."))
+		return b
 	}
 	b.startSegment("NCK")
 
@@ -110,8 +134,11 @@ func (b *HL7_BASE) BuildNCK() *HL7_BASE {
 	return b
 }
 
-// BuildNST builds an NST (Statistics) segment (the _buildNST). Chainable.
-func (b *HL7_BASE) BuildNST(properties Props) *HL7_BASE {
+// BuildNST builds an NST (Statistics) segment. Chainable.
+func (b *Builder) BuildNST(properties Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.startSegment("NST")
 	b.validatorSetValue("1", pick(properties, "nst_1"), &ValidationRule{Required: true})
@@ -121,8 +148,11 @@ func (b *HL7_BASE) BuildNST(properties Props) *HL7_BASE {
 	return b
 }
 
-// BuildDSP builds a DSP (Display Data) segment (the _buildDSP). Chainable.
-func (b *HL7_BASE) BuildDSP(properties Props) *HL7_BASE {
+// BuildDSP builds a DSP (Display Data) segment. Chainable.
+func (b *Builder) BuildDSP(properties Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
 	b.startSegment("DSP")
 
@@ -148,18 +178,21 @@ func (b *HL7_BASE) BuildDSP(properties Props) *HL7_BASE {
 	return b
 }
 
-// BuildECD builds an ECD (Equipment Command) segment (the HL7_2_4._buildECD,
-// inherited through 2.8). ECD did not exist before v2.4; the version assertion
-// and per-version usage codes (ECD.4: O in 2.4-2.5.1, B in 2.6-2.7.1, W in 2.8
-// and withdrawn already in 2.7) are enforced by the validator. Chainable.
-func (b *HL7_BASE) BuildECD(properties Props) *HL7_BASE {
+// BuildECD builds an ECD (Equipment Command) segment, valid from v2.4 through
+// 2.8. ECD did not exist before v2.4; the version assertion and per-version
+// usage codes (ECD.4: O in 2.4-2.5.1, B in 2.6-2.7.1, W in 2.8 and withdrawn
+// already in 2.7) are enforced by the validator. Chainable.
+func (b *Builder) BuildECD(properties Props) *Builder {
+	if b.err != nil {
+		return b
+	}
 	b.headerExists()
-	// the spec exposes buildECD only from HL7_2_4 onward; earlier versions fall
-	// through to the HL7_BASE._buildECD stub that throws "Not Implemented".
+	// ECD is valid only from v2.4 onward; earlier versions report "Not
+	// Implemented".
 	b.notImplementedBefore("2.4")
-	s := spec("ECD")
+	s := b.spec("ECD")
 	b.assertSegmentInVersion(s)
-	b.segment = mustAddSegment(b.message, "ECD")
+	b.segment = b.mustAddSegment("ECD")
 	b.setField(s, 1, pick(properties, "ecd_1", "referenceCommandNumber"), nil)
 	b.setField(s, 2, pick(properties, "ecd_2", "remoteControlCommand"), nil)
 	b.setField(s, 3, pick(properties, "ecd_3", "responseRequired"), nil)

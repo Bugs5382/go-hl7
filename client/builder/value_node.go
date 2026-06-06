@@ -28,10 +28,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Bugs5382/go-hl7/client/declaration"
+	"github.com/Bugs5382/go-hl7/client/internal/declaration"
 )
 
-// valueNode carries a keyed leaf value (the ValueNode). It overrides the
+// valueNode carries a keyed leaf value. It overrides the
 // value coercions and String, and provides a key-based pathCore.
 type valueNode struct {
 	nodeBase
@@ -44,7 +44,7 @@ func (v *valueNode) initValueNode(self node, parent node, key, text string, deli
 	v.key = key
 }
 
-// Bool coerces "Y"/"N"; ok is false otherwise (throws). Go necessity.
+// Bool coerces "Y"/"N"; ok is false otherwise.
 func (v *valueNode) Bool() (bool, bool) {
 	switch v.self.String() {
 	case "N":
@@ -58,7 +58,7 @@ func (v *valueNode) Bool() (bool, bool) {
 // tzRe matches the trailing timezone offset of an HL7 date/time.
 var tzRe = regexp.MustCompile(`([+-])(\d{2})(\d{2})$`)
 
-// Date coerces an HL7 date/time to a time.Time (the toDate). ok is false
+// Date coerces an HL7 date/time to a time.Time. ok is false
 // when the leading YYYYMMDD cannot be parsed.
 func (v *valueNode) Date() (time.Time, bool) {
 	text := v.self.String()
@@ -100,7 +100,7 @@ func (v *valueNode) Date() (time.Time, bool) {
 	return time.Date(year, time.Month(month), day, hour, minute, second, 0, time.Local), true
 }
 
-// Float coerces to a float (the toFloat). ok is false when unparseable.
+// Float coerces to a float. ok is false when unparseable.
 func (v *valueNode) Float() (float64, bool) {
 	f, err := strconv.ParseFloat(v.self.String(), 64)
 	if err != nil {
@@ -109,7 +109,7 @@ func (v *valueNode) Float() (float64, bool) {
 	return f, true
 }
 
-// Int coerces to an integer (the toInteger). ok is false when unparseable.
+// Int coerces to an integer. ok is false when unparseable.
 func (v *valueNode) Int() (int, bool) {
 	n, err := parseLeadingInt(v.self.String())
 	if !err {
@@ -119,7 +119,7 @@ func (v *valueNode) Int() (int, bool) {
 }
 
 // rawText returns the de-framed text: the raw value, or the first child's text
-// for a composite (the toString).
+// for a composite.
 func (v *valueNode) rawText() string {
 	ch := v.self.childrenOf()
 	if len(ch) == 0 {
@@ -128,14 +128,13 @@ func (v *valueNode) rawText() string {
 	return ch[0].String()
 }
 
-// pathCore computes the path as the parent path plus this the key (the
-// ValueNode.pathCore).
+// pathCore computes the path as the parent path plus this the key.
 func (v *valueNode) pathCore() []string {
 	return append(append([]string{}, v.parent.Path()...), v.key)
 }
 
-// parseLeadingInt parses a leading signed integer, mirroring JS parseInt
-// semantics enough for the tests (returns ok=false when no digits lead).
+// parseLeadingInt parses a leading signed integer (returns ok=false when no
+// digits lead).
 func parseLeadingInt(s string) (int, bool) {
 	i := 0
 	if i < len(s) && (s[i] == '+' || s[i] == '-') {

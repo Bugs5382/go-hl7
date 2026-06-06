@@ -32,10 +32,10 @@ import (
 	"github.com/Bugs5382/go-hl7/client/utils"
 )
 
-// These tests mirror the hl7.build.test.ts "builder message - all
-// versions" block: per-version BuildMSH wire format and CheckMSH behavior, plus
-// the v2.1 BuildEVN/BuildFT1/BuildNCK cases. Batch/FileBatch coverage from that
-// file is out of the spec-builder scope.
+// These tests cover the builder message across all versions: per-version
+// BuildMSH wire format and CheckMSH behavior, plus the v2.1
+// BuildEVN/BuildFT1/BuildNCK cases. Batch/FileBatch coverage is out of the
+// spec-builder scope.
 
 func contains(t *testing.T, s, sub string) {
 	t.Helper()
@@ -44,30 +44,26 @@ func contains(t *testing.T, s, sub string) {
 	}
 }
 
-func expectThrows(t *testing.T, want string, fn func()) {
+// expectError runs fn and asserts it surfaced a validation error whose message
+// contains want (or any error when want is ""). fn returns the error to check:
+// either a chain's b.Err() after building, or CheckMSH's returned error.
+func expectError(t *testing.T, want string, fn func() error) {
 	t.Helper()
-	defer func() {
-		r := recover()
-		if r == nil {
-			t.Fatalf("expected panic containing %q, got none", want)
-		}
-		err, ok := r.(error)
-		if !ok {
-			t.Fatalf("expected error panic, got %T (%v)", r, r)
-		}
-		if want != "" && !strings.Contains(err.Error(), want) {
-			t.Fatalf("expected message containing %q, got %q", want, err.Error())
-		}
-	}()
-	fn()
+	err := fn()
+	if err == nil {
+		t.Fatalf("expected error containing %q, got none", want)
+	}
+	if want != "" && !strings.Contains(err.Error(), want) {
+		t.Fatalf("expected message containing %q, got %q", want, err.Error())
+	}
 }
 
 func TestBuildAllVersions(t *testing.T) {
 	useThisDate := time.Now()
 
 	t.Run("2.1", func(t *testing.T) {
-		base := func() *hl7.HL7_BASE {
-			b := hl7.NewHL7_2_1()
+		base := func() *hl7.Builder {
+			b := hl7.New(hl7.V2_1)
 			b.BuildMSH(hl7.Props{"msh_10": "12345", "msh_11": "T", "msh_7": useThisDate, "msh_9": "ACK"})
 			return b
 		}
@@ -106,7 +102,7 @@ func TestBuildAllVersions(t *testing.T) {
 	})
 
 	t.Run("2.2", func(t *testing.T) {
-		newB := func() *hl7.HL7_BASE { return hl7.NewHL7_2_2() }
+		newB := func() *hl7.Builder { return hl7.New(hl7.V2_2) }
 
 		t.Run("buildMSH produces a 2.2 base header", func(t *testing.T) {
 			b := newB()
@@ -121,34 +117,34 @@ func TestBuildAllVersions(t *testing.T) {
 			contains(t, b.String(), "|ORM^O01|MSG001|P|2.2")
 		})
 		t.Run("checkMSH accepts a valid 2.2 header", func(t *testing.T) {
-			if !newB().CheckMSH(hl7.Props{"msh_10": "MSG001", "msh_11": "P", "msh_9_1": "ADT", "msh_9_2": "A01"}) {
-				t.Fatal("expected true")
+			if err := newB().CheckMSH(hl7.Props{"msh_10": "MSG001", "msh_11": "P", "msh_9_1": "ADT", "msh_9_2": "A01"}); err != nil {
+				t.Fatalf("expected valid header, got %v", err)
 			}
 		})
 		t.Run("checkMSH rejects msh_9_1 wrong length", func(t *testing.T) {
-			expectThrows(t, "MSH.9.1 must be 3 characters in length.", func() {
-				newB().CheckMSH(hl7.Props{"msh_9_1": "ADTY", "msh_9_2": "A01"})
+			expectError(t, "MSH.9.1 must be 3 characters in length.", func() error {
+				return newB().CheckMSH(hl7.Props{"msh_9_1": "ADTY", "msh_9_2": "A01"})
 			})
 		})
 		t.Run("checkMSH rejects msh_9_2 wrong length", func(t *testing.T) {
-			expectThrows(t, "MSH.9.2 must be 3 characters in length.", func() {
-				newB().CheckMSH(hl7.Props{"msh_9_1": "ADT", "msh_9_2": "A01Y"})
+			expectError(t, "MSH.9.2 must be 3 characters in length.", func() error {
+				return newB().CheckMSH(hl7.Props{"msh_9_1": "ADT", "msh_9_2": "A01Y"})
 			})
 		})
 		t.Run("checkMSH rejects msh_10 longer than 20", func(t *testing.T) {
-			expectThrows(t, "MSH.10 must be greater than 0 and less than 20 characters.", func() {
-				newB().CheckMSH(hl7.Props{"msh_10": strings.Repeat("A", 21), "msh_9_1": "ADT", "msh_9_2": "A01"})
+			expectError(t, "MSH.10 must be greater than 0 and less than 20 characters.", func() error {
+				return newB().CheckMSH(hl7.Props{"msh_10": strings.Repeat("A", 21), "msh_9_1": "ADT", "msh_9_2": "A01"})
 			})
 		})
 		t.Run("buildMSH rejects missing msh_11", func(t *testing.T) {
-			expectThrows(t, "", func() {
-				newB().BuildMSH(hl7.Props{"msh_10": "MSG001", "msh_9_1": "ADT", "msh_9_2": "A01"})
+			expectError(t, "", func() error {
+				return newB().BuildMSH(hl7.Props{"msh_10": "MSG001", "msh_9_1": "ADT", "msh_9_2": "A01"}).Err()
 			})
 		})
 	})
 
 	t.Run("2.3", func(t *testing.T) {
-		newB := func() *hl7.HL7_BASE { return hl7.NewHL7_2_3() }
+		newB := func() *hl7.Builder { return hl7.New(hl7.V2_3) }
 		t.Run("buildMSH produces a 2.3 base header", func(t *testing.T) {
 			b := newB()
 			b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "T", "msh_7": useThisDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
@@ -166,29 +162,29 @@ func TestBuildAllVersions(t *testing.T) {
 			contains(t, b.String(), "|2.3")
 		})
 		t.Run("checkMSH accepts a valid 2.3 header", func(t *testing.T) {
-			if !newB().CheckMSH(hl7.Props{"msh_11_1": "T", "msh_9_1": "ADT", "msh_9_2": "A01"}) {
-				t.Fatal("expected true")
+			if err := newB().CheckMSH(hl7.Props{"msh_11_1": "T", "msh_9_1": "ADT", "msh_9_2": "A01"}); err != nil {
+				t.Fatalf("expected valid header, got %v", err)
 			}
 		})
 		t.Run("checkMSH rejects msh_11_1 longer than 1", func(t *testing.T) {
-			expectThrows(t, "MSH.11.1 has to be 1 character long.", func() {
-				newB().CheckMSH(hl7.Props{"msh_11_1": "PT", "msh_9_1": "ADT", "msh_9_2": "A01"})
+			expectError(t, "MSH.11.1 has to be 1 character long.", func() error {
+				return newB().CheckMSH(hl7.Props{"msh_11_1": "PT", "msh_9_1": "ADT", "msh_9_2": "A01"})
 			})
 		})
 		t.Run("checkMSH rejects empty-string msh_11_2", func(t *testing.T) {
-			expectThrows(t, "MSH.11.2 can either be undefined/blank and 1 character long.", func() {
-				newB().CheckMSH(hl7.Props{"msh_11_1": "T", "msh_11_2": "", "msh_9_1": "ADT", "msh_9_2": "A01"})
+			expectError(t, "MSH.11.2 can either be undefined/blank and 1 character long.", func() error {
+				return newB().CheckMSH(hl7.Props{"msh_11_1": "T", "msh_11_2": "", "msh_9_1": "ADT", "msh_9_2": "A01"})
 			})
 		})
 		t.Run("checkMSH accepts debug processing id", func(t *testing.T) {
-			if !newB().CheckMSH(hl7.Props{"msh_11_1": "D", "msh_9_1": "ADT", "msh_9_2": "A01"}) {
-				t.Fatal("expected true")
+			if err := newB().CheckMSH(hl7.Props{"msh_11_1": "D", "msh_9_1": "ADT", "msh_9_2": "A01"}); err != nil {
+				t.Fatalf("expected valid header, got %v", err)
 			}
 		})
 	})
 
 	t.Run("2.3.1", func(t *testing.T) {
-		newB := func() *hl7.HL7_BASE { return hl7.NewHL7_2_3_1() }
+		newB := func() *hl7.Builder { return hl7.New(hl7.V2_3_1) }
 		t.Run("buildMSH produces a 2.3.1 base header", func(t *testing.T) {
 			b := newB()
 			b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": useThisDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
@@ -201,14 +197,14 @@ func TestBuildAllVersions(t *testing.T) {
 			contains(t, b.String(), "|2.3.1")
 		})
 		t.Run("checkMSH accepts a valid 2.3.1 header", func(t *testing.T) {
-			if !newB().CheckMSH(hl7.Props{"msh_11_1": "P", "msh_9_1": "ADT", "msh_9_2": "A01"}) {
-				t.Fatal("expected true")
+			if err := newB().CheckMSH(hl7.Props{"msh_11_1": "P", "msh_9_1": "ADT", "msh_9_2": "A01"}); err != nil {
+				t.Fatalf("expected valid header, got %v", err)
 			}
 		})
 	})
 
 	t.Run("2.4", func(t *testing.T) {
-		newB := func() *hl7.HL7_BASE { return hl7.NewHL7_2_4() }
+		newB := func() *hl7.Builder { return hl7.New(hl7.V2_4) }
 		t.Run("buildMSH auto-generates msh_9_3", func(t *testing.T) {
 			b := newB()
 			b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "T", "msh_7": useThisDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
@@ -225,48 +221,48 @@ func TestBuildAllVersions(t *testing.T) {
 			contains(t, b.String(), "|P^T|2.4")
 		})
 		t.Run("checkMSH accepts a 2.4 header with msh_9_3", func(t *testing.T) {
-			if !newB().CheckMSH(hl7.Props{"msh_11_1": "T", "msh_9_1": "ADT", "msh_9_2": "A01", "msh_9_3": "ADT_A01"}) {
-				t.Fatal("expected true")
+			if err := newB().CheckMSH(hl7.Props{"msh_11_1": "T", "msh_9_1": "ADT", "msh_9_2": "A01", "msh_9_3": "ADT_A01"}); err != nil {
+				t.Fatalf("expected valid header, got %v", err)
 			}
 		})
 		t.Run("checkMSH rejects msh_9_3 shorter than 3", func(t *testing.T) {
-			expectThrows(t, "MSH.9.3 must be 3 to 10 characters in length if specified.", func() {
-				newB().CheckMSH(hl7.Props{"msh_11_1": "T", "msh_9_1": "ADT", "msh_9_2": "A01", "msh_9_3": "AD"})
+			expectError(t, "MSH.9.3 must be 3 to 10 characters in length if specified.", func() error {
+				return newB().CheckMSH(hl7.Props{"msh_11_1": "T", "msh_9_1": "ADT", "msh_9_2": "A01", "msh_9_3": "AD"})
 			})
 		})
 		t.Run("checkMSH rejects msh_9_3 longer than 10", func(t *testing.T) {
-			expectThrows(t, "MSH.9.3 must be 3 to 10 characters in length if specified.", func() {
-				newB().CheckMSH(hl7.Props{"msh_11_1": "T", "msh_9_1": "ADT", "msh_9_2": "A01", "msh_9_3": "ADT_A01_ABCDE"})
+			expectError(t, "MSH.9.3 must be 3 to 10 characters in length if specified.", func() error {
+				return newB().CheckMSH(hl7.Props{"msh_11_1": "T", "msh_9_1": "ADT", "msh_9_2": "A01", "msh_9_3": "ADT_A01_ABCDE"})
 			})
 		})
 	})
 
 	t.Run("2.5", func(t *testing.T) {
-		b := hl7.NewHL7_2_5()
+		b := hl7.New(hl7.V2_5)
 		b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "T", "msh_7": useThisDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 		contains(t, b.String(), `|ADT^A01^ADT_A01|CONTROL_ID|T|2.5`)
-		if !hl7.NewHL7_2_5().CheckMSH(hl7.Props{"msh_11_1": "P", "msh_9_1": "ORU", "msh_9_2": "R01"}) {
-			t.Fatal("expected true")
+		if err := hl7.New(hl7.V2_5).CheckMSH(hl7.Props{"msh_11_1": "P", "msh_9_1": "ORU", "msh_9_2": "R01"}); err != nil {
+			t.Fatalf("expected valid header, got %v", err)
 		}
 	})
 
 	t.Run("2.5.1", func(t *testing.T) {
-		b := hl7.NewHL7_2_5_1()
+		b := hl7.New(hl7.V2_5_1)
 		b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": useThisDate, "msh_9_1": "ADT", "msh_9_2": "A04"})
 		contains(t, b.String(), `|ADT^A04^ADT_A04|CONTROL_ID|P|2.5.1`)
 	})
 
 	t.Run("2.6", func(t *testing.T) {
-		b := hl7.NewHL7_2_6()
+		b := hl7.New(hl7.V2_6)
 		b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "D", "msh_7": useThisDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 		contains(t, b.String(), `|ADT^A01^ADT_A01|CONTROL_ID|D|2.6`)
-		b2 := hl7.NewHL7_2_6()
+		b2 := hl7.New(hl7.V2_6)
 		b2.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_3": "SRCSYS", "msh_5": "TGTSYS", "msh_7": useThisDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
 		contains(t, b2.String(), "|SRCSYS||TGTSYS|")
 	})
 
 	t.Run("2.7", func(t *testing.T) {
-		newB := func() *hl7.HL7_BASE { return hl7.NewHL7_2_7() }
+		newB := func() *hl7.Builder { return hl7.New(hl7.V2_7) }
 		t.Run("buildMSH produces a 2.7 base header", func(t *testing.T) {
 			b := newB()
 			b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": useThisDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
@@ -283,23 +279,23 @@ func TestBuildAllVersions(t *testing.T) {
 			contains(t, b.String(), "|P^A|2.7")
 		})
 		t.Run("checkMSH rejects msh_10 longer than 199", func(t *testing.T) {
-			expectThrows(t, "MSH.10 must be greater than 0 and less than 199 characters.", func() {
-				newB().CheckMSH(hl7.Props{"msh_10": strings.Repeat("A", 200), "msh_11_1": "P", "msh_9_1": "ADT", "msh_9_2": "A01"})
+			expectError(t, "MSH.10 must be greater than 0 and less than 199 characters.", func() error {
+				return newB().CheckMSH(hl7.Props{"msh_10": strings.Repeat("A", 200), "msh_11_1": "P", "msh_9_1": "ADT", "msh_9_2": "A01"})
 			})
 		})
 	})
 
 	t.Run("2.7.1", func(t *testing.T) {
-		b := hl7.NewHL7_2_7_1()
+		b := hl7.New(hl7.V2_7_1)
 		b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": useThisDate, "msh_9_1": "ORM", "msh_9_2": "O01"})
 		contains(t, b.String(), `|ORM^O01^ORM_O01|CONTROL_ID|P|2.7.1`)
-		b2 := hl7.NewHL7_2_7_1()
+		b2 := hl7.New(hl7.V2_7_1)
 		b2.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_11_2": "R", "msh_7": useThisDate, "msh_9_1": "ORM", "msh_9_2": "O01"})
 		contains(t, b2.String(), "|P^R|2.7.1")
 	})
 
 	t.Run("2.8", func(t *testing.T) {
-		newB := func() *hl7.HL7_BASE { return hl7.NewHL7_2_8() }
+		newB := func() *hl7.Builder { return hl7.New(hl7.V2_8) }
 		t.Run("buildMSH produces a 2.8 base header", func(t *testing.T) {
 			b := newB()
 			b.BuildMSH(hl7.Props{"msh_10": "CONTROL_ID", "msh_11_1": "P", "msh_7": useThisDate, "msh_9_1": "ADT", "msh_9_2": "A01"})
@@ -311,35 +307,35 @@ func TestBuildAllVersions(t *testing.T) {
 			contains(t, b.String(), "|ORU^R01^ORU_R01|")
 		})
 		t.Run("checkMSH accepts a valid 2.8 header", func(t *testing.T) {
-			if !newB().CheckMSH(hl7.Props{"msh_11_1": "P", "msh_9_1": "ADT", "msh_9_2": "A01"}) {
-				t.Fatal("expected true")
+			if err := newB().CheckMSH(hl7.Props{"msh_11_1": "P", "msh_9_1": "ADT", "msh_9_2": "A01"}); err != nil {
+				t.Fatalf("expected valid header, got %v", err)
 			}
 		})
 		t.Run("checkMSH rejects msh_9_1 wrong length", func(t *testing.T) {
-			expectThrows(t, "MSH.9.1 must be 3 characters in length.", func() {
-				newB().CheckMSH(hl7.Props{"msh_11_1": "P", "msh_9_1": "ADTY", "msh_9_2": "A01"})
+			expectError(t, "MSH.9.1 must be 3 characters in length.", func() error {
+				return newB().CheckMSH(hl7.Props{"msh_11_1": "P", "msh_9_1": "ADTY", "msh_9_2": "A01"})
 			})
 		})
 		t.Run("checkMSH inherits 2.7 msh_10 199-char limit", func(t *testing.T) {
-			expectThrows(t, "MSH.10 must be greater than 0 and less than 199 characters.", func() {
-				newB().CheckMSH(hl7.Props{"msh_10": strings.Repeat("A", 200), "msh_11_1": "P", "msh_9_1": "ADT", "msh_9_2": "A01"})
+			expectError(t, "MSH.10 must be greater than 0 and less than 199 characters.", func() error {
+				return newB().CheckMSH(hl7.Props{"msh_10": strings.Repeat("A", 200), "msh_11_1": "P", "msh_9_1": "ADT", "msh_9_2": "A01"})
 			})
 		})
 	})
 }
 
 func TestBuildMSHRejectsSecond(t *testing.T) {
-	b := hl7.NewHL7_2_1()
+	b := hl7.New(hl7.V2_1)
 	b.BuildMSH(hl7.Props{"msh_10": "12345", "msh_11": "T", "msh_9": "ACK"})
-	expectThrows(t, "You can only have one MSH Header per HL7 Message.", func() {
-		b.BuildMSH(hl7.Props{"msh_10": "12345", "msh_11": "T", "msh_9": "ACK"})
+	expectError(t, "You can only have one MSH Header per HL7 Message.", func() error {
+		return b.BuildMSH(hl7.Props{"msh_10": "12345", "msh_11": "T", "msh_9": "ACK"}).Err()
 	})
 }
 
 func TestBuildADDCannotFollowMSH(t *testing.T) {
-	b := hl7.NewHL7_2_1()
+	b := hl7.New(hl7.V2_1)
 	b.BuildMSH(hl7.Props{"msh_10": "12345", "msh_11": "T", "msh_9": "ACK"})
-	expectThrows(t, "This segment must not follow a MSH, BHS, or FHS", func() {
-		b.BuildADD(hl7.Props{"add_1": "Fail cause you can't have this after MSH"})
+	expectError(t, "This segment must not follow a MSH, BHS, or FHS", func() error {
+		return b.BuildADD(hl7.Props{"add_1": "Fail cause you can't have this after MSH"}).Err()
 	})
 }

@@ -23,25 +23,46 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-// The per-version builders mirror the 2.1 -> 2.8 class chain. The spec
-// expresses version differences by overriding protected _buildXXX / checkMSH;
-// most field-level differences, however, are driven by the per-version usage
-// catalog the validator already consults (validatorSetField reads b.version),
-// so the shared segment builders live on HL7_BASE and are version-aware. The
-// structural MSH differences (field 9 vs 9.1/9.2/9.3, 11 vs 11.1/11.2, the
-// trailing fields, and the per-version max lengths) are dispatched by version
-// in BuildMSH. checkMSH is dispatched by version in CheckMSH.
+import (
+	"fmt"
+
+	"github.com/Bugs5382/go-hl7/client/helpers"
+)
+
+// The builder spans the 2.1 -> 2.8 spec range. Most field-level differences are
+// driven by the per-version usage catalog the validator already consults
+// (validatorSetField reads b.version), so the shared segment builders live on
+// Builder and are version-aware. The structural MSH differences (field 9 vs
+// 9.1/9.2/9.3, 11 vs 11.1/11.2, the trailing fields, and the per-version max
+// lengths) are dispatched by version in BuildMSH. checkMSH is dispatched by
+// version in CheckMSH.
 //
-// Go necessity (documented adaptation): the spec embeds the version chain in
-// TypeScript class inheritance and narrows withdrawn fields to `never` at the
-// type level (e.g. v2.8 ECD.4). Go has no type-level narrowing and no virtual
-// dispatch through struct embedding, so every HL7_2_x constructor returns the
-// shared *HL7_BASE carrying its version string, and the version narrowing
-// collapses to the runtime usage-code check (W/X reject a value), which the
-// validator and assertSegmentInVersion enforce identically.
+// New returns a single *Builder carrying its version string; per-version field
+// availability is enforced at runtime by the usage-code check (W/X reject a
+// value), which the validator and assertSegmentInVersion apply identically.
+
+// Version is an HL7 spec version selector passed to New. Use the exported
+// V2_x constants rather than a bare string literal.
+type Version string
+
+// The supported HL7 spec versions. New requires one; there is no default, so a
+// builder always carries an explicit spec.
+const (
+	V2_1   Version = "2.1"
+	V2_2   Version = "2.2"
+	V2_3   Version = "2.3"
+	V2_3_1 Version = "2.3.1"
+	V2_4   Version = "2.4"
+	V2_5   Version = "2.5"
+	V2_5_1 Version = "2.5.1"
+	V2_6   Version = "2.6"
+	V2_7   Version = "2.7"
+	V2_7_1 Version = "2.7.1"
+	V2_8   Version = "2.8"
+)
 
 // optsOf returns the first option set, or defaults when none is given. It lets
-// the constructors take an optional Options argument like the constructor.
+// New take an optional Options argument.
 func optsOf(opts []Options) Options {
 	if len(opts) > 0 {
 		return opts[0]
@@ -49,44 +70,31 @@ func optsOf(opts []Options) Options {
 	return Options{}
 }
 
-func newVersion(version string, opts []Options) *HL7_BASE {
-	b := &HL7_BASE{}
+// knownVersions is the set of spec versions New accepts. An unknown version is
+// recorded onto the builder so it surfaces at ToMessage/Err rather than building
+// against a spec that does not exist.
+var knownVersions = map[Version]bool{
+	V2_1: true, V2_2: true, V2_3: true, V2_3_1: true, V2_4: true,
+	V2_5: true, V2_5_1: true, V2_6: true, V2_7: true, V2_7_1: true, V2_8: true,
+}
+
+func newVersion(version string, opts []Options) *Builder {
+	b := &Builder{}
 	b.initBase(opts)
 	b.version = version
 	b.maxAddSegmentLength, b.hasMaxAddSegment = 60, true
 	return b
 }
 
-// NewHL7_2_1 constructs a v2.1 builder. It mirrors `new HL7_2_1(properties?)`.
-func NewHL7_2_1(opts ...Options) *HL7_BASE { return newVersion("2.1", opts) }
-
-// NewHL7_2_2 constructs a v2.2 builder.
-func NewHL7_2_2(opts ...Options) *HL7_BASE { return newVersion("2.2", opts) }
-
-// NewHL7_2_3 constructs a v2.3 builder.
-func NewHL7_2_3(opts ...Options) *HL7_BASE { return newVersion("2.3", opts) }
-
-// NewHL7_2_3_1 constructs a v2.3.1 builder.
-func NewHL7_2_3_1(opts ...Options) *HL7_BASE { return newVersion("2.3.1", opts) }
-
-// NewHL7_2_4 constructs a v2.4 builder. ECD is introduced here.
-func NewHL7_2_4(opts ...Options) *HL7_BASE { return newVersion("2.4", opts) }
-
-// NewHL7_2_5 constructs a v2.5 builder.
-func NewHL7_2_5(opts ...Options) *HL7_BASE { return newVersion("2.5", opts) }
-
-// NewHL7_2_5_1 constructs a v2.5.1 builder.
-func NewHL7_2_5_1(opts ...Options) *HL7_BASE { return newVersion("2.5.1", opts) }
-
-// NewHL7_2_6 constructs a v2.6 builder.
-func NewHL7_2_6(opts ...Options) *HL7_BASE { return newVersion("2.6", opts) }
-
-// NewHL7_2_7 constructs a v2.7 builder. There is no implicit default version:
-// the caller selects the spec by which HL7_2_x constructor they invoke.
-func NewHL7_2_7(opts ...Options) *HL7_BASE { return newVersion("2.7", opts) }
-
-// NewHL7_2_7_1 constructs a v2.7.1 builder.
-func NewHL7_2_7_1(opts ...Options) *HL7_BASE { return newVersion("2.7.1", opts) }
-
-// NewHL7_2_8 constructs a v2.8 builder.
-func NewHL7_2_8(opts ...Options) *HL7_BASE { return newVersion("2.8", opts) }
+// New constructs a Builder for the given HL7 spec version, e.g.
+// hl7.New(hl7.V2_5). ECD is introduced at V2_4. An unrecognized version does not
+// fail New itself; the builder records an HL7ValidationError that the first
+// Build* call short-circuits on and ToMessage/Err returns.
+func New(v Version, opts ...Options) *Builder {
+	b := newVersion(string(v), opts)
+	if !knownVersions[v] {
+		b.fail(helpers.NewHL7ValidationError(
+			fmt.Sprintf("Unknown HL7 version %q — use one of the hl7.V2_x constants", string(v))))
+	}
+	return b
+}

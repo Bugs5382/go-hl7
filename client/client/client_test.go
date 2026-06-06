@@ -36,8 +36,8 @@ import (
 // modeling of the optional option keys).
 func ptr[T any](v T) *T { return &v }
 
-// expectHL7FatalError mirrors the test util expectHL7FatalError: the error must
-// be an *HL7FatalError with the exact message.
+// expectHL7FatalError asserts the error is an *HL7FatalError with the exact
+// message.
 func expectHL7FatalError(t *testing.T, err error, message string) {
 	t.Helper()
 	if err == nil {

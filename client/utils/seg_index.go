@@ -30,18 +30,16 @@ import (
 )
 
 // GetSegIndexes returns the byte offsets in data where any of the named
-// segments begins (a segment-header name immediately followed by "|"). It
-// mirrors the getSegIndexes. Offsets are returned as strings, matching
-// the representation, in match order across the names.
+// segments begins (a segment-header name immediately followed by "|"). Offsets
+// are returned as strings, in match order across the names.
 func GetSegIndexes(names []string, data string, list []string) []string {
 	if list == nil {
 		list = []string{}
 	}
 	for _, name := range names {
-		// the spec uses JS multiline anchors that also match after a line
-		// terminator. Go's (?m) only treats LF as a boundary, so match the
-		// header at input start or after a CR or LF, then report the captured
-		// group offset.
+		// Match a header at input start or after a CR or LF, then report the
+		// captured group offset. Go's (?m) only treats LF as a boundary, so
+		// anchor on either terminator explicitly.
 		re := regexp.MustCompile("(?:^|[\r\n])(" + regexp.QuoteMeta(name) + ")\\|")
 		for _, loc := range re.FindAllStringSubmatchIndex(data, -1) {
 			list = append(list, strconv.Itoa(loc[2]))
@@ -51,7 +49,7 @@ func GetSegIndexes(names []string, data string, list []string) []string {
 }
 
 // Split splits an HL7 stream into its constituent segments by the offsets of
-// the FHS/BHS/MSH/BTS/FTS header segments. It mirrors the split.
+// the FHS/BHS/MSH/BTS/FTS header segments.
 func Split(data string, segments []string) []string {
 	if segments == nil {
 		segments = []string{}

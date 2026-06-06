@@ -190,7 +190,7 @@ Each port enforces **its own** version. When an inbound message's `MSH.12` does 
 - emits a version‑mismatch `data.error` event,
 - and **returns without invoking your handler**.
 
-Dedicate a port per version (e.g. 2.5 on 6661, 2.7 on 6662) by calling `CreateInbound` once per version. This is an intentional divergence from node-hl7, which leaves the transport version‑agnostic.
+Dedicate a port per version (e.g. 2.5 on 6661, 2.7 on 6662) by calling `CreateInbound` once per version.
 
 ---
 

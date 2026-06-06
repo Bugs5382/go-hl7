@@ -5,7 +5,7 @@
 ## 🧾 Table of Contents
 
 1. [The big picture](#-the-big-picture)
-2. [Pick a version (`NewHL7_2_x`)](#-pick-a-version-newhl7_2_x)
+2. [Pick a version (`New`)](#-pick-a-version-new)
 3. [Build the MSH (always first)](#-build-the-msh-always-first)
 4. [Build the rest of your segments](#-build-the-rest-of-your-segments)
 5. [Per-version field availability (usage codes)](#-per-version-field-availability-usage-codes)
@@ -26,16 +26,16 @@
 
 ```mermaid
 flowchart LR
-    A[hl7.NewHL7_2_x] -- BuildMSH<br/>required first --> B[builder]
+    A["hl7.New(version)"] -- BuildMSH<br/>required first --> B[builder]
     B --> C[BuildEVN, BuildPID, BuildOBR, BuildOBX, …]
-    C --> D[builder.ToMessage]
+    C --> D["builder.ToMessage (msg, err)"]
     D --> E["📨 Message — send / mutate / serialize"]
 ```
 
-- **`hl7.NewHL7_2_x`** — the version-specific builder constructor (`NewHL7_2_3`, `NewHL7_2_5`, `NewHL7_2_7`, `NewHL7_2_8`). Every version returns a `*hl7.HL7_BASE` configured for that spec, exposing the segments that exist in that version.
-- **`BuildMSH(props)`** — must be called first. Anything else panics with `HL7FatalError("MSH Header must be built first.")`.
-- **`Build<SEG>(props)`** — every other segment has a typed builder, and each returns the builder for chaining.
-- **`ToMessage()`** — returns a real `*builder.Message` you can keep editing or send straight to `conn.SendMessage(...)`.
+- **`hl7.New(version)`** — the builder constructor; pass a `Version` constant (`hl7.V2_3`, `hl7.V2_5`, `hl7.V2_7`, `hl7.V2_8`, …). It returns a `*hl7.Builder` configured for that spec, exposing the segments that exist in that version.
+- **`BuildMSH(props)`** — must be called first. Anything else records `HL7FatalError("MSH Header must be built first.")`, which surfaces from `ToMessage()`/`Err()`.
+- **`Build<SEG>(props)`** — every other segment has a typed builder, and each returns the builder for chaining. The first hard validation failure is recorded and short-circuits the rest of the chain.
+- **`ToMessage()`** — returns `(*builder.Message, error)`. The message is the tree built so far; the error is the first validation failure, if any. `Err()` exposes the same error mid-chain.
 - **`String()`** — returns the framed HL7 text.
 
 > 💡 The builder is **not** the parser. To turn a string back into a `Message`, use `builder.NewMessage(builder.MessageOptions{Text: ...})`. See the [parser docs](../parser/index.md).
@@ -44,32 +44,33 @@ flowchart LR
 
 ---
 
-## 🎯 Pick a version (`NewHL7_2_x`)
+## 🎯 Pick a version (`New`)
 
 ```go
 import "github.com/Bugs5382/go-hl7/client/hl7"
 
-builder := hl7.NewHL7_2_5(hl7.Options{
+builder := hl7.New(hl7.V2_5, hl7.Options{
     // Date format used when a time.Time is passed to a Build* method.
     // "8" → YYYYMMDD, "12" → YYYYMMDDHHMM, "14" → YYYYMMDDHHMMSS (default).
     Date: "14",
 
-    // When true, validation issues panic immediately instead of being
-    // collected and emitted on the "error" event. Recommended in dev/CI.
+    // When true, soft validation issues are recorded as an error immediately
+    // instead of being collected and emitted on the "error" event.
+    // Recommended in dev/CI.
     HardError: true,
 })
 ```
 
-The constructors are `NewHL7_2_1`, `NewHL7_2_2`, `NewHL7_2_3`, `NewHL7_2_3_1`, `NewHL7_2_4`, `NewHL7_2_5`, `NewHL7_2_5_1`, `NewHL7_2_6`, `NewHL7_2_7`, `NewHL7_2_7_1`, and `NewHL7_2_8`. There is **no implicit default** — you select the spec version by which constructor you call, and that version drives every field‑usage check. `Options` is optional (`hl7.NewHL7_2_5()` is valid).
+`New` takes a `Version` constant: `V2_1`, `V2_2`, `V2_3`, `V2_3_1`, `V2_4`, `V2_5`, `V2_5_1`, `V2_6`, `V2_7`, `V2_7_1`, or `V2_8`. There is **no implicit default** — you select the spec version by the constant you pass, and that version drives every field‑usage check. `Options` is optional (`hl7.New(hl7.V2_5)` is valid).
 
-| Version | Constructor | Notable additions |
+| Version | Selector | Notable additions |
 |---|---|---|
-| 2.1 | `NewHL7_2_1` | The minimal baseline. Composite `MSH.9.3` is **not** allowed. |
-| 2.2 | `NewHL7_2_2` | Adds AL1 (allergy) and other segments. |
-| 2.3 | `NewHL7_2_3` | Adds DG1, IN2, GT1 enhancements, ROL, etc. |
-| 2.3.1 / 2.4 | `NewHL7_2_3_1`, `NewHL7_2_4` | `MSH.9.3` becomes optional / composite‑allowed. |
-| 2.5 → 2.7.1 | `NewHL7_2_5`, `NewHL7_2_5_1`, `NewHL7_2_6`, `NewHL7_2_7`, `NewHL7_2_7_1` | Adds SFT, SPM, and many other segments. |
-| 2.8 | `NewHL7_2_8` | Latest supported. Inherits the full 2.7.1 surface. |
+| 2.1 | `New(V2_1)` | The minimal baseline. Composite `MSH.9.3` is **not** allowed. |
+| 2.2 | `New(V2_2)` | Adds AL1 (allergy) and other segments. |
+| 2.3 | `New(V2_3)` | Adds DG1, IN2, GT1 enhancements, ROL, etc. |
+| 2.3.1 / 2.4 | `New(V2_3_1)`, `New(V2_4)` | `MSH.9.3` becomes optional / composite‑allowed. |
+| 2.5 → 2.7.1 | `New(V2_5)`, `New(V2_5_1)`, `New(V2_6)`, `New(V2_7)`, `New(V2_7_1)` | Adds SFT, SPM, and many other segments. |
+| 2.8 | `New(V2_8)` | Latest supported. Inherits the full 2.7.1 surface. |
 
 ---
 
@@ -94,7 +95,7 @@ Resulting MSH (HL7 2.5):
 MSH|^~\&|SENDING_APP|SENDING_FAC|RECEIVING_APP|RECEIVING_FAC|20240101000000||ADT^A01|MSG00001|P|2.5
 ```
 
-> ⚠️ Calling any other `Build*` method before `BuildMSH` panics with `HL7FatalError("MSH Header must be built first.")`. Calling `BuildMSH` twice panics with `HL7FatalError("You can only have one MSH Header per HL7 Message.")`.
+> ⚠️ Calling any other `Build*` method before `BuildMSH` records `HL7FatalError("MSH Header must be built first.")` and short-circuits the chain. Calling `BuildMSH` twice records `HL7FatalError("You can only have one MSH Header per HL7 Message.")`. The error comes back from `ToMessage()`/`Err()`.
 
 > 💡 **`Props` is `map[string]any`.** It accepts the spec property keys (`msh_3`, `pid_5`, `obx_5`, …), bare field numbers as strings (`"3"`), human‑friendly aliases on MSH (`sendingApplication`, `receivingFacility`, …), and — for composite fields — a typed component object. Values may be `string`, `int`, `time.Time`, or a `map[string]any` composite.
 
@@ -187,7 +188,7 @@ The canonical example — `ECD.4 Requested Completion Time`:
 | 2.7 / 2.7.1 / 2.8 | W | `HL7ValidationError("Field ECD.4 is withdrawn in HL7 v2.7…")`. |
 
 ```go
-b := hl7.NewHL7_2_8()
+b := hl7.New(hl7.V2_8)
 b.On("warning", func(m string) { fmt.Println("⚠️", m) })
 
 b.BuildMSH(hl7.Props{"msh_9": "ADT^A01", "msh_10": "X", "msh_11": "P"})
@@ -195,21 +196,23 @@ b.BuildMSH(hl7.Props{"msh_9": "ADT^A01", "msh_10": "X", "msh_11": "P"})
 // ✅ ok — ECD.1, ECD.2 are R, ECD.3 is O.
 b.BuildECD(hl7.Props{"ecd_1": "1", "ecd_2": "RC^Pause^HL70368", "ecd_3": "Y"})
 
-// 💥 panics — ECD.4 is W in 2.8.
+// 🛑 records an error — ECD.4 is W in 2.8. Check it with b.Err()/ToMessage().
 b.BuildECD(hl7.Props{"ecd_1": "2", "ecd_2": "RC^Resume^HL70368", "ecd_4": "20240101"})
 
-// 💥 panics — ECD didn't exist before v2.4.
-hl7.NewHL7_2_3_1().BuildECD(hl7.Props{"ecd_1": "1"}) // "Segment ECD is not part of HL7 v2.3.1"
+// 🛑 records an error — ECD didn't exist before v2.4.
+_, err := hl7.New(hl7.V2_3_1).
+    BuildECD(hl7.Props{"ecd_1": "1"}).
+    ToMessage() // err: "Segment ECD is not part of HL7 v2.3.1"
 ```
 
 ### Inspecting the spec at runtime
 
-The full catalogue is exported as `metadata.SEGMENT_SPECS` so you can introspect, pretty-print, or build your own UI/codegen on top of it:
+The full catalogue is exported as `metadata.SegmentSpecs` so you can introspect, pretty-print, or build your own UI/codegen on top of it:
 
 ```go
 import "github.com/Bugs5382/go-hl7/client/hl7/metadata"
 
-ecd := metadata.SEGMENT_SPECS["ECD"]
+ecd := metadata.SegmentSpecs["ECD"]
 fmt.Println(ecd.Versions)
 // → [2.4 2.5 2.5.1 2.6 2.7 2.7.1 2.8]
 
@@ -226,7 +229,7 @@ For composite HL7 data types (`XAD`, `XPN`, `CE`, `CWE`, `CX`, `EI`, `HD`, …),
 
 ```go
 var pid11 metadata.FieldSpec
-for _, f := range metadata.SEGMENT_SPECS["PID"].Fields {
+for _, f := range metadata.SegmentSpecs["PID"].Fields {
     if f.Num == 11 {
         pid11 = f
         break
@@ -252,7 +255,7 @@ Primitive types (`ST`, `NM`, `ID`, `DTM`, `SI`, …) have no `Components`.
 A composite field may also be given as a `map[string]any` of its components. The composer joins them with `^`, trims trailing empties, and validates each component against its spec (R required, W/X rejected, max-length checked):
 
 ```go
-b := hl7.NewHL7_2_8()
+b := hl7.New(hl7.V2_8)
 b.BuildMSH(hl7.Props{"msh_9": "ADT^A01", "msh_10": "X", "msh_11": "P"})
 
 // Style A — typed object (composer handles the `^` joining + validation)
@@ -285,23 +288,23 @@ Component keys are resolved in this precedence order:
 3. `<lowerType>_<num>` key — `obj["xad_1"]`, `obj["xpn_3"]`, …
 4. camelCase rendering of the component name — `obj["streetAddress"]`, `obj["zipOrPostalCode"]`, …
 
-Trailing empty components are trimmed (an XAD with only Street/City emits `Street^^City`, not `Street^^City^^^…^^`). Per-component R/W/X/length validation raises `HL7ValidationError` on violation:
+Trailing empty components are trimmed (an XAD with only Street/City emits `Street^^City`, not `Street^^City^^^…^^`). Per-component R/W/X/length validation records `HL7ValidationError` on violation:
 
 ```go
-// XAD.6 (Country) has max length 3 — this throws.
+// XAD.6 (Country) has max length 3 — this records an error on the builder.
 b.BuildPID(hl7.Props{
     "pid_11": map[string]any{
         "streetAddress": "123 Elm St",
-        "country":       "UNITED_STATES_OF_AMERICA", // 💥 length > 3
+        "country":       "UNITED_STATES_OF_AMERICA", // 🛑 length > 3
     },
 })
 ```
 
-The full component layout for any composite type is exposed at runtime via `metadata.DATA_TYPES`:
+The full component layout for any composite type is exposed at runtime via `metadata.DataTypes`:
 
 ```go
-metadata.DATA_TYPES["XAD"] // → []metadata.ComponentSpec for XAD
-metadata.DATA_TYPES["CWE"] // → []metadata.ComponentSpec for CWE
+metadata.DataTypes["XAD"] // → []metadata.ComponentSpec for XAD
+metadata.DataTypes["CWE"] // → []metadata.ComponentSpec for CWE
 ```
 
 > 🛠️ The metadata is generated from Caristix and committed to the repo. End users make zero network calls — the data ships pre-baked.
@@ -314,7 +317,7 @@ Every `Build*` method returns the builder itself, so you can chain or stay imper
 
 ```go
 // Chained — concise, reads top-to-bottom.
-wire := hl7.NewHL7_2_8().
+wire := hl7.New(hl7.V2_8).
     BuildMSH(hl7.Props{"msh_9": "ADT^A01", "msh_10": "MSG1", "msh_11": "P"}).
     BuildEVN(hl7.Props{"evn_1": "A01"}).
     BuildPID(hl7.Props{"pid_3": "MRN1", "pid_5": "DOE^JANE"}).
@@ -323,7 +326,7 @@ wire := hl7.NewHL7_2_8().
     String()
 
 // Imperative — easier to interleave with branching/conditionals.
-b := hl7.NewHL7_2_8()
+b := hl7.New(hl7.V2_8)
 b.BuildMSH(hl7.Props{"msh_9": "ADT^A01", "msh_10": "MSG1", "msh_11": "P"})
 if event != "" {
     b.BuildEVN(hl7.Props{"evn_1": event})
@@ -332,7 +335,7 @@ b.BuildPID(hl7.Props{"pid_3": mrn, "pid_5": name})
 wire2 := b.String()
 ```
 
-Chaining always returns `*hl7.HL7_BASE`, so version-introduced segments (e.g. `BuildECD` on `NewHL7_2_4` and later) remain callable mid-chain.
+Chaining always returns `*hl7.Builder`, so version-introduced segments (e.g. `BuildECD` on `New(V2_4)` and later) remain callable mid-chain.
 
 ---
 
@@ -341,7 +344,7 @@ Chaining always returns `*hl7.HL7_BASE`, so version-introduced segments (e.g. `B
 The hand‑tuned `Build<NAME>` typed methods cover the segments with a dedicated interface. For the long tail (~187 segments total in the spec, including obscure ones like `ABS`, `ADJ`, `AFF`, `BPO`, `MFA`, `MFR`, `OBP`, `PEX`, `PSL`, `RXC`, `SAC`, `SLR`, `SUR`, `UAC`, …), use `BuildSegment(name, props)` — a universal chainable builder driven by the same `SegmentSpec` metadata, with full R/O/B/W/D/X enforcement.
 
 ```go
-b := hl7.NewHL7_2_8().
+b := hl7.New(hl7.V2_8).
     BuildMSH(hl7.Props{"msh_9": "ADT^A01", "msh_10": "X", "msh_11": "P"}).
     // Use the typed method when you have one.
     BuildPID(hl7.Props{"pid_3": "MRN1", "pid_5": "DOE^JANE"}).
@@ -414,7 +417,7 @@ A quick map of the HL7 delimiters you'll most often use inside these strings:
 >
 > **`Set`/`SetIndex` style** — verbose but programmatic:
 > ```go
-> msg := builder.ToMessage()
+> msg, _ := builder.ToMessage() // handle the error in real code
 > msg.Get("PV1.7").Index(0).SetIndex(1, "Jones").SetIndex(2, "John")
 > msg.Get("PV1.7").Index(1).SetIndex(1, "Smith").SetIndex(2, "Bob")
 > ```
@@ -436,7 +439,7 @@ Pass a `time.Time` (or omit and let the builder pick "now"). The builder formats
 | `"14"` (default) | `YYYYMMDDHHMMSS` | `20240101093015` |
 
 ```go
-builder := hl7.NewHL7_2_5(hl7.Options{Date: "8"})
+builder := hl7.New(hl7.V2_5, hl7.Options{Date: "8"})
 builder.BuildEVN(hl7.Props{"evn_1": "A01", "evn_2": time.Now()})
 // EVN|A01|20240101
 ```
@@ -458,7 +461,7 @@ Defaults — the HL7 standard:
 Override on the builder options (they're embedded in `MSH.1`/`MSH.2` and **cannot** be changed via `Set()`):
 
 ```go
-builder := hl7.NewHL7_2_5(hl7.Options{
+builder := hl7.New(hl7.V2_5, hl7.Options{
     SeparatorField:        "!",
     SeparatorComponent:    "+",
     SeparatorSubComponent: "]",
@@ -473,12 +476,15 @@ builder := hl7.NewHL7_2_5(hl7.Options{
 
 ## ✏️ Direct edits with `msg.Set(...)`
 
-`ToMessage()` returns a real `*builder.Message` you can keep mutating after the builder is done. This is essential for fields the typed builders don't surface (e.g. obscure repetitions or custom Z‑segments).
+`ToMessage()` returns a real `*builder.Message` (plus the first build error) you can keep mutating after the builder is done. This is essential for fields the typed builders don't surface (e.g. obscure repetitions or custom Z‑segments).
 
 > 💡 If you only need composites or repetitions on a field the builder *does* surface, you can usually skip `Set(...)` chains entirely and pass an HL7 composite string straight to the builder prop — see [Composite values inline](#-composite-values-inline--pass-the-whole-string).
 
 ```go
-msg := builder.ToMessage()
+msg, err := builder.ToMessage()
+if err != nil {
+    return err
+}
 
 // Set a single field (1-based dotted HL7 path):
 msg.Set("PID.13", "555-0100")
@@ -568,8 +574,8 @@ import (
     "github.com/Bugs5382/go-hl7/client/hl7"
 )
 
-func createADT_A01(mrn, name, ctrlID string) *builder.Message {
-    return hl7.NewHL7_2_5().
+func createADT_A01(mrn, name, ctrlID string) (*builder.Message, error) {
+    return hl7.New(hl7.V2_5).
         BuildMSH(hl7.Props{
             "msh_3":  "MY_APP",
             "msh_4":  "MY_FAC",
@@ -584,8 +590,11 @@ func createADT_A01(mrn, name, ctrlID string) *builder.Message {
         ToMessage()
 }
 
-_ = conn.SendMessage(createADT_A01("MRN12345", "DOE^JANE^A", "MSG00001"))
-_ = conn.SendMessage(createADT_A01("MRN67890", "ROE^JOHN^B", "MSG00002"))
+m1, err := createADT_A01("MRN12345", "DOE^JANE^A", "MSG00001")
+if err != nil {
+    return err
+}
+_ = conn.SendMessage(m1)
 ```
 
 Keeps callsites readable and test fixtures consistent.
@@ -608,28 +617,19 @@ import (
     "github.com/Bugs5382/go-hl7/client/helpers"
 )
 
-func tryBuild() (err error) {
-    defer func() {
-        if r := recover(); r != nil {
-            if e, ok := r.(error); ok {
-                err = e
-            }
-        }
-    }()
-    hl7.NewHL7_2_5().
-        BuildMSH(hl7.Props{"msh_9": "ADT^A01", "msh_10": "X", "msh_11": "P"}).
-        BuildPID(hl7.Props{"pid_8": "Q"}) // not in TABLE_0001
-    return nil
-}
+_, err := hl7.New(hl7.V2_5).
+    BuildMSH(hl7.Props{"msh_9": "ADT^A01", "msh_10": "X", "msh_11": "P"}).
+    BuildPID(hl7.Props{"pid_8": "Q"}). // not in TABLE_0001
+    ToMessage()
 
-if err := tryBuild(); errors.Is(err, helpers.ErrValidation) {
+if errors.Is(err, helpers.ErrValidation) {
     fmt.Println("🛑", err) // HL7ValidationError
 }
 ```
 
 | Mode | Behavior |
 |---|---|
-| Default (`HardError: false`) | R/length/table violations emit an `"error"` event and are collected. **W / X / "field not in this version" always panic.** |
-| `HardError: true` | Every violation panics immediately. Recommended in dev & CI. |
+| Default (`HardError: false`) | R/length/table violations emit an `"error"` event and are collected. **W / X / "field not in this version" always record a hard error.** |
+| `HardError: true` | Every violation is recorded as an error immediately. Recommended in dev & CI. |
 
-> 💡 Subscribe to the `"error"` and `"warning"` events on the builder to capture soft validation findings: `b.On("warning", func(m string) { log.Println(m) })`. Because the typed builders panic on hard validation failures (the Go analog of the spec's `throw`), wrap a builder run in `recover` if you need to turn those into errors at a boundary.
+> 💡 Subscribe to the `"error"` and `"warning"` events on the builder to capture soft validation findings: `b.On("warning", func(m string) { log.Println(m) })`. The typed builders record hard validation failures (the Go analog of the spec's `throw`) onto the builder; read them from `ToMessage()`/`Err()` to handle them at a boundary.

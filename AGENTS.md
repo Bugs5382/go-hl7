@@ -20,18 +20,18 @@ func ptr[T any](v T) *T { return &v }
 
 | Import path | What you use it for | Key exports |
 |---|---|---|
-| `github.com/Bugs5382/go-hl7/client/hl7` | Typed, version-aware **message builders**. | `NewHL7_2_1` … `NewHL7_2_8`, `Props` (`= map[string]any`), `Options`, `BuildMSH`, `Build<SEG>` (`BuildPID`, `BuildEVN`, `BuildOBX`, `BuildORC`, `BuildOBR`, `BuildPV1`, `BuildNTE`, `BuildMSA`, `BuildERR`, …), `BuildSegment(name, props)`, `ToMessage() *builder.Message`, `String()`. |
+| `github.com/Bugs5382/go-hl7/client/hl7` | Typed, version-aware **message builders**. | `New(v Version, opts ...Options) *Builder`, `Version` + the `V2_1` … `V2_8` constants, `Builder`, `Props` (`= map[string]any`), `Options`, `BuildMSH`, `Build<SEG>` (`BuildPID`, `BuildEVN`, `BuildOBX`, `BuildORC`, `BuildOBR`, `BuildPV1`, `BuildNTE`, `BuildMSA`, `BuildERR`, …), `BuildSegment(name, props)`, `ToMessage() (*builder.Message, error)`, `Err() error`, `CheckMSH(msh) error`, `String()`. |
 | `github.com/Bugs5382/go-hl7/client/builder` | The **wire message model** + parser. | `Message`, `Batch`, `FileBatch`; `NewMessage`, `NewBatch`, `NewFileBatch`; `MessageOptions`, `BatchOptions`, `FileOptions`; node API `Get(path)`, `Index(i)`, `Set(path, v)`, `SetIndex(i, v)`, `Exists(path)`, coercions `String/Int/Float/Bool/Date`. |
 | `github.com/Bugs5382/go-hl7/client/client` | The **outbound** TCP/MLLP client. | `NewClient`, `Client`, `Connection`, `ClientOptions`, `ClientListenerOptions`, `TLSConfig`, `InboundResponse`, `MessageItem`, `OutboundHandler`, `FallBackHandler`, `NotifyPendingCount`. |
 | `github.com/Bugs5382/go-hl7/client/modules` | The MLLP codec (rarely touched directly). | `MLLPCodec`, `NewMLLPCodec(returnChar string)`, `(*MLLPCodec).SendMessage(w io.Writer, msg string)`. |
 | `github.com/Bugs5382/go-hl7/server` | The **inbound** TCP/TLS listener. | `NewServer`, `Server`, `ServerOptions`, `ListenerOptions`, `TLSConfig`, `CreateInbound`, `Inbound`, `InboundRequest`, `ResponseSender`, `InboundHandler`, `MSHOverride`, `StringOverride`, `FuncOverride`. |
 | `github.com/Bugs5382/go-hl7/client/helpers` | Error sentinels for `errors.Is`. | `ErrFatal` (`HL7FatalError`, 500), `ErrParser` (`HL7ParserError`, 404), `ErrValidation` (`HL7ValidationError`, 404). |
-| `github.com/Bugs5382/go-hl7/client/hl7/metadata` | Generated spec metadata. | `SEGMENT_SPECS map[string]SegmentSpec`, `DATATYPE_SPECS`, `SegmentSpec`, `FieldSpec`, `IsKnownVersion(v string) bool`. |
-| `github.com/Bugs5382/go-hl7/client/hl7/tables` | Generated HL7 value tables. | `TABLES map[string]map[string][]string` (version → tableID → allowed codes). |
+| `github.com/Bugs5382/go-hl7/client/hl7/metadata` | Generated spec metadata. | `SegmentSpecs map[string]SegmentSpec`, `DataTypes map[string][]ComponentSpec`, `SegmentSpec`, `FieldSpec`, `IsKnownVersion(v string) bool`. |
+| `github.com/Bugs5382/go-hl7/client/hl7/tables` | Generated HL7 value tables. | `Tables map[string]map[string][]string` (version → tableID → allowed codes). |
 | `github.com/Bugs5382/go-hl7/client/utils` | Small helpers. | `CreateHL7Date(t time.Time, length string) string` (length `""`/`"8"`/`"12"`/`"14"`). |
 
 Version constructors (no implicit default — the constructor *is* the version selector):
-`NewHL7_2_1`, `NewHL7_2_2`, `NewHL7_2_3`, `NewHL7_2_3_1`, `NewHL7_2_4`, `NewHL7_2_5`, `NewHL7_2_5_1`, `NewHL7_2_6`, `NewHL7_2_7`, `NewHL7_2_7_1`, `NewHL7_2_8`. Each takes an optional `hl7.Options` (`hl7.NewHL7_2_5()` is valid).
+`New(V2_1)`, `New(V2_2)`, `New(V2_3)`, `New(V2_3_1)`, `New(V2_4)`, `New(V2_5)`, `New(V2_5_1)`, `New(V2_6)`, `New(V2_7)`, `New(V2_7_1)`, `New(V2_8)`. Each takes an optional `hl7.Options` (`hl7.New(hl7.V2_5)` is valid).
 
 ---
 
@@ -40,16 +40,17 @@ Version constructors (no implicit default — the constructor *is* the version s
 1. **HL7 version is REQUIRED per connection — and mismatches are rejected.**
    - **Client:** `ClientOptions.Version` is mandatory and single-set. It must be one of `2.1, 2.2, 2.3, 2.3.1, 2.4, 2.5, 2.5.1, 2.6, 2.7, 2.7.1, 2.8`, else `NewClient` returns `version is not defined.` / `version is not a valid HL7 version.`. Before any send, the message's `MSH.12` **must equal** the client version; if it differs, `conn.SendMessage` returns an error and **does not transmit** (for a batch/file, *every* inner message must match). Error text: `message version "2.5" does not match the connection version "2.7".`
    - **Server:** `ListenerOptions.Version` is mandatory **per listener** (same valid set / errors from `CreateInbound`). When an inbound `MSH.12` differs, the server replies with an **`AR`** (Application Reject) ACK, emits a version-mismatch `data.error` event, and **does not call your handler**. Dedicate one port per version.
-   - This is intentional and diverges from node-hl7 (which is version-agnostic on the transport). Build the message with the **matching version constructor** for the connection.
+   - Build the message with the **matching version constructor** for the connection.
 
-2. **`BuildMSH` must run first.** Calling any other `Build*` (or `BuildSegment`) before `BuildMSH` **panics** with `HL7FatalError("MSH Header must be built first.")`. Calling `BuildMSH` twice **panics** with `HL7FatalError("You can only have one MSH Header per HL7 Message.")`. MSH must go through `BuildMSH`, not `BuildSegment("MSH", …)`.
+2. **`BuildMSH` must run first.** Calling any other `Build*` (or `BuildSegment`) before `BuildMSH` records `HL7FatalError("MSH Header must be built first.")` on the builder. Calling `BuildMSH` twice records `HL7FatalError("You can only have one MSH Header per HL7 Message.")`. The first such error stops the chain and surfaces from `ToMessage()`/`Err()`. MSH must go through `BuildMSH`, not `BuildSegment("MSH", …)`.
 
 3. **Value-table enforcement is a hard, version-aware error.** Table-bound fields/components (e.g. `MSA.1`→`0008`, `PID.8`→`0001`, `OBX.11`→`0085`) are validated against the value set for the active version. An out-of-table code raises `HL7ValidationError` — and a code valid in one version can be rejected in another. Per-version usage codes also apply: withdrawn (`W`/`X`) fields error, backward-compat (`B`) fields warn, and segments that didn't exist in the version are refused.
 
-4. **Panics vs errors — know which is which.**
+4. **Errors vs panics — know which is which.**
    - **Return `error`:** all constructors — `NewClient`, `CreateConnection`, `NewServer`, `CreateInbound`, `builder.NewMessage`/`NewBatch`/`NewFileBatch` — and senders `conn.SendMessage`, `res.SendResponse`, `res.SendCustomResponse`.
-   - **Panic with a typed `HL7Error`:** the spec-driven builders (`BuildMSH`/`Build<SEG>`/`BuildSegment`) on hard validation/usage failures, and some structural reads. Set `hl7.Options{HardError: true}` to make *soft* findings panic too; otherwise they surface via `b.On("error"/"warning", func(string))`. If you need errors at a boundary, wrap the builder run in `recover`.
-   - Match returned errors with `errors.Is(err, helpers.ErrParser | helpers.ErrValidation | helpers.ErrFatal)`.
+   - **Recorded on the builder:** the spec-driven builders (`BuildMSH`/`Build<SEG>`/`BuildSegment`) keep returning `*Builder` for chaining but accumulate the *first* hard validation/usage failure as a typed `HL7Error`. It short-circuits the rest of the chain and comes back from `ToMessage() (*builder.Message, error)` or `Err()`. `CheckMSH(msh) error` returns its failure directly. Set `hl7.Options{HardError: true}` to promote *soft* findings to recorded errors too; otherwise they surface via `b.On("error"/"warning", func(string))`.
+   - **Still panic (genuine programmer misuse):** `InboundRequest.GetMessage`/`GetSocket` when undefined, and the abstract `EmptyNode`/node-base structural-access stubs.
+   - Match any of these errors with `errors.Is(err, helpers.ErrParser | helpers.ErrValidation | helpers.ErrFatal)`.
 
 5. **Reads never panic on a missing path.** `Get(path)` of a missing node returns a shared **empty node**, so `Get(...).String()` always yields `""`. Use `Exists(path)` to distinguish. Coercions return `(T, ok)` — never a bare value.
 
@@ -70,7 +71,7 @@ import (
 )
 
 func buildADT() *builder.Message {
-	b := hl7.NewHL7_2_7(). // version pinned by the constructor
+	b := hl7.New(hl7.V2_7). // version pinned by the constructor
 		BuildMSH(hl7.Props{ // MUST be first
 			"msh_3":  "MY_APP",
 			"msh_4":  "MY_FAC",
@@ -93,7 +94,10 @@ func buildADT() *builder.Message {
 			"dg1_3": "I10^Diagnosis^I10",
 		})
 
-	msg := b.ToMessage() // *builder.Message — keep mutating or send it
+	msg, err := b.ToMessage() // *builder.Message + first validation error, if any
+	if err != nil {
+		panic(err) // a real app would return it
+	}
 	msg.Set("PID.13", "555-0100")       // dotted path, 1-based
 	seg, _ := msg.AddSegment("NTE")     // returns (*Segment, error)
 	_ = seg
@@ -117,7 +121,7 @@ b.BuildPID(hl7.Props{
 Non-standard encoding chars (embedded in `MSH.1`/`MSH.2`, immutable after construction):
 
 ```go
-b := hl7.NewHL7_2_5(hl7.Options{
+b := hl7.New(hl7.V2_5, hl7.Options{
 	SeparatorField: "!", SeparatorComponent: "+", SeparatorSubComponent: "]",
 	SeparatorRepetition: "?", SeparatorEscape: "#",
 })
@@ -387,7 +391,7 @@ case errors.Is(err, helpers.ErrFatal):      // HL7FatalError (500) — fatal usa
 }
 ```
 
-Builders **panic** typed `HL7Error`s on hard validation; wrap in `recover` to convert at a boundary.
+Builders **accumulate** typed `HL7Error`s on hard validation and hand them back from `ToMessage()`/`Err()` — check the error after the chain rather than wrapping it in `recover`.
 
 ---
 

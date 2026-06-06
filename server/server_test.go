@@ -127,7 +127,7 @@ func TestServerClass(t *testing.T) {
 }
 
 func TestServerOptionNormalization(t *testing.T) {
-	// Mirrors hl7.dualstack.test.ts "Server option normalization".
+	// Server option normalization.
 	t.Run("IPv4-only is the default", func(t *testing.T) {
 		s := newServer(t, nil)
 		if !s.opt.IPv4 || s.opt.IPv6 || s.opt.BindAddress != "0.0.0.0" || s.opt.IPv6Only {

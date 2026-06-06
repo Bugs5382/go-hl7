@@ -32,14 +32,14 @@ import (
 	"github.com/Bugs5382/go-hl7/client/hl7/metadata"
 )
 
-// These tests mirror the hl7.composite-objects.test.ts: composite HL7
+// These tests check that composite HL7
 // fields (XAD, XPN) accept typed component objects in addition to pre-formatted
 // ^-delimited strings, the composer validates each component (R/W/X, length),
 // and object/string forms produce byte-identical wire output. The typed
 // component objects are modeled as the same Props maps the builder accepts.
 
-func compositeBuilder() *hl7.HL7_BASE {
-	b := hl7.NewHL7_2_8()
+func compositeBuilder() *hl7.Builder {
+	b := hl7.New(hl7.V2_8)
 	b.On("error", func(string) {})
 	b.BuildMSH(hl7.Props{
 		"msh_10": "X", "msh_11_1": "P",
@@ -97,21 +97,21 @@ func TestCompositeObjectInputs(t *testing.T) {
 
 	t.Run("max-length violation on a component is rejected", func(t *testing.T) {
 		b := compositeBuilder()
-		expectThrows(t, "", func() {
-			b.BuildPID(hl7.Props{
+		expectError(t, "", func() error {
+			return b.BuildPID(hl7.Props{
 				"pid_11": map[string]any{"country": "UNITED_STATES_OF_AMERICA", "streetAddress": "123 Elm St"},
 				"pid_3":  "MRN1", "pid_5": "DOE^JANE",
-			})
+			}).Err()
 		})
 	})
 
 	t.Run("withdrawn component (W) is rejected when set", func(t *testing.T) {
 		b := compositeBuilder()
-		expectThrows(t, "withdrawn", func() {
-			b.BuildPID(hl7.Props{
+		expectError(t, "withdrawn", func() error {
+			return b.BuildPID(hl7.Props{
 				"pid_3": "MRN1",
 				"pid_5": map[string]any{"xpn_1": "DOE", "xpn_10": "shouldNotSet", "xpn_2": "JANE"},
-			})
+			}).Err()
 		})
 	})
 
@@ -121,17 +121,17 @@ func TestCompositeObjectInputs(t *testing.T) {
 		contains(t, b.String(), "19800101")
 	})
 
-	t.Run("DATA_TYPES catalogue exposes composite layout", func(t *testing.T) {
-		if len(metadata.DATA_TYPES["XAD"]) < 20 {
-			t.Fatalf("XAD has %d components, want >= 20", len(metadata.DATA_TYPES["XAD"]))
+	t.Run("DataTypes catalogue exposes composite layout", func(t *testing.T) {
+		if len(metadata.DataTypes["XAD"]) < 20 {
+			t.Fatalf("XAD has %d components, want >= 20", len(metadata.DataTypes["XAD"]))
 		}
-		if len(metadata.DATA_TYPES["XPN"]) < 10 {
-			t.Fatalf("XPN has %d components, want >= 10", len(metadata.DATA_TYPES["XPN"]))
+		if len(metadata.DataTypes["XPN"]) < 10 {
+			t.Fatalf("XPN has %d components, want >= 10", len(metadata.DataTypes["XPN"]))
 		}
 		var xad1 *metadata.ComponentSpec
-		for i := range metadata.DATA_TYPES["XAD"] {
-			if metadata.DATA_TYPES["XAD"][i].Num == 1 {
-				xad1 = &metadata.DATA_TYPES["XAD"][i]
+		for i := range metadata.DataTypes["XAD"] {
+			if metadata.DataTypes["XAD"][i].Num == 1 {
+				xad1 = &metadata.DataTypes["XAD"][i]
 			}
 		}
 		if xad1 == nil || xad1.Name != "Street Address" {

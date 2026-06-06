@@ -30,15 +30,11 @@ import (
 	"github.com/Bugs5382/go-hl7/client/hl7"
 )
 
-// Mirrors __tests__/client/hl7.server.parser.test.ts: the _createAckMessage
-// helper (from the client test __utils__) builds an ACK off an inbound message
-// via the HL7_2_1 builder, exercised here for diagnostics.
-
-// createAckMessage ports the test util _createAckMessage(type, message): build
-// an HL7_2_1 ACK that swaps the inbound MSH routing fields and echoes MSH.10.
+// createAckMessage builds a v2.1 ACK off an inbound message: it swaps the
+// inbound MSH routing fields and echoes MSH.10.
 func createAckMessage(t *testing.T, ackType string, message *builder.Message) *builder.Message {
 	t.Helper()
-	messageBuild := hl7.NewHL7_2_1()
+	messageBuild := hl7.New(hl7.V2_1)
 	messageBuild.BuildMSH(hl7.Props{
 		"msh_10": "12345",
 		"msh_11": "T",
@@ -52,7 +48,11 @@ func createAckMessage(t *testing.T, ackType string, message *builder.Message) *b
 		"msa_1": ackType,
 		"msa_2": message.Get("MSH.10").String(),
 	})
-	return messageBuild.ToMessage()
+	msg, err := messageBuild.ToMessage()
+	if err != nil {
+		t.Fatalf("unexpected build error: %v", err)
+	}
+	return msg
 }
 
 func TestServerParserCreatesAAAck(t *testing.T) {

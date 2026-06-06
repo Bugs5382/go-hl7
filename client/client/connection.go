@@ -34,13 +34,13 @@ import (
 	"time"
 
 	"github.com/Bugs5382/go-hl7/client/builder"
-	"github.com/Bugs5382/go-hl7/client/declaration"
 	"github.com/Bugs5382/go-hl7/client/helpers"
+	"github.com/Bugs5382/go-hl7/client/internal/declaration"
 	"github.com/Bugs5382/go-hl7/client/modules"
 	"github.com/Bugs5382/go-hl7/client/utils"
 )
 
-// connectionStats mirrors the Connection.stats per-connection counters.
+// connectionStats holds the per-connection counters.
 type connectionStats struct {
 	acknowledged int
 	pending      int
@@ -49,13 +49,12 @@ type connectionStats struct {
 
 // Connection is one TCP/MLLP (optionally TLS) connection to a remote port. It
 // auto-reconnects with exponential backoff, serializes sends on the ACK when
-// waitAck is set, and queues messages while disconnected. It mirrors the reference's
-// Connection (an EventEmitter) over the same event names via the embedded
-// eventEmitter: connect, close, connection, open, connecting, client.sent,
+// waitAck is set, and queues messages while disconnected. It embeds
+// EventEmitter and emits: connect, close, connection, open, connecting, client.sent,
 // client.acknowledged, client.error, client.timeout, client.pending,
 // client.limitExceeded, data.raw, data.error.
 type Connection struct {
-	eventEmitter
+	EventEmitter
 
 	handler OutboundHandler
 	main    *Client
@@ -90,8 +89,7 @@ type Connection struct {
 	stats connectionStats
 }
 
-// newConnection constructs and (when autoConnect) starts a connection,
-// mirroring the Connection constructor.
+// newConnection constructs and (when autoConnect) starts a connection.
 func newConnection(client *Client, properties ClientListenerOptions, handler OutboundHandler) (*Connection, error) {
 	opt, err := normalizeClientListenerOptions(client.opt, properties)
 	if err != nil {
@@ -133,9 +131,9 @@ func newConnection(client *Client, properties ClientListenerOptions, handler Out
 	return c, nil
 }
 
-// Close force-closes the connection, stopping reconnection timers. It mirrors
-// the close(): a CLOSING connection waits for the socket close, a CONNECTING
-// one clears its retry timer first. Restarting requires a fresh Connect.
+// Close force-closes the connection, stopping reconnection timers. A CLOSING
+// connection waits for the socket close, a CONNECTING one clears its retry
+// timer first. Restarting requires a fresh Connect.
 func (c *Connection) Close() error {
 	c.mu.Lock()
 	switch c.readyState {
@@ -175,8 +173,8 @@ func (c *Connection) Close() error {
 	return nil
 }
 
-// Connect starts the connection if it was not auto-started, mirroring the
-// connect(). It is a no-op while already connecting/connected/open.
+// Connect starts the connection if it was not auto-started. It is a no-op while
+// already connecting/connected/open.
 func (c *Connection) Connect() error {
 	c.mu.Lock()
 	state := c.readyState
@@ -200,7 +198,7 @@ func (c *Connection) Connect() error {
 	return nil
 }
 
-// GetPort returns the port this connection dials, mirroring the getPort.
+// GetPort returns the port this connection dials.
 func (c *Connection) GetPort() int { return c.opt.port }
 
 // IsConnected reports whether the connection has reached the CONNECTED state.
@@ -215,15 +213,15 @@ func (c *Connection) IsConnected() bool {
 
 // SendMessage frames and sends a message to the remote side. When not ready
 // (disconnected, or waitAck with an outstanding ACK) it queues the message and
-// kicks off a connection attempt. It mirrors the sendMessage including the
-// maxAttempts retry loop and the waitAck serialization gate.
+// kicks off a connection attempt, applying the maxAttempts retry loop and the
+// waitAck serialization gate.
 func (c *Connection) SendMessage(message MessageItem) error {
 	theMessage := message.String()
 
 	// Enforce the client's required HL7 version before queueing or sending: every
 	// outgoing message's MSH.12 must equal the configured version. For a batch or
 	// file, every contained message must match. A mismatch is rejected and not
-	// sent (an intentional divergence from node-hl7).
+	// sent.
 	if err := c.assertVersion(theMessage); err != nil {
 		return err
 	}
@@ -338,8 +336,8 @@ func assertMessageVersion(msg *builder.Message, want string) error {
 }
 
 // connect dials the socket (TCP or TLS) and wires the connect/data/close/error
-// handling onto a read goroutine, mirroring the _connect. The dial runs in a
-// goroutine so the events fire asynchronously the way the libuv connect does.
+// handling onto a read goroutine. The dial runs in a goroutine so the events
+// fire asynchronously.
 func (c *Connection) connect() {
 	host := c.main.opt.host
 	port := c.opt.port
@@ -360,7 +358,7 @@ func (c *Connection) connect() {
 	state := c.readyState
 	c.mu.Unlock()
 
-	// the spec arms a connection timeout when timeout > 0 and we are
+	// Arm a connection timeout when timeout > 0 and we are
 	// connecting/connected; it destroys the socket on fire and stops after
 	// maxTimeout occurrences.
 	if connTimeout > 0 && (state == declaration.Connected || state == declaration.Connecting) {
@@ -430,8 +428,8 @@ func familyNetwork(family int) string {
 	}
 }
 
-// buildTLSConfig maps the TLSConfig to a *tls.Config, mirroring the
-// tls.connect option pass-through (rejectUnauthorized, ca, servername, cert).
+// buildTLSConfig maps the TLSConfig to a *tls.Config (rejectUnauthorized, ca,
+// servername, cert).
 func buildTLSConfig(cfg *TLSConfig, dialHost string) *tls.Config {
 	out := &tls.Config{ServerName: dialHost}
 	if cfg.ServerName != "" {
@@ -480,8 +478,8 @@ func (c *Connection) handleConnect(conn net.Conn) {
 }
 
 // readLoop reads framed bytes off the socket, feeds the codec, and dispatches
-// completed messages to the handler. It mirrors the socket "data" handler.
-// It returns (and triggers the close handling) when the socket ends/errors.
+// completed messages to the handler. It returns (and triggers the close
+// handling) when the socket ends/errors.
 func (c *Connection) readLoop(conn net.Conn, gen int) {
 	buf := make([]byte, 4096)
 	for {
@@ -497,8 +495,7 @@ func (c *Connection) readLoop(conn net.Conn, gen int) {
 }
 
 // onData feeds a chunk into the codec and, once a full frame is buffered,
-// parses the response(s) and invokes the handler. It mirrors the data
-// handler (receiveData -> getLastMessage -> Batch|Message -> InboundResponse).
+// parses the response(s) and invokes the handler.
 func (c *Connection) onData(chunk []byte) {
 	c.mu.Lock()
 	codec := c.codec
@@ -546,7 +543,7 @@ func (c *Connection) onData(chunk []byte) {
 
 	if utils.IsBatch(completed) {
 		// A batched response is parsed and each message delivered individually so
-		// every ACK reaches the handler, mirroring Batch.messages().
+		// every ACK reaches the handler.
 		parser, err := builder.NewBatch(builder.BatchOptions{Text: completed})
 		if err != nil {
 			c.emit("data.error", err)
@@ -561,8 +558,7 @@ func (c *Connection) onData(chunk []byte) {
 }
 
 // deliver parses one message body into an InboundResponse and hands it to the
-// outbound handler, bumping the acknowledged counter. It mirrors the per-message
-// tail of the data handler.
+// outbound handler, bumping the acknowledged counter.
 func (c *Connection) deliver(msgText string) {
 	parsed, err := builder.NewMessage(builder.MessageOptions{Text: msgText})
 	if err != nil {
@@ -584,9 +580,8 @@ func (c *Connection) deliver(msgText string) {
 	_ = c.handler(response)
 }
 
-// handleSocketError records the first socket error, mirroring the socket
-// "error" handler which keeps only the first error and surfaces the code as
-// client.error from the close handler. Here we emit client.error directly with
+// handleSocketError records the first socket error, keeping only the first
+// error and surfacing its code as client.error. It emits client.error directly with
 // the underlying error so callers can inspect its code (ECONNREFUSED maps to a
 // connection-refused error string).
 func (c *Connection) handleSocketError(err error) {
@@ -618,7 +613,7 @@ func (c *Connection) handleSocketClose(gen int, cause error) {
 	}
 
 	connTimeout := c.main.opt.connectionTimeout
-	// the spec only reconnects when connectionTimeout > 0; with timeout 0 it stays
+	// Reconnect only when connectionTimeout > 0; with timeout 0 it stays
 	// closed after the socket drops (but still surfaces the error once).
 	connErr := c.lastError
 	if connErr == nil {
@@ -662,7 +657,7 @@ func (c *Connection) handleSocketClose(gen int, cause error) {
 }
 
 // normalizeDialError surfaces a connection-refused error with a stable
-// ECONNREFUSED marker so callers can match it the way the spec exposes error.code.
+// ECONNREFUSED marker so callers can match on it.
 func normalizeDialError(err error) error {
 	if err == nil {
 		return err
@@ -692,8 +687,8 @@ func (e *dialError) Unwrap() error { return e.err }
 // Code returns the errno-style code (e.g. "ECONNREFUSED").
 func (e *dialError) Code() string { return e.code }
 
-// defaultEnqueueMessage is the in-memory queue store, mirroring the
-// defaultEnqueueMessage including the overflow handling at maxLimit.
+// defaultEnqueueMessage is the in-memory queue store, including overflow
+// handling at maxLimit.
 func (c *Connection) defaultEnqueueMessage(message MessageItem, notifyPendingCount NotifyPendingCount) error {
 	c.mu.Lock()
 	if len(c.pendingMessages) == c.maxLimit {
@@ -705,8 +700,7 @@ func (c *Connection) defaultEnqueueMessage(message MessageItem, notifyPendingCou
 	return notifyPendingCount(count)
 }
 
-// defaultFlushQueue drains the in-memory queue back into the connection,
-// mirroring the defaultFlushQueue.
+// defaultFlushQueue drains the in-memory queue back into the connection.
 func (c *Connection) defaultFlushQueue(callback FallBackHandler, notifyPendingCount NotifyPendingCount) error {
 	for {
 		c.mu.Lock()
@@ -726,8 +720,7 @@ func (c *Connection) defaultFlushQueue(callback FallBackHandler, notifyPendingCo
 }
 
 // handleQueueOverflow drops the oldest message (unless extendMaxLimit) and
-// optionally emits client.limitExceeded. Caller holds c.mu. Mirrors the
-// handleQueueOverflow.
+// optionally emits client.limitExceeded. Caller holds c.mu.
 func (c *Connection) handleQueueOverflow() {
 	if !c.extendMaxLimit {
 		c.pendingMessages = c.pendingMessages[1:]
@@ -739,8 +732,7 @@ func (c *Connection) handleQueueOverflow() {
 	}
 }
 
-// handlePendingUpdate records the pending depth and emits client.pending,
-// mirroring the _handlePendingUpdate.
+// handlePendingUpdate records the pending depth and emits client.pending.
 func (c *Connection) handlePendingUpdate(count int) error {
 	c.mu.Lock()
 	c.stats.pending = count

@@ -29,9 +29,8 @@ import (
 )
 
 // ExpBackoff calculates an exponential backoff/retry delay (where attempts >= 1
-// and exp > 1). It mirrors the expBackoff. The returned delay falls in
-// [step, max] where max grows with the attempt count up to high. Pass exp = 2
-// for the default exponent base.
+// and exp > 1). The returned delay falls in [step, max] where max grows with
+// the attempt count up to high. Pass exp = 2 for the default exponent base.
 func ExpBackoff(step, high, attempts, exp int) int {
 	slots := int(math.Ceil(math.Min(float64(high)/float64(step), math.Pow(float64(exp), float64(attempts)))))
 	maxDelay := slots * step

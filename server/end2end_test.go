@@ -37,8 +37,7 @@ import (
 	"github.com/Bugs5382/go-hl7/server"
 )
 
-// These tests mirror the client/server sanity + no-tls/tls blocks of
-// __tests__/client/hl7.end2end.test.ts and __tests__/server/hl7.end2end.test.ts:
+// These end-to-end tests cover the client/server sanity and no-tls/tls cases:
 // a real Client talks to a real Server over an ephemeral localhost port.
 
 func ptr[T any](v T) *T { return &v }
@@ -248,8 +247,8 @@ func TestEnd2EndListenerVersionMismatch(t *testing.T) {
 	_ = listener.Close()
 }
 
-// waitFor polls cond until true or the deadline, mirroring the implicit
-// settling the spec gets from its event loop / dfd.promise awaits.
+// waitFor polls cond until true or the deadline, letting asynchronous work
+// settle.
 func waitFor(t *testing.T, cond func() bool) {
 	t.Helper()
 	deadline := time.Now().Add(5 * time.Second)

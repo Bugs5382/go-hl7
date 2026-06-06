@@ -25,29 +25,28 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import "sync"
 
-// eventEmitter is a minimal Go EventEmitter, which both Client and Connection
+// EventEmitter is a minimal Go EventEmitter, which both Client and Connection
 // embed. It is a minimal On(event, handler) / Once / emit over string event
 // names (documented adaptation per spec 2.8). Handlers take a variadic []any
 // argument list so the same event set maps directly (numbers, errors, or no
 // args). It is safe for concurrent use because the socket data/close callbacks
 // fire from the connection's read goroutine while user code subscribes from
 // another.
-type eventEmitter struct {
+type EventEmitter struct {
 	mu        sync.Mutex
 	listeners map[string][]*emitterHandler
 }
 
 // emitterHandler wraps a registered callback and whether it is a one-shot
-// (the once) listener.
+// listener.
 type emitterHandler struct {
 	fn   func(args ...any)
 	once bool
 }
 
-// On registers handler for the named event, mirroring the
-// EventEmitter.on. It returns the emitter so registrations can be chained the
-// way the spec returns `this`.
-func (e *eventEmitter) On(name string, handler func(args ...any)) *eventEmitter {
+// On registers handler for the named event. It returns the emitter so
+// registrations can be chained.
+func (e *EventEmitter) On(name string, handler func(args ...any)) *EventEmitter {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	if e.listeners == nil {
@@ -58,8 +57,8 @@ func (e *eventEmitter) On(name string, handler func(args ...any)) *eventEmitter 
 }
 
 // Once registers a one-shot handler that is removed after its first
-// invocation, mirroring the EventEmitter.once.
-func (e *eventEmitter) Once(name string, handler func(args ...any)) *eventEmitter {
+// invocation.
+func (e *EventEmitter) Once(name string, handler func(args ...any)) *EventEmitter {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	if e.listeners == nil {
@@ -70,9 +69,8 @@ func (e *eventEmitter) Once(name string, handler func(args ...any)) *eventEmitte
 }
 
 // RemoveAllListeners drops every registered handler (or only those for the
-// given event when a name is supplied), mirroring the
-// EventEmitter.removeAllListeners.
-func (e *eventEmitter) RemoveAllListeners(name ...string) *eventEmitter {
+// given event when a name is supplied).
+func (e *EventEmitter) RemoveAllListeners(name ...string) *EventEmitter {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	if len(name) == 0 {
@@ -86,10 +84,10 @@ func (e *eventEmitter) RemoveAllListeners(name ...string) *eventEmitter {
 }
 
 // emit fires every handler registered for the named event with args, removing
-// one-shot handlers afterward. It mirrors the EventEmitter.emit. Handlers
-// run with the emitter unlocked so a handler may re-subscribe (the end2end
-// "close" handler registers a follow-on "connection" listener).
-func (e *eventEmitter) emit(name string, args ...any) bool {
+// one-shot handlers afterward. Handlers run with the emitter unlocked so a
+// handler may re-subscribe (e.g. a "close" handler registering a follow-on
+// "connection" listener).
+func (e *EventEmitter) emit(name string, args ...any) bool {
 	e.mu.Lock()
 	if e.listeners == nil {
 		e.mu.Unlock()

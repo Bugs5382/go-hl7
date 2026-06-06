@@ -25,11 +25,9 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import "sync"
 
-// Deferred is a one-shot promise handle, mirroring the Deferred<T>
-// (declaration/deferred.ts: { promise, resolve, reject }). Go has no Promise,
-// so Resolve/Reject signal completion exactly once and Wait blocks until then,
-// returning the resolved value or the rejection error. It is the connection's
-// _onConnect gate.
+// Deferred is a one-shot completion handle. Resolve/Reject signal completion
+// exactly once and Wait blocks until then, returning the resolved value or the
+// rejection error. It gates the connection's connect handshake.
 type Deferred[T any] struct {
 	mu     sync.Mutex
 	done   chan struct{}

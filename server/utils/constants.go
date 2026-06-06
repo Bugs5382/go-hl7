@@ -23,10 +23,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-// MSA1Valuesv21 are the ACK codes permitted by HL7 v2.1. It mirrors the reference's
-// MSA_1_VALUES_v2_1.
+// MSA1Valuesv21 are the ACK codes permitted by HL7 v2.1.
 var MSA1Valuesv21 = []string{"AA", "AR", "AE"}
 
-// MSA1Valuesv2x are the additional ACK codes permitted by HL7 v2.x (2.2+). It
-// mirrors the MSA_1_VALUES_v2_x.
+// MSA1Valuesv2x are the additional ACK codes permitted by HL7 v2.x (2.2+).
 var MSA1Valuesv2x = []string{"CA", "CR", "CE"}

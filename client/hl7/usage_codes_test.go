@@ -32,18 +32,18 @@ import (
 	"github.com/Bugs5382/go-hl7/client/hl7/metadata"
 )
 
-// testBuilder mirrors the usage-codes test's TestBuilder: a v2.6 builder with a
-// no-op "error" listener and a helper that lazily creates the synthetic segment
-// before invoking the spec-driven validator.
-func newTestBuilder() *HL7_BASE {
+// newTestBuilder returns a v2.6 builder with a no-op "error" listener and a
+// helper that lazily creates the synthetic segment before invoking the
+// spec-driven validator.
+func newTestBuilder() *Builder {
 	b := newVersion("2.6", nil)
 	b.On("error", func(string) {})
 	return b
 }
 
-func (b *HL7_BASE) callSetField(spec metadata.SegmentSpec, num int, value any) []string {
+func (b *Builder) callSetField(spec metadata.SegmentSpec, num int, value any) []string {
 	if b.segment == nil || b.segment.Name() != spec.Name {
-		b.segment = mustAddSegment(b.message, spec.Name)
+		b.segment = b.mustAddSegment(spec.Name)
 	}
 	return b.validatorSetField(spec, num, value, nil)
 }
@@ -66,38 +66,29 @@ func tstSpec() metadata.SegmentSpec {
 	}
 }
 
-// recoverValidation runs fn and reports whether it panicked with an
-// HL7ValidationError whose message matches want (substring), mirroring the
-// toThrow assertions.
-func expectValidationPanic(t *testing.T, want string, fn func()) {
+// expectValidationErr runs fn (which performs a build on b) and asserts that b
+// recorded an HL7ValidationError whose message matches want (substring).
+func expectValidationErr(t *testing.T, b *Builder, want string, fn func()) {
 	t.Helper()
-	defer func() {
-		r := recover()
-		if r == nil {
-			t.Fatalf("expected panic containing %q, got none", want)
-		}
-		err, ok := r.(error)
-		if !ok {
-			t.Fatalf("expected error panic, got %T", r)
-		}
-		if !errors.Is(err, helpers.ErrValidation) {
-			t.Fatalf("expected HL7ValidationError, got %v", err)
-		}
-		if want != "" && !strings.Contains(err.Error(), want) {
-			t.Fatalf("expected message containing %q, got %q", want, err.Error())
-		}
-	}()
 	fn()
+	err := b.Err()
+	if err == nil {
+		t.Fatalf("expected error containing %q, got none", want)
+	}
+	if !errors.Is(err, helpers.ErrValidation) {
+		t.Fatalf("expected HL7ValidationError, got %v", err)
+	}
+	if want != "" && !strings.Contains(err.Error(), want) {
+		t.Fatalf("expected message containing %q, got %q", want, err.Error())
+	}
 }
 
-func expectNoPanic(t *testing.T, fn func()) {
+func expectNoErr(t *testing.T, b *Builder, fn func()) {
 	t.Helper()
-	defer func() {
-		if r := recover(); r != nil {
-			t.Fatalf("expected no panic, got %v", r)
-		}
-	}()
 	fn()
+	if err := b.Err(); err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
 }
 
 func TestUsageCodes(t *testing.T) {
@@ -105,12 +96,12 @@ func TestUsageCodes(t *testing.T) {
 
 	t.Run("R required field unset throws HL7ValidationError", func(t *testing.T) {
 		b := newTestBuilder()
-		expectValidationPanic(t, "", func() { b.callSetField(SPEC, 1, nil) })
+		expectValidationErr(t, b, "", func() { b.callSetField(SPEC, 1, nil) })
 	})
 
 	t.Run("R required field with value succeeds", func(t *testing.T) {
 		b := newTestBuilder()
-		expectNoPanic(t, func() { b.callSetField(SPEC, 1, "OK") })
+		expectNoErr(t, b, func() { b.callSetField(SPEC, 1, "OK") })
 	})
 
 	t.Run("O optional field unset is fine", func(t *testing.T) {
@@ -131,35 +122,35 @@ func TestUsageCodes(t *testing.T) {
 		if !strings.Contains(warning, "deprecated") {
 			t.Fatalf("expected deprecated warning, got %q", warning)
 		}
-		if !strings.Contains(b.ToMessage().String(), "abc") {
-			t.Fatalf("expected serialized value, got %q", b.ToMessage().String())
+		if !strings.Contains(b.String(), "abc") {
+			t.Fatalf("expected serialized value, got %q", b.String())
 		}
 	})
 
 	t.Run("W withdrawn field throws even with hardError false", func(t *testing.T) {
 		b := newTestBuilder()
-		expectValidationPanic(t, "withdrawn in HL7 v2.6", func() { b.callSetField(SPEC, 4, "boom") })
+		expectValidationErr(t, b, "withdrawn in HL7 v2.6", func() { b.callSetField(SPEC, 4, "boom") })
 	})
 
 	t.Run("X not-supported field throws", func(t *testing.T) {
 		b := newTestBuilder()
-		expectValidationPanic(t, "not supported in HL7 v2.6", func() { b.callSetField(SPEC, 5, "boom") })
+		expectValidationErr(t, b, "not supported in HL7 v2.6", func() { b.callSetField(SPEC, 5, "boom") })
 	})
 
 	t.Run("D conditional field dependsOn unmet throws", func(t *testing.T) {
 		b := newTestBuilder()
-		expectValidationPanic(t, "", func() { b.callSetField(SPEC, 6, "value") })
+		expectValidationErr(t, b, "", func() { b.callSetField(SPEC, 6, "value") })
 	})
 
 	t.Run("D conditional field dependsOn satisfied succeeds", func(t *testing.T) {
 		b := newTestBuilder()
 		b.callSetField(SPEC, 1, "anchor")
-		expectNoPanic(t, func() { b.callSetField(SPEC, 6, "value") })
+		expectNoErr(t, b, func() { b.callSetField(SPEC, 6, "value") })
 	})
 
 	t.Run("field not present in this version throws when set", func(t *testing.T) {
 		b := newTestBuilder()
-		expectValidationPanic(t, "not available in HL7 v2.6", func() { b.callSetField(SPEC, 7, "future") })
+		expectValidationErr(t, b, "not available in HL7 v2.6", func() { b.callSetField(SPEC, 7, "future") })
 	})
 
 	t.Run("field not present in this version plus no value is a no-op", func(t *testing.T) {

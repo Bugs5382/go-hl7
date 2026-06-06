@@ -30,11 +30,9 @@ import (
 	"github.com/Bugs5382/go-hl7/client/builder"
 )
 
-// These tests mirror the hl7.builder-edges.test.ts: low-level Segment,
-// SegmentList, SubComponent, Component, FieldRepetition behavior and the
-// RootBase escape/unescape paths. Go necessity (documented adaptation): the
-// set(string|number) overloads split into Set/SetIndex; array values pass as a
-// []any to Set.
+// These tests cover low-level Segment, SegmentList, SubComponent, Component,
+// FieldRepetition behavior and the RootBase escape/unescape paths. Set splits
+// into Set/SetIndex; array values pass as a []any to Set.
 
 func freshSegment(t *testing.T) (*builder.Message, *builder.Segment) {
 	t.Helper()
