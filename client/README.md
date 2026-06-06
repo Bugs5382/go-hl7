@@ -601,6 +601,8 @@ conn, _ := c.CreateConnection(
 
 > 🔐 **Tag messages per client instance** if you share a queue across services — otherwise one pod might dequeue messages destined for another.
 
+> 🗄️ Need the queue to **survive a restart**? See the [durable database-backed queue walkthrough](../pages/client/durable-queue/index.md) — a PostgreSQL worked example (with MongoDB and MySQL on the same hooks) that persists `pending_messages` and flushes them on reconnect.
+
 ---
 
 ## 🧯 Errors
