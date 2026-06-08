@@ -15,3 +15,9 @@ node_modules/
 .DS_Store
 .idea/
 .vscode/
+
+# Track the shared governance (hooks + settings); other .claude stays local.
+!/.claude/
+/.claude/*
+!/.claude/hooks/
+!/.claude/settings.json
