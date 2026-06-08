@@ -1,1 +1,11 @@
 blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://github.com/Bugs5382/go-hl7#readme
+    about: The README, per-package READMEs, and pages/ cover most "how do I..." questions.
+  - name: 🩺 HL7 Specification
+    url: https://hl7-definition.caristix.com/v2/
+    about: Canonical reference for segment fields, allowed values, and version differences. Worth a look before a "wrong field" bug.
+  - name: 💬 Discussions
+    url: https://github.com/Bugs5382/go-hl7/discussions
+    about: General questions, deployment notes, or design ideas that aren't actionable reports.
