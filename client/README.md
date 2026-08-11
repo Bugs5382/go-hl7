@@ -44,13 +44,14 @@ go get github.com/Bugs5382/go-hl7
 5. [TLS](#-tls)
 6. [Mutual TLS (mTLS)](#-mutual-tls-mtls)
 7. [Parsing Replies](#-parsing-replies)
-8. [Events](#-events)
-9. [Custom Queues (Redis, etc.)](#-custom-queues-redis-etc)
-10. [Errors](#-errors)
-11. [Architecture](#-architecture)
-12. [Detailed Docs](#-detailed-docs)
-13. [Keyword Definitions](#-keyword-definitions)
-14. [License](#-license)
+8. [Encapsulated Data (ED / Base64)](#-encapsulated-data-ed--base64)
+9. [Events](#-events)
+10. [Custom Queues (Redis, etc.)](#-custom-queues-redis-etc)
+11. [Errors](#-errors)
+12. [Architecture](#-architecture)
+13. [Detailed Docs](#-detailed-docs)
+14. [Keyword Definitions](#-keyword-definitions)
+15. [License](#-license)
 
 ---
 
@@ -541,6 +542,54 @@ for _, m := range file.Messages() {
 ```
 
 > ⚠️ The parser is strict — malformed HL7 yields an `error` from the constructor, and some structural read failures panic with an `HL7Error`. `NewMessage` rejects a body that doesn't begin with `MSH` or one carrying multiple MSH segments (use `Batch` for that). `NewBatch` rejects a single‑MSH body. `NewMessage`, `NewBatch`, and `NewFileBatch` all return `(T, error)`.
+
+---
+
+## 📎 Encapsulated Data (ED / Base64)
+
+The `client/ed` package encodes and decodes the HL7 **ED (Encapsulated Data)** datatype — the value an `OBX-5` carries when `OBX-2 = ED`, for example a Base64‑encoded PDF. An ED value is a five‑component structure:
+
+```text
+source ^ type-of-data ^ data-subtype ^ encoding ^ data
+```
+
+for example `^application^PDF^Base64^<base64>`. The `^` are real component delimiters, so the field legitimately holds five components. Because the Base64 and hexadecimal alphabets exclude every HL7 delimiter, the `data` component is delimiter‑safe and needs no escaping.
+
+**Encode bytes onto `OBX-5`:**
+
+```go
+import (
+	"github.com/Bugs5382/go-hl7/client/builder"
+	"github.com/Bugs5382/go-hl7/client/ed"
+)
+
+msg, _ := builder.NewMessage(builder.MessageOptions{Text: hl7String})
+msg.AddSegment("OBX")
+msg.Set("OBX.2", "ED")
+msg.Set("OBX.5", ed.Encode(pdfBytes, "application", "PDF")) // ^application^PDF^Base64^<base64>
+```
+
+**Decode `OBX-5` back to bytes + metadata:**
+
+```go
+value, err := ed.Decode(msg.Get("OBX.5").Raw())
+if err != nil { /* unsupported encoding or malformed payload */ }
+
+value.Data     // []byte — the original bytes, byte-for-byte
+value.Type     // "application"
+value.Subtype  // "PDF"
+value.Encoding // "Base64"
+value.Source   // "" (ED.1, usually empty)
+```
+
+> ℹ️ Decode reads the whole five‑component value, so pass `Get("OBX.5").Raw()` — the field's `.String()` resolves to the first component only.
+
+`Encode` always emits `Base64`. For finer control, build an `ed.ED` and call `Marshal()`; the `Encoding` field accepts the HL7 Table 0299 values `ed.EncodingBase64`, `ed.EncodingHex`, and `ed.EncodingNone` (`"A"`, verbatim). Both `Marshal` and `Decode` return an error for any other encoding.
+
+```go
+value := ed.ED{Type: "application", Subtype: "PDF", Encoding: ed.EncodingBase64, Data: pdfBytes}
+wire, err := value.Marshal()
+```
 
 ---
 
