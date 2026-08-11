@@ -66,5 +66,5 @@ func (r *FieldRepetition) pathCore() []string { return r.parent.Path() }
 // writeCore writes into the component at the 1-based head of path.
 func (r *FieldRepetition) writeCore(path []string, value string) HL7Node {
 	idx, _ := strconv.Atoi(path[0])
-	return r.writeAtIndex(path[1:], value, idx-1, "")
+	return r.writeAtIndex(path[1:], value, idx-1, "", true)
 }

@@ -225,7 +225,7 @@ func (b *Batch) writeCore(path []string, value string) HL7Node {
 	}
 	segmentName := path[0]
 	rest := path[1:]
-	return b.writeAtIndex(rest, value, 0, segmentName)
+	return b.writeAtIndex(rest, value, 0, segmentName, true)
 }
 
 // addSegment appends a new segment at the root.

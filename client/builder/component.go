@@ -59,5 +59,5 @@ func (c *Component) createChild(text string, index int) HL7Node {
 // writeCore writes into the sub-component at the 1-based head of path.
 func (c *Component) writeCore(path []string, value string) HL7Node {
 	idx, _ := strconv.Atoi(path[0])
-	return c.writeAtIndex(path[1:], value, idx-1, "")
+	return c.writeAtIndex(path[1:], value, idx-1, "", true)
 }

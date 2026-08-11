@@ -37,6 +37,7 @@ type RootBase struct {
 	nodeBase
 	delimiters    string
 	matchUnescape *regexp.Regexp
+	matchEscape   *regexp.Regexp
 }
 
 // initRootBase initializes the embedded root from normalized options.
@@ -44,6 +45,7 @@ func (r *RootBase) initRootBase(self node, opt builderOptions) {
 	r.initNodeBase(self, nil, opt.Text, declaration.DelimiterSegment, true)
 	r.delimiters = opt.NewLine + opt.SeparatorField + opt.SeparatorComponent + opt.SeparatorRepetition + opt.SeparatorEscape + opt.SeparatorSubComponent
 	r.matchUnescape = makeMatchUnescape(r.delimiters)
+	r.matchEscape = makeMatchEscape(r.delimiters)
 }
 
 // asRoot returns the embedded RootBase for message-root traversal.
@@ -59,9 +61,84 @@ func makeMatchUnescape(delimiters string) *regexp.Regexp {
 	return regexp.MustCompile(esc + "[^" + esc + "]*" + esc)
 }
 
-// escape returns the text unchanged; encoding on write is not currently
-// applied.
-func (r *RootBase) escape(text string) string { return text }
+// makeMatchEscape builds the matcher for the raw delimiter characters that must
+// be encoded when serializing a value. It reads the characters from the
+// message's own delimiter set so custom encoding characters are honored, and
+// deduplicates so a delimiter set that reuses a character stays a valid pattern.
+func makeMatchEscape(delimiters string) *regexp.Regexp {
+	d := []rune(delimiters)
+	seen := make(map[string]bool)
+	var alts []string
+	for _, idx := range []declaration.Delimiters{
+		declaration.DelimiterEscape,
+		declaration.DelimiterField,
+		declaration.DelimiterRepetition,
+		declaration.DelimiterComponent,
+		declaration.DelimiterSubComponent,
+	} {
+		ch := string(d[int(idx)])
+		if seen[ch] {
+			continue
+		}
+		seen[ch] = true
+		alts = append(alts, utils.EscapeForRegExp(ch))
+	}
+	return regexp.MustCompile(strings.Join(alts, "|"))
+}
+
+// escape encodes every embedded delimiter character in text as its HL7 escape
+// sequence (\F\, \S\, \T\, \R\, \E\). It is the leaf-level (fully non-structural)
+// form used when a value can carry no further sub-structure.
+func (r *RootBase) escape(text string) string {
+	return r.escapeForLevel(text, nil)
+}
+
+// escapeForLevel encodes the embedded delimiters in text as HL7 escape
+// sequences, leaving intact the delimiters listed in structural (those that
+// still subdivide the value at the level it is being written to). The escape
+// character is always encoded first, in a single pass, so the sequences this
+// introduces are never re-scanned or double-escaped. The characters and their
+// sequences are read from the message's delimiter set, so custom encoding
+// characters round-trip with unescape.
+func (r *RootBase) escapeForLevel(text string, structural map[declaration.Delimiters]bool) string {
+	if text == "" {
+		return text
+	}
+	d := []rune(r.delimiters)
+	esc := string(d[declaration.DelimiterEscape])
+	field := string(d[declaration.DelimiterField])
+	rep := string(d[declaration.DelimiterRepetition])
+	comp := string(d[declaration.DelimiterComponent])
+	sub := string(d[declaration.DelimiterSubComponent])
+
+	return r.matchEscape.ReplaceAllStringFunc(text, func(match string) string {
+		switch match {
+		case esc:
+			return esc + "E" + esc
+		case field:
+			if structural[declaration.DelimiterField] {
+				return match
+			}
+			return esc + "F" + esc
+		case rep:
+			if structural[declaration.DelimiterRepetition] {
+				return match
+			}
+			return esc + "R" + esc
+		case comp:
+			if structural[declaration.DelimiterComponent] {
+				return match
+			}
+			return esc + "S" + esc
+		case sub:
+			if structural[declaration.DelimiterSubComponent] {
+				return match
+			}
+			return esc + "T" + esc
+		}
+		return match
+	})
+}
 
 // unescape resolves HL7 escape sequences back to their delimiter characters.
 func (r *RootBase) unescape(text string) string {

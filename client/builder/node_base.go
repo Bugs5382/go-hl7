@@ -214,7 +214,12 @@ func (n *nodeBase) SetIndex(i int, value any) HL7Node {
 		}
 		return n.self
 	}
-	n.setChild(n.self.createChild(n.prepareValue(value), i), i)
+	v := n.prepareValue(value)
+	child := n.self.createChild(v, i)
+	if esc := n.escapeForChild(child, v); esc != v {
+		child = n.self.createChild(esc, i)
+	}
+	n.setChild(child, i)
 	return n.self
 }
 
@@ -308,9 +313,10 @@ func (n *nodeBase) prepareValue(value any) string {
 	case nil:
 		return ""
 	case string:
-		if root := n.messageRoot(); root != nil {
-			return root.escape(v)
-		}
+		// Delimiter escaping happens later, at the point the value lands on a
+		// terminal node, where the node's level determines which delimiters are
+		// structural (see escapeForChild). Doing it here would corrupt values
+		// that carry their own sub-structure, e.g. the composite "DOE^JANE".
 		return v
 	case int:
 		return strconv.Itoa(v)
@@ -328,6 +334,70 @@ func (n *nodeBase) prepareValue(value any) string {
 	default:
 		return ""
 	}
+}
+
+// levelDelimiter reports the delimiter this node splits its children on and
+// whether it has one. A leaf (a SubComponent) has none.
+func (n *nodeBase) levelDelimiter() (declaration.Delimiters, bool) {
+	return n.delimiter, n.hasDelimiter
+}
+
+// escapeForChild encodes value for storage on a freshly created terminal child,
+// leaving intact the delimiters that stay structural at the child's level so a
+// composite literal such as "DOE^JANE" survives while genuine data delimiters
+// are escaped. It is the write-side inverse of the SubComponent read-side
+// unescape.
+func (n *nodeBase) escapeForChild(child HL7Node, value string) string {
+	if value == "" {
+		return value
+	}
+	root := n.messageRoot()
+	if root == nil {
+		return value
+	}
+	ld, ok := child.(interface {
+		levelDelimiter() (declaration.Delimiters, bool)
+	})
+	if !ok {
+		return value
+	}
+	d, has := ld.levelDelimiter()
+	return root.escapeForLevel(value, structuralBelow(d, has))
+}
+
+// structuralBelow returns the delimiters that remain structural for a value
+// stored on a node whose child-splitting delimiter is d. Those are the
+// delimiter and every deeper one in the containment order
+// repetition -> component -> sub-component; a leaf (no delimiter) has none, so
+// every delimiter in its value is data and gets escaped.
+func structuralBelow(d declaration.Delimiters, hasDelim bool) map[declaration.Delimiters]bool {
+	structural := make(map[declaration.Delimiters]bool)
+	if !hasDelim {
+		return structural
+	}
+	order := []declaration.Delimiters{
+		declaration.DelimiterRepetition,
+		declaration.DelimiterComponent,
+		declaration.DelimiterSubComponent,
+	}
+	found := false
+	for _, od := range order {
+		if od == d {
+			found = true
+		}
+		if found {
+			structural[od] = true
+		}
+	}
+	if !found {
+		// A field-level (or unexpected) delimiter: everything nested inside a
+		// field value remains structural; only the field separator and escape
+		// character are data.
+		for _, od := range order {
+			structural[od] = true
+		}
+	}
+	return structural
 }
 
 // setChild places a child at index, growing with empties as needed.
@@ -363,8 +433,9 @@ func (n *nodeBase) setDirty() {
 func (n *nodeBase) setDirtyPublic() { n.setDirty() }
 
 // writeAtIndex writes value into the child at index, descending the remaining
-// path.
-func (n *nodeBase) writeAtIndex(path []string, value string, index int, emptyValue string) HL7Node {
+// path. When the value lands on a terminal child (no remaining path) and
+// doEscape is set, embedded delimiters are encoded so the value round-trips.
+func (n *nodeBase) writeAtIndex(path []string, value string, index int, emptyValue string, doEscape bool) HL7Node {
 	var child HL7Node
 	ch := n.self.childrenOf()
 	if len(path) == 0 {
@@ -373,6 +444,11 @@ func (n *nodeBase) writeAtIndex(path []string, value string, index int, emptyVal
 			v = emptyValue
 		}
 		child = n.self.createChild(v, index)
+		if doEscape {
+			if esc := n.escapeForChild(child, v); esc != v {
+				child = n.self.createChild(esc, index)
+			}
+		}
 	} else if index < len(ch) {
 		child = ch[index]
 	} else {
