@@ -29,6 +29,7 @@ func ptr[T any](v T) *T { return &v }
 | `github.com/Bugs5382/go-hl7/client/hl7/metadata` | Generated spec metadata. | `SegmentSpecs map[string]SegmentSpec`, `DataTypes map[string][]ComponentSpec`, `SegmentSpec`, `FieldSpec`, `IsKnownVersion(v string) bool`. |
 | `github.com/Bugs5382/go-hl7/client/hl7/tables` | Generated HL7 value tables. | `Tables map[string]map[string][]string` (version → tableID → allowed codes). |
 | `github.com/Bugs5382/go-hl7/client/utils` | Small helpers. | `CreateHL7Date(t time.Time, length string) string` (length `""`/`"8"`/`"12"`/`"14"`). |
+| `github.com/Bugs5382/go-hl7/client/ed` | **ED (Encapsulated Data)** codec for `OBX-5` (e.g. a Base64 PDF). | `Encode(data []byte, typ, subtype string) string`, `Decode(value string) (ED, error)`, `ED` (`Source/Type/Subtype/Encoding/Data`) + `(ED).Marshal() (string, error)`, `EncodingBase64`/`EncodingHex`/`EncodingNone`. Set with `msg.Set("OBX.5", ed.Encode(...))`; read with `ed.Decode(msg.Get("OBX.5").Raw())`. |
 
 Version constructors (no implicit default — the constructor *is* the version selector):
 `New(V2_1)`, `New(V2_2)`, `New(V2_3)`, `New(V2_3_1)`, `New(V2_4)`, `New(V2_5)`, `New(V2_5_1)`, `New(V2_6)`, `New(V2_7)`, `New(V2_7_1)`, `New(V2_8)`. Each takes an optional `hl7.Options` (`hl7.New(hl7.V2_5)` is valid).
