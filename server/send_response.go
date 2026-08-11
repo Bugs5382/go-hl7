@@ -50,6 +50,13 @@ type ResponseSender interface {
 	// SendCustomResponse sends a fully-formed ACK (Message or raw string)
 	// verbatim.
 	SendCustomResponse(message any) error
+	// SendAck negotiates and sends the ACK dictated by the inbound MSH-15/16
+	// acknowledgement mode (original application ACK vs enhanced accept ACK),
+	// honoring the MSH-15 send condition. It reports whether an ACK was sent.
+	SendAck(outcome AckOutcome) (bool, error)
+	// SendApplicationAck sends the application ACK negotiated by MSH-16,
+	// honoring its send condition. It reports whether an ACK was sent.
+	SendApplicationAck(outcome AckOutcome) (bool, error)
 }
 
 // SendResponse builds and sends an ACK back to the client. It folds the
