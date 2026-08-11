@@ -341,15 +341,17 @@ func (in *Inbound) dispatch(conn net.Conn, msgText, fromType string) {
 	in.stats.totalMessage++
 	in.mu.Unlock()
 
-	// Enforce this listener's required HL7 version: an inbound message whose
-	// MSH.12 differs is rejected with an AR (Application Reject) ACK, a
-	// version-mismatch event is emitted, and the handler is NOT invoked. Each
-	// port enforces its own version.
-	if got := parsed.Get("MSH.12").String(); got != in.opt.Version {
+	// Enforce this listener's accepted HL7 version(s): an inbound message whose
+	// MSH.12 is not accepted is rejected with an AR (Application Reject) ACK, a
+	// version-mismatch event is emitted, and the handler is NOT invoked. The
+	// accepted set is a single version, an allow-list, or any known version
+	// (AcceptAnyVersion); the decision goes through opt.Accepts, the one shared
+	// acceptance check.
+	if got := parsed.Get("MSH.12").String(); !in.opt.Accepts(got) {
 		res := in.newResponse(conn, parsed)
 		_ = res.SendResponse("AR")
 		in.emit("data.error", srvutils.NewHL7ServerError(
-			"message version \""+got+"\" does not match the listener version \""+in.opt.Version+"\".",
+			"message version \""+got+"\" is not accepted by the listener (accepts "+in.opt.AcceptedDescription()+").",
 		))
 		return
 	}

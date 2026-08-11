@@ -172,25 +172,48 @@ in, err := srv.CreateInbound(props server.ListenerOptions, handler server.Inboun
 
 | `ListenerOptions` field | Type | Purpose |
 |---|---|---|
-| `Version` | `string` | **Required** HL7 version (`2.1`..`2.8`). Each port enforces its own version; an inbound message whose `MSH.12` differs is rejected with an `AR` ACK and the handler is not called. |
+| `Version` | `string` | A single accepted HL7 version (`2.1`..`2.8`). The original single‑version form. |
+| `Versions` | `[]string` | An allow‑list of accepted HL7 versions. Widens `Version`; the accepted set is their union. |
+| `AcceptAnyVersion` | `bool` | Accept **any known** HL7 version (`2.1`..`2.8`). Mutually exclusive with `Version` / `Versions`. |
 | `Port` | `*int` | Required. `0 < port < 65353`. |
 | `Name` | `string` | Optional human‑readable name for logging; auto‑randomized if empty. |
 | `Encoding` | `string` | Retained for parity (default utf8). |
 | `MSHOverrides` | `map[string]server.MSHOverride` | Per‑field MSH overrides applied to the auto‑generated ACK. |
 
+Exactly one of the three version forms must be provided. An inbound message whose `MSH.12` is not in the accepted set is rejected with an `AR` ACK and the handler is not called.
+
 The handler gets called **once per parsed message**, even when the inbound frame is a batch (BHS) or file (FHS) containing many messages.
 
-### 🔖 Required HL7 version (per‑listener)
+### 🔖 Accepted HL7 version(s) (per‑listener)
 
-`ListenerOptions.Version` is **required** and must be one of the known versions — `2.1`, `2.2`, `2.3`, `2.3.1`, `2.4`, `2.5`, `2.5.1`, `2.6`, `2.7`, `2.7.1`, `2.8` — or `CreateInbound` returns an error (`version is not defined.` / `version is not a valid HL7 version.`).
+Every listener declares which HL7 version(s) it accepts. There are three mutually exclusive forms — supply **exactly one**:
 
-Each port enforces **its own** version. When an inbound message's `MSH.12` does not equal the listener's version, the server:
+```go
+// 1. Single version (backward-compatible): only 2.7 is accepted.
+srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(6661)}, handler)
+
+// 2. Allow-list: 2.3.1, 2.4, and 2.5 are all accepted on one port.
+srv.CreateInbound(server.ListenerOptions{Versions: []string{"2.3.1", "2.4", "2.5"}, Port: ptr(6662)}, handler)
+
+// 3. Accept any known version (2.1..2.8). Unknown/garbage MSH.12 is still rejected.
+srv.CreateInbound(server.ListenerOptions{AcceptAnyVersion: true, Port: ptr(6663)}, handler)
+```
+
+`Version` and `Versions` may be combined (the accepted set is their union). Each must be one of the known versions — `2.1`, `2.2`, `2.3`, `2.3.1`, `2.4`, `2.5`, `2.5.1`, `2.6`, `2.7`, `2.7.1`, `2.8`. `CreateInbound` returns a construction error when:
+
+- `AcceptAnyVersion` is combined with `Version` or `Versions` (`acceptAnyVersion cannot be combined with an explicit version or version list.`),
+- no version is provided and `AcceptAnyVersion` is not set — including an empty allow‑list (`version is not defined.`),
+- any provided version is unknown (`version is not a valid HL7 version.`).
+
+> 💡 Omitting the version alone is **not** the same as `AcceptAnyVersion` — you must set the flag explicitly to accept every version.
+
+Each port enforces **its own** accepted set. When an inbound message's `MSH.12` is not accepted, the server:
 
 - builds the response and sends an **`AR`** (Application Reject) ACK,
 - emits a version‑mismatch `data.error` event,
 - and **returns without invoking your handler**.
 
-Dedicate a port per version (e.g. 2.5 on 6661, 2.7 on 6662) by calling `CreateInbound` once per version.
+Dedicate a port per workflow (e.g. a strict 2.7‑only port, plus a permissive `AcceptAnyVersion` port for mixed senders) by calling `CreateInbound` once per configuration.
 
 ---
 
