@@ -25,6 +25,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import (
 	"regexp"
+	"strings"
 
 	"github.com/Bugs5382/go-hl7/client/builder"
 	"github.com/Bugs5382/go-hl7/client/hl7/metadata"
@@ -87,6 +88,19 @@ type ServerOptions struct {
 }
 
 // ListenerOptions configures a single inbound listener (port).
+//
+// The accepted HL7 version(s) are declared with exactly one of three mutually
+// exclusive forms:
+//
+//   - Version: a single required version ("2.7"). The original, backward-
+//     compatible form.
+//   - Versions: an allow-list of accepted versions ("2.3.1", "2.4", "2.5").
+//   - AcceptAnyVersion: accept any known HL7 version (2.1..2.8).
+//
+// A message whose MSH.12 is not in the accepted set is rejected with an AR
+// (Application Reject) ACK before the handler runs. At least one form must be
+// set; combining AcceptAnyVersion with Version or Versions is a construction
+// error.
 type ListenerOptions struct {
 	// Encoding is retained for parity.
 	Encoding string
@@ -96,12 +110,22 @@ type ListenerOptions struct {
 	Name string
 	// Port is the network address to listen on, 0..65353 (required).
 	Port *int
-	// Version is the REQUIRED HL7 version this listener accepts. It must be one
-	// of the known HL7 versions (2.1, 2.2, 2.3, 2.3.1, 2.4, 2.5, 2.5.1, 2.6,
-	// 2.7, 2.7.1, 2.8). Each port enforces its own version; an inbound message
-	// whose MSH.12 differs is rejected with an AR (Application Reject) ACK
-	// before the handler runs.
+	// Version is a single accepted HL7 version. It must be one of the known HL7
+	// versions (2.1, 2.2, 2.3, 2.3.1, 2.4, 2.5, 2.5.1, 2.6, 2.7, 2.7.1, 2.8).
+	// This is the original, backward-compatible single-version form; it may be
+	// combined with Versions (the accepted set is their union) but not with
+	// AcceptAnyVersion.
 	Version string
+	// Versions is an allow-list of accepted HL7 versions, each of which must be
+	// a known version. It widens the single Version form: an inbound message
+	// whose MSH.12 matches any entry (or Version) is accepted. It may not be
+	// combined with AcceptAnyVersion.
+	Versions []string
+	// AcceptAnyVersion accepts any KNOWN HL7 version (2.1..2.8). It must be set
+	// explicitly; omitting the version entirely is still an error. An unknown or
+	// garbage MSH.12 is still AR-rejected. It is mutually exclusive with Version
+	// and Versions.
+	AcceptAnyVersion bool
 }
 
 // NormalizedServerOptions is the fully-resolved server option set.
@@ -130,9 +154,38 @@ type ValidatedListenerOptions struct {
 	Name string
 	// Port is the validated listen port.
 	Port int
-	// Version is the validated, required HL7 version this listener enforces;
-	// inbound messages whose MSH.12 differs are rejected with an AR ACK.
-	Version string
+	// Versions is the validated, de-duplicated set of HL7 versions this listener
+	// accepts (the union of the single Version and the Versions allow-list). It
+	// is empty when AcceptAnyVersion is set. Inbound messages whose MSH.12 is not
+	// accepted are rejected with an AR ACK.
+	Versions []string
+	// AcceptAnyVersion reports that any known HL7 version is accepted.
+	AcceptAnyVersion bool
+}
+
+// Accepts is the single, shared MSH.12 acceptance check for a resolved
+// listener. When AcceptAnyVersion is set it accepts any KNOWN HL7 version
+// (unknown/garbage is still rejected); otherwise the version must be a member
+// of the resolved allow-list.
+func (o ValidatedListenerOptions) Accepts(version string) bool {
+	if o.AcceptAnyVersion {
+		return metadata.IsKnownVersion(version)
+	}
+	for _, v := range o.Versions {
+		if v == version {
+			return true
+		}
+	}
+	return false
+}
+
+// AcceptedDescription renders the accepted version set for diagnostics (the AR
+// mismatch event message).
+func (o ValidatedListenerOptions) AcceptedDescription() string {
+	if o.AcceptAnyVersion {
+		return "any known HL7 version"
+	}
+	return strings.Join(o.Versions, ", ")
 }
 
 var nameFormatRE = regexp.MustCompile("[ `!@#$%^&*()+\\-=\\[\\]{};':\"\\\\|,.<>/?~]")
@@ -142,10 +195,10 @@ var nameFormatRE = regexp.MustCompile("[ `!@#$%^&*()+\\-=\\[\\]{};':\"\\\\|,.<>/
 // numeric bound check.
 func NormalizeListenerOptions(properties ListenerOptions) (ValidatedListenerOptions, error) {
 	out := ValidatedListenerOptions{
-		Encoding:     properties.Encoding,
-		MSHOverrides: properties.MSHOverrides,
-		Name:         properties.Name,
-		Version:      properties.Version,
+		Encoding:         properties.Encoding,
+		MSHOverrides:     properties.MSHOverrides,
+		Name:             properties.Name,
+		AcceptAnyVersion: properties.AcceptAnyVersion,
 	}
 	if out.Encoding == "" {
 		out.Encoding = "utf8"
@@ -172,15 +225,44 @@ func NormalizeListenerOptions(properties ListenerOptions) (ValidatedListenerOpti
 		return ValidatedListenerOptions{}, err
 	}
 
-	// Version is required and must be one of the known HL7 versions. Each port
-	// enforces its own version; an inbound message whose MSH.12 differs is
-	// rejected with an AR ACK.
-	if out.Version == "" {
+	// Resolve the accepted HL7 version(s). AcceptAnyVersion is mutually exclusive
+	// with an explicit Version / Versions; otherwise the union of Version and
+	// Versions forms the allow-list, every entry must be a known version, and the
+	// set may not be empty. Each port enforces its own set; an inbound message
+	// whose MSH.12 is not accepted is rejected with an AR ACK.
+	if properties.AcceptAnyVersion {
+		if properties.Version != "" || len(properties.Versions) > 0 {
+			return ValidatedListenerOptions{}, NewHL7ListenerError("acceptAnyVersion cannot be combined with an explicit version or version list.")
+		}
+		return out, nil
+	}
+
+	seen := make(map[string]bool)
+	accepted := make([]string, 0, len(properties.Versions)+1)
+	addVersion := func(v string) error {
+		if !metadata.IsKnownVersion(v) {
+			return NewHL7ListenerError("version is not a valid HL7 version.")
+		}
+		if !seen[v] {
+			seen[v] = true
+			accepted = append(accepted, v)
+		}
+		return nil
+	}
+	if properties.Version != "" {
+		if err := addVersion(properties.Version); err != nil {
+			return ValidatedListenerOptions{}, err
+		}
+	}
+	for _, v := range properties.Versions {
+		if err := addVersion(v); err != nil {
+			return ValidatedListenerOptions{}, err
+		}
+	}
+	if len(accepted) == 0 {
 		return ValidatedListenerOptions{}, NewHL7ListenerError("version is not defined.")
 	}
-	if !metadata.IsKnownVersion(out.Version) {
-		return ValidatedListenerOptions{}, NewHL7ListenerError("version is not a valid HL7 version.")
-	}
+	out.Versions = accepted
 
 	return out, nil
 }
