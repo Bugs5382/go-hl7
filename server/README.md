@@ -237,6 +237,8 @@ type ResponseSender interface {
 	GetSocket() net.Conn
 	SendResponse(ackType string) error
 	SendCustomResponse(message any) error
+	SendAck(outcome AckOutcome) (bool, error)            // MSH-15/16 negotiated
+	SendApplicationAck(outcome AckOutcome) (bool, error) // MSH-16 application ACK
 }
 ```
 
@@ -259,6 +261,36 @@ _ = ack
 ```
 
 > ⚠️ **Version gate.** `CA` / `CR` / `CE` are valid only for HL7 ≥ 2.2 (the inbound `MSH.12` decides). If the inbound message is `2.1`, the library refuses and falls back to an `AE` ACK. `AA` / `AR` / `AE` are valid on every version.
+
+### Negotiated ACK — original vs enhanced mode (`SendAck` / `SendApplicationAck`)
+
+HL7 v2 defines two acknowledgement modes, selected by `MSH-15` (Accept Acknowledgment Type) and `MSH-16` (Application Acknowledgment Type). Both fields draw their **send condition** from HL7 table 0155: `AL` (always), `NE` (never), `ER` (only on error/reject), `SU` (only on success).
+
+- **Original mode** — `MSH-15` and `MSH-16` both empty. The server returns a single **application** ACK (`AA`/`AE`/`AR`), always. This is exactly what `SendResponse("AA")` did before.
+- **Enhanced mode** — `MSH-15` and/or `MSH-16` populated. The immediate response is the **accept (commit)** ACK (`CA`/`CE`/`CR`) governed by `MSH-15`; the (later, optional) **application** ACK (`AA`/`AE`/`AR`) is governed by `MSH-16`.
+
+`SendAck` picks the right family and honors the `MSH-15` send condition automatically; `SendApplicationAck` sends the `MSH-16`-governed application ACK. Both take an `AckOutcome` (`server.OutcomeSuccess` / `OutcomeError` / `OutcomeReject`) and return `(sent bool, err error)` — `sent` is `false` when the send condition suppresses the ACK. MSA‑1 is still validated against the inbound `MSH.12`.
+
+```go
+srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(3000)},
+	func(req *server.InboundRequest, res server.ResponseSender) error {
+		outcome := server.OutcomeSuccess // derive from your processing result
+
+		// Immediate response: accept ACK in enhanced mode (CA/CE/CR), or the
+		// single application ACK (AA/AE/AR) in original mode. Nothing is sent
+		// when MSH-15 suppresses it.
+		if _, err := res.SendAck(outcome); err != nil {
+			return err
+		}
+
+		// Optional application ACK negotiated by MSH-16 (enhanced mode).
+		_, err := res.SendApplicationAck(outcome)
+		return err
+	},
+)
+```
+
+> `SendAck` / `SendApplicationAck` are a thin negotiation layer over `SendResponse` — they compute the correct MSA‑1 family and suppression decision, then delegate the actual send. Handlers that need full control keep using `SendResponse` / `SendCustomResponse` directly. The pure negotiation is also exposed as `server.NegotiateAck(field, class, outcome)`.
 
 ### Custom ACK (`SendCustomResponse`)
 
