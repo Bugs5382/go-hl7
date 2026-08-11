@@ -203,6 +203,7 @@ go test ./...
 
 - 🩺 **Client** — builder API, batches, queues, parsing, the connection: [`client/README.md`](./client/README.md)
 - 🏥 **Server** — quick start, TLS, mTLS, custom ACKs, events, performance: [`server/README.md`](./server/README.md)
+- 🌐 **net/http adapter** — optional bridge to send a message and return the ACK over HTTP (fastify-hl7 analog): [`client/httpadapter/README.md`](./client/httpadapter/README.md)
 - 📖 **Deep‑dive walkthroughs** — [`pages/`](./pages)
 - 🌐 **API reference** — [pkg.go.dev/github.com/Bugs5382/go-hl7](https://pkg.go.dev/github.com/Bugs5382/go-hl7)
 
