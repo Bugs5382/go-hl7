@@ -136,3 +136,81 @@ func TestMLLPCodecRoundTrip(t *testing.T) {
 		t.Fatalf("round trip mismatch: %v", got)
 	}
 }
+
+// TestMLLPCodecDefaultCharsetIsUTF8 confirms the zero-charset codec reports UTF-8
+// and, for content beyond ASCII, frames the raw UTF-8 bytes unchanged (issue #26
+// backward compatibility).
+func TestMLLPCodecDefaultCharsetIsUTF8(t *testing.T) {
+	c := modules.NewMLLPCodec("")
+	if c.Charset() != "" {
+		t.Fatalf("default charset should be empty (UTF-8), got %q", c.Charset())
+	}
+	const body = "PID|café" // é is 0xC3 0xA9 in UTF-8
+	var buf bytes.Buffer
+	if err := c.SendMessage(&buf, body); err != nil {
+		t.Fatalf("SendMessage error: %v", err)
+	}
+	want := vt + body + fs + cr
+	if buf.String() != want {
+		t.Fatalf("default UTF-8 framing mismatch: got %q want %q", buf.String(), want)
+	}
+}
+
+// TestMLLPCodecCharsetRoundTripISO88591 sends and receives a message whose body
+// requires a non-UTF-8 charset, asserting both the on-the-wire bytes and the
+// decoded UTF-8 text (issue #26 acceptance).
+func TestMLLPCodecCharsetRoundTripISO88591(t *testing.T) {
+	const body = "PID|café^Åström" // characters that differ between UTF-8 and Latin-1
+
+	enc, err := modules.NewMLLPCodecWithCharset("", "8859/1")
+	if err != nil {
+		t.Fatalf("NewMLLPCodecWithCharset error: %v", err)
+	}
+	dec, err := modules.NewMLLPCodecWithCharset("", "iso-8859-1")
+	if err != nil {
+		t.Fatalf("NewMLLPCodecWithCharset error: %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := enc.SendMessage(&buf, body); err != nil {
+		t.Fatalf("SendMessage error: %v", err)
+	}
+
+	// The framed body must be single-byte Latin-1, not multi-byte UTF-8: assert
+	// the exact wire bytes so the encoding actually happened.
+	wantWire := append([]byte{0x0b}, []byte{'P', 'I', 'D', '|', 'c', 'a', 'f', 0xE9, '^', 0xC5, 's', 't', 'r', 0xF6, 'm'}...)
+	wantWire = append(wantWire, 0x1c, 0x0d)
+	if !bytes.Equal(buf.Bytes(), wantWire) {
+		t.Fatalf("Latin-1 wire mismatch:\n got %v\nwant %v", buf.Bytes(), wantWire)
+	}
+
+	if !dec.ReceiveData(buf.Bytes()) {
+		t.Fatalf("expected the framed message to decode")
+	}
+	got := dec.GetLastMessage()
+	if got == nil || *got != body {
+		t.Fatalf("charset round trip mismatch: got %v want %q", got, body)
+	}
+}
+
+// TestMLLPCodecUnknownCharsetErrors confirms an unsupported charset fails cleanly
+// rather than falling back silently (issue #26 acceptance).
+func TestMLLPCodecUnknownCharsetErrors(t *testing.T) {
+	if _, err := modules.NewMLLPCodecWithCharset("", "definitely-not-a-charset"); err == nil {
+		t.Fatalf("expected an error for an unknown charset")
+	}
+}
+
+// TestResolveCharsetPassThrough confirms the empty, UTF-8, and ASCII names all
+// resolve to the nil (pass-through) encoding.
+func TestResolveCharsetPassThrough(t *testing.T) {
+	for _, name := range []string{"", "utf8", "UTF-8", "UNICODE UTF-8", "ascii", "US-ASCII"} {
+		enc, err := modules.ResolveCharset(name)
+		if err != nil {
+			t.Fatalf("ResolveCharset(%q) error: %v", name, err)
+		}
+		if enc != nil {
+			t.Fatalf("ResolveCharset(%q) should be pass-through (nil), got %v", name, enc)
+		}
+	}
+}

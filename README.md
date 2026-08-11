@@ -174,6 +174,7 @@ func main() {
 - 🛡️ **TLS** (server‑auth) and **mTLS** (mutual auth) with `RequestCert`, `RejectUnauthorized`, and CA bundles.
 - 🧠 **Pluggable outbound queue** (in‑memory by default; Redis / RabbitMQ / SQL recommended for multi‑pod deployments).
 - ⚡ **Per‑socket MLLP framing** that handles TCP fragmentation and concurrent connections safely.
+- 🔤 **Configurable charset** on send and receive — set `ClientListenerOptions.Encoding` (or build the codec with `modules.NewMLLPCodecWithCharset`) to an HL7 MSH‑18 code such as `"8859/1"` or an IANA/WHATWG name such as `"iso-8859-1"`. The default is UTF‑8; an unknown charset is rejected cleanly.
 
 ## 📋 Requirements
 

@@ -29,6 +29,7 @@ import (
 
 	"github.com/Bugs5382/go-hl7/client/helpers"
 	"github.com/Bugs5382/go-hl7/client/hl7/metadata"
+	"github.com/Bugs5382/go-hl7/client/modules"
 	"github.com/Bugs5382/go-hl7/client/utils"
 )
 
@@ -95,6 +96,12 @@ func normalizeClientListenerOptions(client validatedClientOptions, raw ClientLis
 	}
 	if out.encoding == "" {
 		out.encoding = defaultEncoding
+	}
+	// Reject an unknown charset up front so the connection fails cleanly rather
+	// than at first send/receive (issue #26). A UTF-8/ASCII name resolves to the
+	// pass-through and is always accepted.
+	if _, err := modules.ResolveCharset(out.encoding); err != nil {
+		return validatedClientListenerOptions{}, err
 	}
 
 	// Reject a missing port: a nil pointer is the "not defined" case.

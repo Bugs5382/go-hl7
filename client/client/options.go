@@ -90,8 +90,11 @@ type ClientListenerOptions struct {
 	// AutoConnect connects immediately on creation when true; otherwise the
 	// caller must call Connect (default true).
 	AutoConnect *bool
-	// Encoding is retained for API parity; HL7 bodies are UTF-8 byte slices so
-	// it is informational only (default "utf8").
+	// Encoding is the charset used to encode message bodies on send and decode
+	// them on receive (issue #26). It accepts an HL7 MSH-18 code (for example
+	// "8859/1") or an IANA/WHATWG name (for example "iso-8859-1"); the default
+	// "utf8" and any ASCII name are the UTF-8 byte-slice pass-through. An unknown
+	// charset is rejected when the connection's options are normalized.
 	Encoding string
 	// EnqueueMessage is the custom queue-store hook; pairs with FlushQueue.
 	// nil uses the default in-memory queue.

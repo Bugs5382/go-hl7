@@ -211,6 +211,18 @@ func (c *Connection) IsConnected() bool {
 	return c.readyState == declaration.Connected
 }
 
+// newCodec builds an MLLPCodec bound to this connection's configured charset
+// (issue #26). The charset is validated during option normalization, so the
+// constructor does not error here; a UTF-8/ASCII encoding is the pass-through
+// and, defensively, an unexpected failure falls back to the UTF-8 codec.
+func (c *Connection) newCodec() *modules.MLLPCodec {
+	codec, err := modules.NewMLLPCodecWithCharset("", c.opt.encoding)
+	if err != nil {
+		return modules.NewMLLPCodec("")
+	}
+	return codec
+}
+
 // SendMessage frames and sends a message to the remote side. When not ready
 // (disconnected, or waitAck with an outstanding ACK) it queues the message and
 // kicks off a connection attempt, applying the maxAttempts retry loop and the
@@ -226,10 +238,10 @@ func (c *Connection) SendMessage(message MessageItem) error {
 		return err
 	}
 
-	// The codec's only argument is the return character (the \r default); the
-	// encoding the source threaded through is dropped since Go bodies are UTF-8
-	// byte slices. Passing encoding here would wrongly set the join character.
-	codec := modules.NewMLLPCodec("")
+	// Build the send codec using the connection's configured charset (issue #26).
+	// The charset was validated when the listener options were normalized, so it
+	// resolves cleanly here; a UTF-8/ASCII encoding is the byte-slice pass-through.
+	codec := c.newCodec()
 	maxAttempts := c.opt.maxAttempts
 	attempts := 0
 
@@ -351,7 +363,7 @@ func (c *Connection) connect() {
 
 	c.mu.Lock()
 	c.retryTimer = nil
-	c.codec = modules.NewMLLPCodec("")
+	c.codec = c.newCodec()
 	gen := c.socketGen + 1
 	c.socketGen = gen
 	connTimeout := c.main.opt.connectionTimeout
