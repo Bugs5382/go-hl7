@@ -124,8 +124,12 @@ func (s *Segment) writeCore(path []string, value string) HL7Node {
 	if err != nil || index < 1 {
 		panic(helpers.NewHL7FatalError("Can't have an index < 1 or not be a valid number."))
 	}
-	if (s.segmentName == "MSH" || s.segmentName == "BHS" || s.segmentName == "FHS") && index != 1 && index != 2 {
+	header := s.segmentName == "MSH" || s.segmentName == "BHS" || s.segmentName == "FHS"
+	// Fields 1 and 2 of a header segment are the field separator and the raw
+	// encoding characters (e.g. "^~\&"); they must never be escaped.
+	doEscape := !header || (index != 1 && index != 2)
+	if header && index != 1 && index != 2 {
 		index = index - 1
 	}
-	return s.writeAtIndex(path, value, index, "")
+	return s.writeAtIndex(path, value, index, "", doEscape)
 }

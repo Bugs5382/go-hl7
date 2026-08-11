@@ -256,7 +256,7 @@ func (m *Message) writeCore(path []string, value string) HL7Node {
 	if !found {
 		index = len(m.childrenOf())
 	}
-	return m.writeAtIndex(rest, value, index, segmentName)
+	return m.writeAtIndex(rest, value, index, segmentName, true)
 }
 
 // getFirstSegment returns the first segment named name.
