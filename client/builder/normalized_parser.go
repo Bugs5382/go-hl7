@@ -174,6 +174,11 @@ func normalizedClientMessageParserOptions(raw MessageOptions) (builderOptions, e
 		p.Text = "MSH" + p.SeparatorField + p.SeparatorComponent + p.SeparatorRepetition + p.SeparatorEscape + p.SeparatorSubComponent
 	} else if p.Text != "" {
 		plan := modules.NewParserPlan(sliceStr(p.Text, 3, 8))
+		// Trim before choosing the segment separator. A trailing CR is trimmed
+		// away and so is not in the parsed text; letting it pick CR made an
+		// LF-separated message parse as one segment, and its re-encoding then
+		// parsed differently (issue #36).
+		p.Text = strings.TrimSpace(p.Text)
 		if strings.Contains(p.Text, "\r") {
 			p.NewLine = "\r"
 		} else {
@@ -184,7 +189,6 @@ func normalizedClientMessageParserOptions(raw MessageOptions) (builderOptions, e
 		p.SeparatorRepetition = plan.SeparatorRepetition
 		p.SeparatorEscape = plan.SeparatorEscape
 		p.SeparatorSubComponent = plan.SeparatorSubComponent
-		p.Text = strings.TrimSpace(p.Text)
 	} else {
 		p.Text = ""
 	}
