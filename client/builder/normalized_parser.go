@@ -184,6 +184,7 @@ func normalizedClientMessageParserOptions(raw MessageOptions) (builderOptions, e
 		} else {
 			p.NewLine = "\n"
 		}
+		p.Text = dropBlankSegments(p.Text, p.NewLine)
 		p.SeparatorField = plan.SeparatorField
 		p.SeparatorComponent = plan.SeparatorComponent
 		p.SeparatorRepetition = plan.SeparatorRepetition
@@ -283,6 +284,7 @@ func normalizedClientBatchParserOptions(raw BatchOptions) (builderOptions, error
 		} else {
 			p.NewLine = "\n"
 		}
+		p.Text = dropBlankSegments(p.Text, p.NewLine)
 		p.SeparatorField = plan.SeparatorField
 		p.SeparatorComponent = plan.SeparatorComponent
 		p.SeparatorRepetition = plan.SeparatorRepetition
@@ -383,6 +385,7 @@ func normalizedClientFileParserOptions(raw FileOptions) (fileBuilderOptions, err
 		} else {
 			p.NewLine = "\n"
 		}
+		p.Text = dropBlankSegments(p.Text, p.NewLine)
 		p.SeparatorField = plan.SeparatorField
 		p.SeparatorComponent = plan.SeparatorComponent
 		p.SeparatorRepetition = plan.SeparatorRepetition
@@ -391,6 +394,21 @@ func normalizedClientFileParserOptions(raw FileOptions) (fileBuilderOptions, err
 	}
 
 	return p, nil
+}
+
+// dropBlankSegments removes the segment lines of text that are empty or hold
+// only whitespace. A blank line names no segment, so it is skipped rather than
+// rejected, the way receivers commonly tolerate stray separators. Keeping it
+// made the first read of the message panic (issue #38).
+func dropBlankSegments(text, newLine string) string {
+	lines := strings.Split(text, newLine)
+	kept := lines[:0]
+	for _, line := range lines {
+		if strings.TrimSpace(line) != "" {
+			kept = append(kept, line)
+		}
+	}
+	return strings.Join(kept, newLine)
 }
 
 // sliceStr returns s[a:b] clamped to the string bounds.
