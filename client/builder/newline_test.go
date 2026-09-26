@@ -79,18 +79,6 @@ func TestMessageSeparatorAfterTrimming(t *testing.T) {
 	}
 }
 
-// segmentCount returns the number of segments in m. It reports false when
-// reading the segments panics, which an empty segment line does today (issue
-// #38); that is a separate bug from the separator choice tested here.
-func segmentCount(m *Message) (n int, ok bool) {
-	defer func() {
-		if recover() != nil {
-			n, ok = 0, false
-		}
-	}()
-	return m.Len(), true
-}
-
 // FuzzMessageReencode checks that for every input that parses, parsing its
 // encoding gives the same message: parse(encode(parse(x))) equals parse(x).
 func FuzzMessageReencode(f *testing.F) {
@@ -98,6 +86,7 @@ func FuzzMessageReencode(f *testing.F) {
 		"MSH|^~\\&|A|FAC|||20260101000000||ADT^A01|1|P|2.5\rEVN|A01\rPID|1||MRN1",
 		"MSH|^~\\&|A|FAC|||20260101000000||ADT^A01|1|P|2.5\nEVN|A01\nPID|1||MRN1\r",
 		"MSH|^~\\&|A|FAC|||20260101000000||ADT^A01|1|P|2.5\nEVN|A01\r\n",
+		"MSH|^~\\&|A|FAC|||20260101000000||ADT^A01|1|P|2.5\r\r \rEVN|A01",
 	}
 	for _, s := range seeds {
 		f.Add(s)
@@ -112,18 +101,14 @@ func FuzzMessageReencode(f *testing.F) {
 		if err != nil {
 			return
 		}
-		n1, ok := segmentCount(first)
-		if !ok {
-			t.Skip("empty segment line, see issue #38")
-		}
+		n1 := first.Len()
 		enc := first.String()
 		second, err := NewMessage(MessageOptions{Text: enc})
 		if err != nil {
 			t.Fatalf("re-encoded message no longer parses: %v\ninput:   %q\nencoded: %q", err, text, enc)
 		}
-		n2, ok := segmentCount(second)
-		if !ok || n1 != n2 {
-			t.Fatalf("segment count changed on re-parse: %d then %d (ok=%v)\ninput:   %q\nencoded: %q", n1, n2, ok, text, enc)
+		if n2 := second.Len(); n1 != n2 {
+			t.Fatalf("segment count changed on re-parse: %d then %d\ninput:   %q\nencoded: %q", n1, n2, text, enc)
 		}
 		if enc2 := second.String(); enc2 != enc {
 			t.Fatalf("re-encoding is not stable\ninput:  %q\nfirst:  %q\nsecond: %q", text, enc, enc2)
