@@ -92,11 +92,11 @@ func FuzzMessageReencode(f *testing.F) {
 		f.Add(s)
 		f.Add(strings.ReplaceAll(s, "\r", "\n"))
 	}
+	for _, s := range []string{"", "0", "MS", "MSH", "MSH|", "MSH\r\n"} {
+		f.Add(s)
+	}
 
 	f.Fuzz(func(t *testing.T, text string) {
-		if len(strings.TrimSpace(text)) <= 3 {
-			t.Skip("text shorter than a header panics, see issue #39")
-		}
 		first, err := NewMessage(MessageOptions{Text: text})
 		if err != nil {
 			return

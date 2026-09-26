@@ -160,7 +160,9 @@ func normalizedClientMessageParserOptions(raw MessageOptions) (builderOptions, e
 		p.SeparatorSubComponent = raw.SeparatorSubComponent
 	}
 
-	if p.Text != "" && len(p.Text) >= 3 && p.Text[:3] != "MSH" {
+	// Check the prefix at every length. Text shorter than "MSH" skipped this
+	// check and then panicked while building the message (issue #39).
+	if p.Text != "" && !strings.HasPrefix(p.Text, "MSH") {
 		return p, helpers.NewHL7FatalError("text must begin with the MSH segment.")
 	}
 	if p.NewLine == `\r` || p.NewLine == `\n` {
@@ -179,6 +181,13 @@ func normalizedClientMessageParserOptions(raw MessageOptions) (builderOptions, e
 		// LF-separated message parse as one segment, and its re-encoding then
 		// parsed differently (issue #36).
 		p.Text = strings.TrimSpace(p.Text)
+		// A header needs "MSH" and a field separator. Measure after trimming:
+		// a whitespace "separator" such as "MSH\r\n" is trimmed away, and
+		// shorter text left the delimiter set incomplete, so building the
+		// message panicked with an index out of range (issue #39).
+		if len(p.Text) < 4 {
+			return p, helpers.NewHL7FatalError("text is too short to hold an MSH header.")
+		}
 		if strings.Contains(p.Text, "\r") {
 			p.NewLine = "\r"
 		} else {
