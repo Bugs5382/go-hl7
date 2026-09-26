@@ -61,6 +61,9 @@ type MLLPCodec struct {
 	lastMessage *string
 }
 
+// mllpTrailer is the <FS><CR> sequence that ends every MLLP frame.
+var mllpTrailer = []byte{helpers.ProtocolMLLPEnd, helpers.ProtocolMLLPFooter}
+
 // NewMLLPCodec constructs a UTF-8 MLLPCodec. Pass "" for returnCharacter to use
 // the "\r" default. It is equivalent to NewMLLPCodecWithCharset with an empty
 // charset and never fails, so the historical single-argument form is preserved.
@@ -97,16 +100,21 @@ func (c *MLLPCodec) GetLastMessage() *string {
 	return c.lastMessage
 }
 
-// ReceiveData appends incoming bytes and processes a complete frame when the
-// buffer holds both the end byte (FS, 0x1C) and footer byte (CR, 0x0D). It
-// returns true when a message was processed, or false while still waiting for
-// the rest of a split frame.
+// ReceiveData appends incoming bytes and processes the complete frames once the
+// buffer holds the adjacent end-of-frame trailer, the end byte (FS, 0x1C)
+// followed directly by the footer byte (CR, 0x0D). It returns true when a
+// message was processed, or false while still waiting for the rest of a split
+// frame.
+//
+// The two bytes must be adjacent. A body carries CR segment separators, so a
+// read that ends between a frame's FS and its CR holds both bytes without a
+// complete frame. Treating that as complete reported the previous message a
+// second time (issue #35).
 func (c *MLLPCodec) ReceiveData(data []byte) bool {
 	c.dataBuffer = append(c.dataBuffer, data...)
 
-	// Only process once the buffer contains the end and footer protocol bytes.
-	if bytes.IndexByte(c.dataBuffer, helpers.ProtocolMLLPEnd) >= 0 &&
-		bytes.IndexByte(c.dataBuffer, helpers.ProtocolMLLPFooter) >= 0 {
+	// Only process once the buffer contains a complete <FS><CR> trailer.
+	if bytes.Contains(c.dataBuffer, mllpTrailer) {
 		c.processMessage()
 		return true
 	}
@@ -183,7 +191,7 @@ func (c *MLLPCodec) decodeBody(body []byte) string {
 // frame this is byte-for-byte identical to the source. See QUESTIONS for this
 // adaptation.
 func (c *MLLPCodec) processMessage() {
-	marker := []byte{helpers.ProtocolMLLPEnd, helpers.ProtocolMLLPFooter}
+	marker := mllpTrailer
 	end := bytes.LastIndex(c.dataBuffer, marker)
 	if end < 0 {
 		return
