@@ -19,16 +19,15 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 name: GoLic
-# Verify every source file carries the MIT license header. golic (Bugs5382's own
-# tool) is run through go-task (`task license`) -- the standard runner for every
-# project. `golic inject --dry -x` fails the check if a header is missing; it never
-# modifies files. Docs (**.md) are skipped -- they carry no header.
+# Verify every source file carries the MIT license header. `golic inject -x -d`
+# is a dry run that fails the check if a header is missing; it never modifies
+# files. This calls golic directly rather than through `task license`, because
+# this repo's `license` task injects headers (it is not the dry-run check).
+# Docs (**.md) carry no header, so golic's .golic.yaml leaves them out.
 on:
   pull_request:
     branches: [main]
-  push:
-    branches: [main]
-    paths-ignore: ['**.md']
+    types: [opened, synchronize, reopened, ready_for_review]
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -37,7 +36,11 @@ permissions:
 jobs:
   golic:
     name: 🔏 License headers
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GOLIC_VERSION: v0.2.0
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -45,13 +48,10 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version: 'stable'
-      - name: Install Task
-        uses: arduino/setup-task@v2
-        with:
-          version: 3.x
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Verify MIT headers
         run: |
-          export PATH="${PATH}:$(go env GOPATH)/bin"
-          task license
+          # Assign first, then export, so a failing `go env` is not masked.
+          gobin="$(go env GOPATH)/bin"
+          export PATH="${PATH}:${gobin}"
+          go install "github.com/Bugs5382/golic/cmd/golic@${GOLIC_VERSION}"
+          golic inject -t mit -c "2026 Shane" -x -d
