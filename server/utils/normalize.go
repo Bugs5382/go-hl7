@@ -25,10 +25,12 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/Bugs5382/go-hl7/client/builder"
 	"github.com/Bugs5382/go-hl7/client/hl7/metadata"
+	"github.com/Bugs5382/go-hl7/client/modules"
 	clientutils "github.com/Bugs5382/go-hl7/client/utils"
 )
 
@@ -102,6 +104,11 @@ type ServerOptions struct {
 // set; combining AcceptAnyVersion with Version or Versions is a construction
 // error.
 type ListenerOptions struct {
+	// Charset is the text encoding of inbound MLLP frames: an HL7 MSH-18 code
+	// (for example "8859/1") or an IANA/WHATWG name (for example
+	// "iso-8859-1"). Empty keeps the default UTF-8 behavior. An unknown charset
+	// is rejected when the listener is created.
+	Charset string
 	// Encoding is retained for parity.
 	Encoding string
 	// MSHOverrides optionally overrides ACK MSH fields keyed by path.
@@ -146,6 +153,8 @@ type NormalizedServerOptions struct {
 
 // ValidatedListenerOptions is the fully-resolved per-inbound option set.
 type ValidatedListenerOptions struct {
+	// Charset is the validated MLLP charset; empty means UTF-8.
+	Charset string
 	// Encoding is the resolved encoding.
 	Encoding string
 	// MSHOverrides is the validated override map.
@@ -195,6 +204,7 @@ var nameFormatRE = regexp.MustCompile("[ `!@#$%^&*()+\\-=\\[\\]{};':\"\\\\|,.<>/
 // numeric bound check.
 func NormalizeListenerOptions(properties ListenerOptions) (ValidatedListenerOptions, error) {
 	out := ValidatedListenerOptions{
+		Charset:          properties.Charset,
 		Encoding:         properties.Encoding,
 		MSHOverrides:     properties.MSHOverrides,
 		Name:             properties.Name,
@@ -202,6 +212,9 @@ func NormalizeListenerOptions(properties ListenerOptions) (ValidatedListenerOpti
 	}
 	if out.Encoding == "" {
 		out.Encoding = "utf8"
+	}
+	if _, err := modules.ResolveCharset(out.Charset); err != nil {
+		return ValidatedListenerOptions{}, NewHL7ListenerError("charset " + strconv.Quote(out.Charset) + " is not a supported charset: " + err.Error())
 	}
 
 	if out.Name == "" {
