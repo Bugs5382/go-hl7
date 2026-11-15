@@ -26,6 +26,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 import (
 	"errors"
 	"net"
+	"strings"
 	"testing"
 
 	"github.com/Bugs5382/go-hl7/client/builder"
@@ -75,4 +76,31 @@ func TestPR134InboundRequestSocket(t *testing.T) {
 		req := NewInboundRequest(issueTestMessage(t, ""), InboundRequestProps{Type: "message"})
 		req.GetSocket()
 	})
+}
+
+// TestRejectUnparseableReadableMSH covers issue #49: when the first segment of
+// an unparseable message is a readable MSH, the reject ACK echoes its control
+// id, AR in original mode and CR in enhanced mode (MSH-15 set).
+func TestRejectUnparseableReadableMSH(t *testing.T) {
+	cases := []struct{ name, text, want string }{
+		{"original", "MSH|^~\\&|A|B|C|D|20240101||ADT^A01|CID1|P|2.5.1\rEVN|A01", "MSA|AR|CID1"},
+		{"enhanced", "MSH|^~\\&|A|B|C|D|20240101||ADT^A01|CID2|P|2.5.1|||AL\rEVN|A01", "MSA|CR|CID2"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			client, srvSide := net.Pipe()
+			defer func() { _ = client.Close() }()
+			defer func() { _ = srvSide.Close() }()
+			got := make(chan string, 1)
+			go func() {
+				buf := make([]byte, 4096)
+				n, _ := client.Read(buf)
+				got <- string(buf[:n])
+			}()
+			(&Inbound{}).rejectUnparseable(srvSide, tc.text)
+			if ack := <-got; !strings.Contains(ack, tc.want) {
+				t.Fatalf("ack %q does not contain %q", ack, tc.want)
+			}
+		})
+	}
 }

@@ -28,7 +28,9 @@ import (
 	"crypto/x509"
 	"net"
 	"strconv"
+	"strings"
 	"sync"
+	"time"
 
 	"github.com/Bugs5382/go-hl7/client/builder"
 	"github.com/Bugs5382/go-hl7/client/modules"
@@ -338,6 +340,7 @@ func (in *Inbound) handleMessages(conn net.Conn, messages []*builder.Message, fr
 func (in *Inbound) dispatch(conn net.Conn, msgText, fromType string) {
 	parsed, err := builder.NewMessage(builder.MessageOptions{Text: msgText})
 	if err != nil {
+		in.rejectUnparseable(conn, msgText)
 		in.emit("data.error", err)
 		return
 	}
@@ -368,6 +371,23 @@ func (in *Inbound) dispatch(conn net.Conn, msgText, fromType string) {
 	if err := in.handler(request, res); err != nil {
 		in.emit("data.error", err)
 	}
+}
+
+// rejectUnparseable replies to a message that failed to parse so the sender does
+// not wait out its timeout and retransmit it (issue #49). When the first segment
+// is a readable MSH, the reject ACK is built from it like any other ACK (AR in
+// original mode, CR in enhanced mode, echoing MSH-10). Otherwise a bare AR ACK
+// with no sender, receiver or control id is sent.
+func (in *Inbound) rejectUnparseable(conn net.Conn, msgText string) {
+	if first, _, _ := strings.Cut(strings.ReplaceAll(msgText, "\n", "\r"), "\r"); strings.HasPrefix(first, "MSH") {
+		if msh, err := builder.NewMessage(builder.MessageOptions{Text: first}); err == nil {
+			_, _ = in.newResponse(conn, msh).SendAck(OutcomeReject)
+			return
+		}
+	}
+	_ = in.newResponse(conn, nil).SendCustomResponse(
+		"MSH|^~\\&|||||" + utils.CreateHL7Date(time.Now(), "") + "||ACK|" + utils.RandomString(20) + "|P|2.7\rMSA|AR|",
+	)
 }
 
 // newResponse builds the SendResponse for a request.
