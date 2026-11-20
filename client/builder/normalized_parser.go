@@ -287,13 +287,18 @@ func normalizedClientBatchParserOptions(raw BatchOptions) (builderOptions, error
 	if p.Text == "" {
 		p.Text = "BHS" + p.SeparatorField + p.SeparatorComponent + p.SeparatorRepetition + p.SeparatorEscape + p.SeparatorSubComponent
 	} else {
-		plan := modules.NewParserPlan(sliceStr(p.Text, 3, 8))
 		if strings.Contains(p.Text, "\r") {
 			p.NewLine = "\r"
 		} else {
 			p.NewLine = "\n"
 		}
 		p.Text = dropBlankSegments(p.Text, p.NewLine)
+		// Without a field separator after the header name the delimiter set is
+		// incomplete and building the root would panic (issue #63).
+		if strings.TrimSpace(sliceStr(p.Text, 3, 4)) == "" {
+			return p, helpers.NewHL7FatalError("text is too short to hold a BHS header.")
+		}
+		plan := modules.NewParserPlan(sliceStr(p.Text, 3, 8))
 		p.SeparatorField = plan.SeparatorField
 		p.SeparatorComponent = plan.SeparatorComponent
 		p.SeparatorRepetition = plan.SeparatorRepetition
@@ -388,13 +393,18 @@ func normalizedClientFileParserOptions(raw FileOptions) (fileBuilderOptions, err
 	if p.Text == "" {
 		p.Text = "FHS" + p.SeparatorField + p.SeparatorComponent + p.SeparatorRepetition + p.SeparatorEscape + p.SeparatorSubComponent
 	} else {
-		plan := modules.NewParserPlan(sliceStr(p.Text, 3, 8))
 		if strings.Contains(p.Text, "\r") {
 			p.NewLine = "\r"
 		} else {
 			p.NewLine = "\n"
 		}
 		p.Text = dropBlankSegments(p.Text, p.NewLine)
+		// Without a field separator after the header name the delimiter set is
+		// incomplete and building the root would panic (issue #63).
+		if strings.TrimSpace(sliceStr(p.Text, 3, 4)) == "" {
+			return p, helpers.NewHL7FatalError("text is too short to hold a FHS header.")
+		}
+		plan := modules.NewParserPlan(sliceStr(p.Text, 3, 8))
 		p.SeparatorField = plan.SeparatorField
 		p.SeparatorComponent = plan.SeparatorComponent
 		p.SeparatorRepetition = plan.SeparatorRepetition

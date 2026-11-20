@@ -312,7 +312,11 @@ func (c *Connection) assertVersion(body string) error {
 		if err != nil {
 			return err
 		}
-		for _, msg := range parser.Messages() {
+		messages, err := parser.ParseMessages()
+		if err != nil {
+			return err
+		}
+		for _, msg := range messages {
 			if err := assertMessageVersion(msg, want); err != nil {
 				return err
 			}
@@ -323,7 +327,11 @@ func (c *Connection) assertVersion(body string) error {
 		if err != nil {
 			return err
 		}
-		for _, msg := range parser.Messages() {
+		messages, err := parser.ParseMessages()
+		if err != nil {
+			return err
+		}
+		for _, msg := range messages {
 			if err := assertMessageVersion(msg, want); err != nil {
 				return err
 			}
@@ -561,7 +569,12 @@ func (c *Connection) onData(chunk []byte) {
 			c.emit("data.error", err)
 			return
 		}
-		for _, msg := range parser.Messages() {
+		messages, err := parser.ParseMessages()
+		if err != nil {
+			c.emit("data.error", err)
+			return
+		}
+		for _, msg := range messages {
 			c.deliver(msg.String())
 		}
 		return

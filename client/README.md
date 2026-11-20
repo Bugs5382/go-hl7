@@ -541,7 +541,7 @@ for _, m := range file.Messages() {
 }
 ```
 
-> ⚠️ The parser is strict — malformed HL7 yields an `error` from the constructor, and some structural read failures panic with an `HL7Error`. `NewMessage` rejects a body that doesn't begin with `MSH` or one carrying multiple MSH segments (use `Batch` for that). `NewBatch` rejects a single‑MSH body. `NewMessage`, `NewBatch`, and `NewFileBatch` all return `(T, error)`.
+> ⚠️ The parser is strict — malformed HL7 yields an `error` from the constructor, and some structural read failures panic with an `HL7Error`. `NewMessage` rejects a body that doesn't begin with `MSH` or one carrying multiple MSH segments (use `Batch` for that). `NewBatch` rejects a single‑MSH body. `NewMessage`, `NewBatch`, and `NewFileBatch` all return `(T, error)`, including for text too short to hold the header. `Messages()` panics when a batch or file carries no messages; `ParseMessages()` returns the same failure as an `error`, so prefer it for untrusted input.
 
 ---
 

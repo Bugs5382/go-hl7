@@ -314,7 +314,7 @@ func (in *Inbound) onData(conn net.Conn, codec *modules.MLLPCodec, chunk []byte)
 			if err != nil {
 				return nil, err
 			}
-			return parser.Messages(), nil
+			return parser.ParseMessages()
 		})
 		if err != nil {
 			in.rejectUnparseable(conn, completed)
@@ -328,7 +328,7 @@ func (in *Inbound) onData(conn net.Conn, codec *modules.MLLPCodec, chunk []byte)
 			if err != nil {
 				return nil, err
 			}
-			return parser.Messages(), nil
+			return parser.ParseMessages()
 		})
 		if err != nil {
 			in.rejectUnparseable(conn, completed)
