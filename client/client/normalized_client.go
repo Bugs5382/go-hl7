@@ -86,8 +86,8 @@ func normalizeClientListenerOptions(client validatedClientOptions, raw ClientLis
 		enqueueMessage:        raw.EnqueueMessage,
 		extendMaxLimit:        boolOr(raw.ExtendMaxLimit, false),
 		flushQueue:            raw.FlushQueue,
-		maxAttempts:           intOr(raw.MaxAttempts, defaultMaxAttempts),
-		maxConnectionAttempts: intOr(raw.MaxConnectionAttempts, defaultMaxConnectionAttempts),
+		maxAttempts:           intOr(raw.MaxAttempts, client.maxAttempts),
+		maxConnectionAttempts: intOr(raw.MaxConnectionAttempts, client.maxConnectionAttempts),
 		maxLimit:              intOr(raw.MaxLimit, defaultMaxLimit),
 		notifyOnLimitExceeded: boolOr(raw.NotifyOnLimitExceeded, false),
 		retryHigh:             intOr(raw.RetryHigh, client.retryHigh),
@@ -124,7 +124,7 @@ func normalizeClientListenerOptions(client validatedClientOptions, raw ClientLis
 	if err := utils.AssertNumber(float64(out.maxAttempts), "maxAttempts", 1, 50); err != nil {
 		return validatedClientListenerOptions{}, err
 	}
-	if err := utils.AssertNumber(float64(out.maxConnectionAttempts), "maxConnectionAttempts", 1, 50); err != nil {
+	if err := utils.AssertNumber(float64(out.maxConnectionAttempts), "maxConnectionAttempts", 0, 50); err != nil {
 		return validatedClientListenerOptions{}, err
 	}
 	if err := utils.AssertNumber(float64(out.port), "port", 1, 65_353); err != nil {
@@ -144,6 +144,8 @@ func normalizeClientOptions(raw ClientOptions) (validatedClientOptions, error) {
 		host:                           raw.Host,
 		ipv4:                           boolOr(raw.IPv4, defaultClientIPv4),
 		ipv6:                           boolOr(raw.IPv6, defaultClientIPv6),
+		maxAttempts:                    intOr(raw.MaxAttempts, defaultMaxAttempts),
+		maxConnectionAttempts:          intOr(raw.MaxConnectionAttempts, defaultMaxConnectionAttempts),
 		maxTimeout:                     intOr(raw.MaxTimeout, defaultMaxTimeout),
 		retryHigh:                      intOr(raw.RetryHigh, defaultRetryHigh),
 		retryLow:                       intOr(raw.RetryLow, defaultRetryLow),
@@ -200,6 +202,12 @@ func normalizeClientOptions(raw ClientOptions) (validatedClientOptions, error) {
 	}
 
 	if err := utils.AssertNumber(float64(out.connectionTimeout), "connectionTimeout", 0, 60_000); err != nil {
+		return validatedClientOptions{}, err
+	}
+	if err := utils.AssertNumber(float64(out.maxAttempts), "maxAttempts", 1, 50); err != nil {
+		return validatedClientOptions{}, err
+	}
+	if err := utils.AssertNumber(float64(out.maxConnectionAttempts), "maxConnectionAttempts", 0, 50); err != nil {
 		return validatedClientOptions{}, err
 	}
 	if err := utils.AssertNumber(float64(out.maxTimeout), "maxTimeout", 1, 50); err != nil {

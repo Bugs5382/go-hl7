@@ -189,7 +189,7 @@ func send(msg *builder.Message) {
 }
 ```
 
-`SendMessage` accepts any `MessageItem` (`*builder.Message`, `*builder.Batch`, `*builder.FileBatch`). Useful methods: `*Connection`: `Connect()`, `Close()`, `IsConnected()`, `GetPort()`. `*Client`: `CreateConnection`, `CloseAll()`, `TotalSent()`, `TotalAck()`, `TotalPending()`, `GetHost()`. The connection is persistent (many sends over one socket); on drop it reconnects with exponential backoff (`RetryLow`→`RetryHigh`, capped by `MaxConnectionAttempts`).
+`SendMessage` accepts any `MessageItem` (`*builder.Message`, `*builder.Batch`, `*builder.FileBatch`). Useful methods: `*Connection`: `Connect()`, `Close()`, `IsConnected()`, `GetPort()`. `*Client`: `CreateConnection`, `CloseAll()`, `TotalSent()`, `TotalAck()`, `TotalPending()`, `GetHost()`. The connection is persistent (many sends over one socket); on drop it reconnects with exponential backoff (`RetryLow`→`RetryHigh`, capped by `MaxConnectionAttempts`, range 0..50, `0` = unlimited; set on the client or per connection).
 
 **Dual-stack:** IPv4-only by default. Opt into dual-stack with both `IPv4: ptr(true), IPv6: ptr(true)`; one alone is exclusive; both `false` errors from `NewClient`.
 
