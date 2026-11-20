@@ -214,6 +214,8 @@ Each port enforces **its own** accepted set. When an inbound message's `MSH.12` 
 - emits a version‑mismatch `data.error` event,
 - and **returns without invoking your handler**.
 
+A frame that cannot be parsed at all (a single message, a batch or a file) is also rejected rather than dropped: the server sends an **`AR`** ACK (**`CR`** in enhanced mode when the first segment is a readable `MSH`), emits `data.error`, and does not invoke your handler. When no usable `MSH` exists the ACK is a bare `MSH`/`MSA|AR|` pair whose `MSA-2` echoes the `MSH-10` of the first line when it can be read, so the sender can match it and stop retransmitting.
+
 Dedicate a port per workflow (e.g. a strict 2.7‑only port, plus a permissive `AcceptAnyVersion` port for mixed senders) by calling `CreateInbound` once per configuration.
 
 ---
