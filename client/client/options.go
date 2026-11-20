@@ -52,8 +52,10 @@ type ClientOptions struct {
 	// AutoSelectFamilyAttemptTimeout is the per-family attempt timeout in ms
 	// (default 250).
 	AutoSelectFamilyAttemptTimeout *int
-	// ConnectionTimeout, in ms, ends and retries a stalled connection; 0 stays
-	// connected (default 0).
+	// ConnectionTimeout, in ms, limits one connection attempt: a stalled attempt
+	// is ended and retried. It does not apply once connected. 0 means no limit
+	// (default 0). A dropped connection always emits client.error and
+	// reconnects with backoff, whatever the value.
 	ConnectionTimeout *int
 	// Host is the FQDN or IPv4/IPv6 address to connect to.
 	Host string
