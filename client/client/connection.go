@@ -375,6 +375,10 @@ func (c *Connection) connect() {
 	// maxTimeout occurrences.
 	if connTimeout > 0 && (state == declaration.Connected || state == declaration.Connecting) {
 		c.mu.Lock()
+		if c.connectionTimer != nil {
+			c.connectionTimer.Stop()
+			c.connectionTimer = nil
+		}
 		if c.retryTimeoutCount < c.main.opt.maxTimeout {
 			c.connectionTimer = time.AfterFunc(time.Duration(connTimeout)*time.Millisecond, func() {
 				c.mu.Lock()
@@ -469,6 +473,12 @@ func buildTLSConfig(cfg *TLSConfig, dialHost string) *tls.Config {
 // emit connect.
 func (c *Connection) handleConnect(conn net.Conn) {
 	c.mu.Lock()
+	// The connection timeout limits one attempt only: once connected the timer
+	// must not tear the open socket down (#58).
+	if c.connectionTimer != nil {
+		c.connectionTimer.Stop()
+		c.connectionTimer = nil
+	}
 	c.readyState = declaration.Connected
 	c.retryCount = 1
 	c.pendingSetup = false
@@ -624,9 +634,8 @@ func (c *Connection) handleSocketClose(gen int, cause error) {
 		return
 	}
 
-	connTimeout := c.main.opt.connectionTimeout
-	// Reconnect only when connectionTimeout > 0; with timeout 0 it stays
-	// closed after the socket drops (but still surfaces the error once).
+	// Any close that is not an explicit Close() surfaces the error and
+	// reconnects with backoff, whatever ConnectionTimeout is (#57).
 	connErr := c.lastError
 	if connErr == nil {
 		connErr = cause
@@ -635,17 +644,6 @@ func (c *Connection) handleSocketClose(gen int, cause error) {
 		connErr = helpers.NewHL7FatalError("Socket closed unexpectedly by server.")
 	}
 	c.lastError = nil
-
-	if connTimeout <= 0 {
-		// Surface the connection error so callers (and the failure tests) see
-		// it, then stay where we are without reconnecting.
-		wasConnecting := c.readyState == declaration.Connecting
-		c.mu.Unlock()
-		if wasConnecting {
-			c.emit("client.error", normalizeDialError(connErr))
-		}
-		return
-	}
 
 	if c.readyState == declaration.Open {
 		c.onConnect = declaration.NewDeferred[struct{}]()

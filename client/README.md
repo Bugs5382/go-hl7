@@ -413,7 +413,7 @@ When the socket drops, the connection schedules an exponential‑backoff reconne
 |---|---|---|
 | `Version` | — | **required** HL7 version (`2.1`..`2.8`); every sent message's `MSH.12` must match or `SendMessage` rejects it. |
 | `Host` | — | FQDN or IPv4/IPv6 address. |
-| `ConnectionTimeout` | `0` | ms before a stalled connection is ended and retried; `0` stays connected. |
+| `ConnectionTimeout` | `0` | ms limit for one connection attempt before it is ended and retried; it does not apply once connected. `0` means no limit. A dropped connection always emits `client.error` and reconnects with backoff, whatever the value. |
 | `MaxAttempts` | `10` | message‑send retries while reconnecting (1..50). |
 | `MaxConnectionAttempts` | `10` | initial/reconnect attempts (1..50). |
 | `MaxTimeout` | `10` | connection‑timeout occurrences before giving up. |
