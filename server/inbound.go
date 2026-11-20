@@ -240,9 +240,14 @@ func (in *Inbound) onClientConnected(conn net.Conn) {
 		_ = tcp.SetNoDelay(true)
 	}
 
-	// The codec's only argument is the return character (defaulting to "\r");
-	// HL7 bodies are UTF-8 byte slices, so no encoding is configured.
-	codec := modules.NewMLLPCodec("")
+	// The charset was validated when the listener was created (issue #50), so
+	// the codec cannot fail here; an empty charset keeps UTF-8.
+	codec, err := modules.NewMLLPCodecWithCharset("", in.opt.Charset)
+	if err != nil {
+		in.closeSocket(conn)
+		in.emit("error", err)
+		return
+	}
 
 	in.emit("client.connect", conn)
 

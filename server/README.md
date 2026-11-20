@@ -178,6 +178,7 @@ in, err := srv.CreateInbound(props server.ListenerOptions, handler server.Inboun
 | `Port` | `*int` | Required. `0 < port < 65353`. |
 | `Name` | `string` | Optional human‑readable name for logging; auto‑randomized if empty. |
 | `Encoding` | `string` | Retained for parity (default utf8). |
+| `Charset` | `string` | Text encoding of inbound frames: an HL7 MSH‑18 code (`"8859/1"`) or an IANA/WHATWG name (`"iso-8859-1"`). Empty keeps UTF‑8. An unknown charset makes `CreateInbound` return an error. |
 | `MSHOverrides` | `map[string]server.MSHOverride` | Per‑field MSH overrides applied to the auto‑generated ACK. |
 
 Exactly one of the three version forms must be provided. An inbound message whose `MSH.12` is not in the accepted set is rejected with an `AR` ACK and the handler is not called.
