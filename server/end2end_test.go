@@ -305,6 +305,27 @@ func TestEnd2EndUnparseableMessageRejected(t *testing.T) {
 	}
 }
 
+// TestEnd2EndUnparseableBatchRejected covers a batch frame that fails to parse:
+// like a bad single message, it must get a reject ACK instead of silence.
+func TestEnd2EndUnparseableBatchRejected(t *testing.T) {
+	ack, handled, _ := unparseableProbe(t, "BHS")
+	if !strings.Contains(ack, "MSA|AR|") {
+		t.Fatalf("expected an AR ack, got %q", ack)
+	}
+	if handled != 0 {
+		t.Fatalf("handler ran %d times, want 0", handled)
+	}
+}
+
+// TestEnd2EndUnparseableMessageEchoesControlID covers a frame that starts with
+// MSH but is too short to parse: the bare ACK still echoes MSH-10 in MSA-2.
+func TestEnd2EndUnparseableMessageEchoesControlID(t *testing.T) {
+	ack, _, _ := unparseableProbe(t, "MSH|^~\\&|A|B|C|D|20240101||ADT^A01|CID9")
+	if !strings.Contains(ack, "MSA|AR|CID9") {
+		t.Fatalf("expected MSA-2 to echo CID9, got %q", ack)
+	}
+}
+
 // waitFor polls cond until true or the deadline, letting asynchronous work
 // settle.
 func waitFor(t *testing.T, cond func() bool) {

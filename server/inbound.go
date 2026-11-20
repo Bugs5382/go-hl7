@@ -309,22 +309,48 @@ func (in *Inbound) onData(conn net.Conn, codec *modules.MLLPCodec, chunk []byte)
 
 	switch {
 	case utils.IsFile(completed):
-		parser, err := builder.NewFileBatch(builder.FileOptions{Text: completed})
+		messages, err := parseMessages(func() ([]*builder.Message, error) {
+			parser, err := builder.NewFileBatch(builder.FileOptions{Text: completed})
+			if err != nil {
+				return nil, err
+			}
+			return parser.Messages(), nil
+		})
 		if err != nil {
+			in.rejectUnparseable(conn, completed)
 			in.emit("data.error", err)
 			return
 		}
-		in.handleMessages(conn, parser.Messages(), "file")
+		in.handleMessages(conn, messages, "file")
 	case utils.IsBatch(completed):
-		parser, err := builder.NewBatch(builder.BatchOptions{Text: completed})
+		messages, err := parseMessages(func() ([]*builder.Message, error) {
+			parser, err := builder.NewBatch(builder.BatchOptions{Text: completed})
+			if err != nil {
+				return nil, err
+			}
+			return parser.Messages(), nil
+		})
 		if err != nil {
+			in.rejectUnparseable(conn, completed)
 			in.emit("data.error", err)
 			return
 		}
-		in.handleMessages(conn, parser.Messages(), "batch")
+		in.handleMessages(conn, messages, "batch")
 	default:
 		in.dispatch(conn, completed, "message")
 	}
+}
+
+// parseMessages runs a batch or file parse and turns a panic inside the parser
+// (a header too short to read, for example) into an error, so the caller can
+// reject the frame instead of dropping it silently (issue #49).
+func parseMessages(parse func() ([]*builder.Message, error)) (messages []*builder.Message, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			messages, err = nil, asError(r)
+		}
+	}()
+	return parse()
 }
 
 // handleMessages re-parses and dispatches each message from a batch/file body,
@@ -373,21 +399,39 @@ func (in *Inbound) dispatch(conn net.Conn, msgText, fromType string) {
 	}
 }
 
-// rejectUnparseable replies to a message that failed to parse so the sender does
-// not wait out its timeout and retransmit it (issue #49). When the first segment
-// is a readable MSH, the reject ACK is built from it like any other ACK (AR in
-// original mode, CR in enhanced mode, echoing MSH-10). Otherwise a bare AR ACK
-// with no sender, receiver or control id is sent.
+// rejectUnparseable replies to text that failed to parse so the sender does not
+// wait out its timeout and retransmit it (issue #49). When the first segment is
+// a readable MSH, the reject ACK is built from it like any other ACK (AR in
+// original mode, CR in enhanced mode, echoing MSH-10). Otherwise, or when that
+// ACK cannot be built, a bare AR ACK is sent that still echoes the MSH-10 of the
+// first line in MSA-2 and uses the listener's version when it has exactly one.
 func (in *Inbound) rejectUnparseable(conn net.Conn, msgText string) {
-	if first, _, _ := strings.Cut(strings.ReplaceAll(msgText, "\n", "\r"), "\r"); strings.HasPrefix(first, "MSH") {
+	first, _, _ := strings.Cut(strings.ReplaceAll(msgText, "\n", "\r"), "\r")
+	if strings.HasPrefix(first, "MSH") {
 		if msh, err := builder.NewMessage(builder.MessageOptions{Text: first}); err == nil {
-			_, _ = in.newResponse(conn, msh).SendAck(OutcomeReject)
-			return
+			if _, err := in.newResponse(conn, msh).SendAck(OutcomeReject); err == nil {
+				return
+			}
 		}
 	}
-	_ = in.newResponse(conn, nil).SendCustomResponse(
-		"MSH|^~\\&|||||" + utils.CreateHL7Date(time.Now(), "") + "||ACK|" + utils.RandomString(20) + "|P|2.7\rMSA|AR|",
-	)
+	version := "2.7"
+	if len(in.opt.Versions) == 1 {
+		version = in.opt.Versions[0]
+	}
+	_ = in.newResponse(conn, nil).SendCustomResponse(bareRejectAck(first, version, time.Now()))
+}
+
+// bareRejectAck builds the AR ACK sent when no usable MSH is available. MSA-2
+// echoes MSH-10 of the first line when it can be read from the raw text (MSH-1
+// is the field separator, so MSH-n is the (n-1)th field after splitting).
+func bareRejectAck(first, version string, now time.Time) string {
+	controlID := ""
+	if len(first) > 3 && strings.HasPrefix(first, "MSH") {
+		if fields := strings.Split(first, string(first[3])); len(fields) > 9 {
+			controlID = fields[9]
+		}
+	}
+	return "MSH|^~\\&|||||" + utils.CreateHL7Date(now, "") + "||ACK|" + utils.RandomString(20) + "|P|" + version + "\rMSA|AR|" + controlID
 }
 
 // newResponse builds the SendResponse for a request.

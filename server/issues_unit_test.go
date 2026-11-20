@@ -28,6 +28,7 @@ import (
 	"net"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/Bugs5382/go-hl7/client/builder"
 	"github.com/Bugs5382/go-hl7/server/utils"
@@ -100,6 +101,32 @@ func TestRejectUnparseableReadableMSH(t *testing.T) {
 			(&Inbound{}).rejectUnparseable(srvSide, tc.text)
 			if ack := <-got; !strings.Contains(ack, tc.want) {
 				t.Fatalf("ack %q does not contain %q", ack, tc.want)
+			}
+		})
+	}
+}
+
+// TestBareRejectAck covers the AR ACK sent when no usable MSH exists: MSA-2
+// echoes MSH-10 of the first line when readable and is empty otherwise, and
+// MSH-12 carries the version given.
+func TestBareRejectAck(t *testing.T) {
+	cases := []struct{ name, first, want string }{
+		{"with control id", "MSH|^~\\&|A|B|C|D|20240101||ADT^A01|CID1", "\rMSA|AR|CID1"},
+		{"too few fields", "MSH|bad", "\rMSA|AR|"},
+		{"no msh", "garbage", "\rMSA|AR|"},
+		{"empty", "", "\rMSA|AR|"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			ack := bareRejectAck(tc.first, "2.5.1", time.Now())
+			if !strings.HasSuffix(ack, tc.want) {
+				t.Fatalf("ack %q does not end with %q", ack, tc.want)
+			}
+			if !strings.Contains(ack, "|P|2.5.1\r") {
+				t.Fatalf("ack %q does not carry version 2.5.1", ack)
+			}
+			if _, err := builder.NewMessage(builder.MessageOptions{Text: ack}); err != nil {
+				t.Fatalf("bare ack does not parse: %v", err)
 			}
 		})
 	}
