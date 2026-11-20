@@ -247,6 +247,85 @@ func TestEnd2EndListenerVersionMismatch(t *testing.T) {
 	_ = listener.Close()
 }
 
+// unparseableProbe sends one MLLP-framed body that builder.NewMessage rejects and
+// returns the ACK the listener wrote back (empty on timeout) and how many
+// times the handler ran and data.error fired.
+func unparseableProbe(t *testing.T, body string) (ack string, handlerCalls, dataErrors int32) {
+	t.Helper()
+	port := freePort(t)
+	var handled, errored atomic.Int32
+
+	srv, _ := server.NewServer(&server.ServerOptions{BindAddress: ptr("127.0.0.1"), IPv4: ptr(true)})
+	listener, err := srv.CreateInbound(server.ListenerOptions{Version: "2.5.1", Port: ptr(port)}, func(_ *server.InboundRequest, res server.ResponseSender) error {
+		handled.Add(1)
+		return res.SendResponse("AA")
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = listener.Close() }()
+	listener.On("data.error", func(...any) { errored.Add(1) })
+	waitFor(t, listener.IsListening)
+
+	const VT, FS, CR = 0x0b, 0x1c, 0x0d
+	framed := append([]byte{VT}, append([]byte(body), FS, CR)...)
+	raw, err := net.Dial("tcp", "127.0.0.1:"+strconv.Itoa(port))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = raw.Close() }()
+	got := make(chan string, 1)
+	go func() {
+		buf := make([]byte, 4096)
+		n, _ := raw.Read(buf)
+		got <- string(buf[:n])
+	}()
+	if _, err := raw.Write(framed); err != nil {
+		t.Fatal(err)
+	}
+	select {
+	case ack = <-got:
+	case <-time.After(3 * time.Second):
+	}
+	waitFor(t, func() bool { return errored.Load() == 1 })
+	return ack, handled.Load(), errored.Load()
+}
+
+// TestEnd2EndUnparseableMessageRejected covers a frame that fails to parse: the
+// listener must reply with a reject ACK (so the sender does not retransmit),
+// still emit data.error, and not invoke the handler. With no readable MSH the
+// ACK is a bare AR.
+func TestEnd2EndUnparseableMessageRejected(t *testing.T) {
+	ack, handled, _ := unparseableProbe(t, "this is not HL7")
+	if !strings.Contains(ack, "MSA|AR|") {
+		t.Fatalf("expected an AR ack, got %q", ack)
+	}
+	if handled != 0 {
+		t.Fatalf("handler ran %d times, want 0", handled)
+	}
+}
+
+// TestEnd2EndUnparseableBatchRejected covers a batch frame that fails to parse:
+// like a bad single message, it must get a reject ACK instead of silence.
+func TestEnd2EndUnparseableBatchRejected(t *testing.T) {
+	ack, handled, _ := unparseableProbe(t, "BHS")
+	if !strings.Contains(ack, "MSA|AR|") {
+		t.Fatalf("expected an AR ack, got %q", ack)
+	}
+	if handled != 0 {
+		t.Fatalf("handler ran %d times, want 0", handled)
+	}
+}
+
+// TestEnd2EndUnparseableMessageEchoesControlID covers a frame that starts with
+// MSH but is too short to parse: the bare ACK still echoes MSH-10 in MSA-2.
+func TestEnd2EndUnparseableMessageEchoesControlID(t *testing.T) {
+	ack, _, _ := unparseableProbe(t, "MSH|^~\\&|A|B|C|D|20240101||ADT^A01|CID9")
+	if !strings.Contains(ack, "MSA|AR|CID9") {
+		t.Fatalf("expected MSA-2 to echo CID9, got %q", ack)
+	}
+}
+
 // waitFor polls cond until true or the deadline, letting asynchronous work
 // settle.
 func waitFor(t *testing.T, cond func() bool) {
