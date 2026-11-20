@@ -436,7 +436,13 @@ func bareRejectAck(first, version string, now time.Time) string {
 
 // newResponse builds the SendResponse for a request.
 func (in *Inbound) newResponse(conn net.Conn, message *builder.Message) *SendResponse {
-	return NewSendResponse(conn, message, in.opt.MSHOverrides)
+	// The charset was validated when the listener was created (issue #50), so
+	// the error cannot occur; fall back to UTF-8 rather than drop the ACK.
+	res, err := NewSendResponseWithCharset(conn, message, in.opt.MSHOverrides, in.opt.Charset)
+	if err != nil {
+		return NewSendResponse(conn, message, in.opt.MSHOverrides)
+	}
+	return res
 }
 
 // closeSocket destroys a socket and removes it from the tracked list.

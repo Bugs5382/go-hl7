@@ -104,7 +104,7 @@ type ServerOptions struct {
 // set; combining AcceptAnyVersion with Version or Versions is a construction
 // error.
 type ListenerOptions struct {
-	// Charset is the text encoding of inbound MLLP frames: an HL7 MSH-18 code
+	// Charset is the text encoding of inbound MLLP frames and of the ACKs written back: an HL7 MSH-18 code
 	// (for example "8859/1") or an IANA/WHATWG name (for example
 	// "iso-8859-1"). Empty keeps the default UTF-8 behavior. An unknown charset
 	// is rejected when the listener is created.
