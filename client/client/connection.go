@@ -627,7 +627,8 @@ func (c *Connection) handleSocketError(err error) {
 
 // handleSocketClose runs the socket "close" handler: depending on the ready
 // state it either finalizes CLOSED or schedules an exponential-backoff
-// reconnect (up to maxConnectionAttempts), emitting client.error.
+// reconnect (up to maxConnectionAttempts, or forever when it is 0), emitting
+// client.error.
 func (c *Connection) handleSocketClose(gen int, cause error) {
 	c.mu.Lock()
 	// Ignore a close from a stale (superseded) socket.
@@ -667,7 +668,7 @@ func (c *Connection) handleSocketClose(gen int, cause error) {
 	maxConn := c.opt.maxConnectionAttempts
 	delay := utils.ExpBackoff(c.opt.retryLow, c.opt.retryHigh, retryCount, 2)
 
-	if retryCount < maxConn {
+	if maxConn == 0 || retryCount < maxConn {
 		c.retryTimer = time.AfterFunc(time.Duration(delay)*time.Millisecond, c.connect)
 		c.mu.Unlock()
 		c.emit("client.error", normalizeDialError(connErr))

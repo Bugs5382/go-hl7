@@ -94,7 +94,7 @@ _ = OB_ADT.SendMessage(message) // `message` is a MessageItem — *builder.Messa
 
 Outbound connections are persistent by design. This allows multiple messages to be sent over a single TCP/MLLP socket without repeatedly re-establishing the connection.
 
-If the connection drops, the library will attempt to reconnect up to 10 times (or a user-defined limit via `MaxConnectionAttempts`) before giving up, using exponential backoff (`RetryLow` → `RetryHigh`). If reconnection fails, your application will need to restart the connection process.
+If the connection drops, the library will attempt to reconnect up to 10 times (or a user-defined limit via `MaxConnectionAttempts`, range 0..50, where `0` = unlimited; set on the client or per connection) before giving up, using exponential backoff (`RetryLow` → `RetryHigh`). If reconnection fails, your application will need to restart the connection process.
 
 ### Step 4: Close the Connection
 

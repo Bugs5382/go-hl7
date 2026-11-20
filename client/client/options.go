@@ -64,10 +64,10 @@ type ClientOptions struct {
 	// IPv6 enables the IPv6 family (default false).
 	IPv6 *bool
 	// MaxAttempts caps message-send retries while reconnecting (default 10,
-	// range 1..50).
+	// range 1..50). A connection can override it.
 	MaxAttempts *int
-	// MaxConnectionAttempts caps initial connection attempts (default 10,
-	// range 1..50).
+	// MaxConnectionAttempts caps connection attempts (default 10, range 0..50;
+	// 0 retries forever). A connection can override it.
 	MaxConnectionAttempts *int
 	// MaxTimeout caps connection-timeout occurrences before giving up
 	// (default 10).
@@ -109,7 +109,8 @@ type ClientListenerOptions struct {
 	FlushQueue func(callback FallBackHandler, notifyPendingCount NotifyPendingCount) error
 	// MaxAttempts overrides the client MaxAttempts for this port.
 	MaxAttempts *int
-	// MaxConnectionAttempts overrides the client value for this port.
+	// MaxConnectionAttempts overrides the client value for this port (range
+	// 0..50; 0 retries forever).
 	MaxConnectionAttempts *int
 	// MaxLimit caps the in-memory pending queue (default 10000).
 	MaxLimit *int
@@ -148,14 +149,18 @@ type validatedClientOptions struct {
 	connectionTimeout              int
 	// family resolves the connection family: 0 dual-stack (let the resolver
 	// decide), 4 or 6 to force that family.
-	family     int
-	host       string
-	ipv4       bool
-	ipv6       bool
-	maxTimeout int
-	retryHigh  int
-	retryLow   int
-	tls        *TLSConfig
+	family int
+	host   string
+	ipv4   bool
+	ipv6   bool
+	// maxAttempts and maxConnectionAttempts are the client-level defaults a
+	// connection falls back to; maxConnectionAttempts 0 means unlimited.
+	maxAttempts           int
+	maxConnectionAttempts int
+	maxTimeout            int
+	retryHigh             int
+	retryLow              int
+	tls                   *TLSConfig
 	// version is the validated, required HL7 version pinned to this client; every
 	// message sent over its connections must declare it in MSH.12.
 	version string
