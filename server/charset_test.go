@@ -24,6 +24,7 @@ OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
 import (
+	"bytes"
 	"net"
 	"strconv"
 	"strings"
@@ -119,5 +120,63 @@ func TestListenerCharsetUnknownRejected(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "not-a-charset") {
 		t.Errorf("error %q should name the charset", err)
+	}
+}
+
+// readAckBytes starts a listener with the given charset, sends one framed ADT
+// whose MSH-3 is the raw bytes in appBytes, and returns the raw bytes of the
+// ACK the listener wrote back (issue #61).
+func readAckBytes(t *testing.T, charset string, appBytes []byte) []byte {
+	t.Helper()
+	port := freePort(t)
+	srv, err := server.NewServer(&server.ServerOptions{BindAddress: ptr("127.0.0.1"), IPv4: ptr(true)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	listener, err := srv.CreateInbound(server.ListenerOptions{Version: "2.7", Port: ptr(port), Charset: charset},
+		func(req *server.InboundRequest, res server.ResponseSender) error {
+			return res.SendResponse("AA")
+		})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = listener.Close() }()
+	waitFor(t, listener.IsListening)
+
+	body := append([]byte("MSH|^~\\&|"), appBytes...)
+	body = append(body, []byte("|B|C|D|20240101000000||ADT^A01|C1|P|2.7\rPID|1||123\r")...)
+	conn := sendRawFrame(t, port, body)
+	defer func() { _ = conn.Close() }()
+
+	_ = conn.SetReadDeadline(time.Now().Add(5 * time.Second))
+	var got []byte
+	buf := make([]byte, 4096)
+	for !bytes.Contains(got, []byte{0x1C, 0x0D}) {
+		n, err := conn.Read(buf)
+		got = append(got, buf[:n]...)
+		if err != nil {
+			t.Fatalf("reading ACK: %v (got %q)", err, got)
+		}
+	}
+	return got
+}
+
+// TestAckWrittenInListenerCharset checks that an ACK is encoded in the
+// listener's charset, so a Latin-1 sender name round-trips (issue #61).
+func TestAckWrittenInListenerCharset(t *testing.T) {
+	got := readAckBytes(t, "iso-8859-1", []byte{'M', 0xFC, 'l', 'l', 'e', 'r'})
+	if !bytes.Contains(got, []byte{'|', 'M', 0xFC, 'l', 'l', 'e', 'r', '|'}) {
+		t.Errorf("ACK is not Latin-1 encoded: %q", got)
+	}
+	if bytes.Contains(got, []byte{0xC3, 0xBC}) {
+		t.Errorf("ACK contains UTF-8 bytes: %q", got)
+	}
+}
+
+// TestAckDefaultsToUTF8 checks that an empty Charset still writes UTF-8 ACKs.
+func TestAckDefaultsToUTF8(t *testing.T) {
+	got := readAckBytes(t, "", []byte("Müller"))
+	if !bytes.Contains(got, []byte("|Müller|")) {
+		t.Errorf("ACK is not UTF-8 encoded: %q", got)
 	}
 }

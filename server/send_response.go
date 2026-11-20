@@ -76,10 +76,25 @@ type SendResponse struct {
 var _ ResponseSender = (*SendResponse)(nil)
 
 // NewSendResponse constructs a SendResponse over the client socket and inbound
-// message.
+// message. It writes UTF-8; use NewSendResponseWithCharset for another charset.
 func NewSendResponse(socket net.Conn, message *builder.Message, mshOverrides map[string]srvutils.MSHOverride) *SendResponse {
+	return newSendResponse(socket, message, mshOverrides, modules.NewMLLPCodec(""))
+}
+
+// NewSendResponseWithCharset is NewSendResponse with the ACK encoded in charset,
+// an HL7 MSH-18 code or an IANA/WHATWG name (issue #61). An empty charset keeps
+// UTF-8. An unknown charset returns an error and no response.
+func NewSendResponseWithCharset(socket net.Conn, message *builder.Message, mshOverrides map[string]srvutils.MSHOverride, charset string) (*SendResponse, error) {
+	codec, err := modules.NewMLLPCodecWithCharset("", charset)
+	if err != nil {
+		return nil, err
+	}
+	return newSendResponse(socket, message, mshOverrides, codec), nil
+}
+
+func newSendResponse(socket net.Conn, message *builder.Message, mshOverrides map[string]srvutils.MSHOverride, codec *modules.MLLPCodec) *SendResponse {
 	return &SendResponse{
-		codec:        modules.NewMLLPCodec(""),
+		codec:        codec,
 		message:      message,
 		mshOverrides: mshOverrides,
 		socket:       socket,

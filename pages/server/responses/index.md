@@ -100,6 +100,8 @@ The override key is the MSH field path (e.g. `"3"`, `"9.3"`), applied to the ACK
 
 > ❗ Overrides apply only to `SendResponse(...)`. They are intentionally skipped by `SendCustomResponse(...)` — the whole point of a custom ACK is that *you* control every byte.
 
+**Charset.** ACKs (including the reject ACK sent when an inbound message fails to parse) are encoded in the listener's `Charset`, the same one used to decode inbound frames. Empty keeps UTF-8. The server does not write MSH-18 for you; set it with an override if the receiver needs it.
+
 ---
 
 ## 🎯 Custom ACK (`SendCustomResponse`)
