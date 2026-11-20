@@ -470,7 +470,7 @@ func buildTLSConfig(cfg *TLSConfig, dialHost string) *tls.Config {
 func (c *Connection) handleConnect(conn net.Conn) {
 	c.mu.Lock()
 	c.readyState = declaration.Connected
-	c.retryCount = 1
+	c.retryCount = 0
 	c.pendingSetup = false
 	c.mu.Unlock()
 
@@ -660,11 +660,10 @@ func (c *Connection) handleSocketClose(gen int, cause error) {
 		c.retryTimer = time.AfterFunc(time.Duration(delay)*time.Millisecond, c.connect)
 		c.mu.Unlock()
 		c.emit("client.error", normalizeDialError(connErr))
-	} else if retryCount > maxConn {
+	} else {
+		// The last allowed attempt has failed: give up and close (#55).
 		c.mu.Unlock()
 		_ = c.Close()
-	} else {
-		c.mu.Unlock()
 	}
 }
 
