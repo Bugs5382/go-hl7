@@ -110,23 +110,33 @@ func (b *Batch) GetFirstSegment(name string) *Segment {
 	return b.firstSegment(name)
 }
 
-// Messages parses the carried text into individual Message nodes, one per MSH
-// line. It panics with HL7FatalError when there is no
-// batch text to parse.
-func (b *Batch) Messages() []*Message {
+// ParseMessages parses the carried text into individual Message nodes, one per
+// MSH line. It returns an HL7FatalError when there is no batch text to parse
+// and the error from NewMessage when a line is not a valid message.
+func (b *Batch) ParseMessages() ([]*Message, error) {
 	if b.lines != nil && b.opt.NewLine != "" {
 		messages := make([]*Message, 0, len(b.lines))
 		for _, line := range b.lines {
 			text := strings.TrimSuffix(line, b.opt.NewLine)
 			m, err := NewMessage(MessageOptions{Text: text})
 			if err != nil {
-				panic(err)
+				return nil, err
 			}
 			messages = append(messages, m)
 		}
-		return messages
+		return messages, nil
 	}
-	panic(helpers.NewHL7FatalError("No messages inside batch."))
+	return nil, helpers.NewHL7FatalError("No messages inside batch.")
+}
+
+// Messages is ParseMessages that panics on error. It panics with HL7FatalError
+// when there is no batch text to parse.
+func (b *Batch) Messages() []*Message {
+	messages, err := b.ParseMessages()
+	if err != nil {
+		panic(err)
+	}
+	return messages
 }
 
 // Read resolves a split path, returning a SegmentList for a bare segment name.

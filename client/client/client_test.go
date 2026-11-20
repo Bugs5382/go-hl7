@@ -264,3 +264,33 @@ func TestOutboundConnectionOptions(t *testing.T) {
 		expectHL7FatalError(t, err, "enqueueMessage is not set.")
 	})
 }
+
+// TestAssertVersionBatchWithoutMessages covers a batch or file body that holds
+// no MSH line: the version gate returns an error instead of panicking (issue #63).
+func TestAssertVersionBatchWithoutMessages(t *testing.T) {
+	cl, err := NewClient(ClientOptions{Version: "2.7", Host: "127.0.0.1", IPv4: ptr(true)})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	conn, err := cl.CreateConnection(
+		ClientListenerOptions{AutoConnect: ptr(false), Port: ptr(12_347)},
+		func(*InboundResponse) error { return nil },
+	)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	defer cl.CloseAll()
+
+	for _, body := range []string{"BHS|^~\\&|A|B\rBTS|0", "BHS", "FHS|^~\\&|A|B\rFTS|0", "FHS"} {
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					t.Fatalf("assertVersion(%q) panicked: %v", body, r)
+				}
+			}()
+			if err := conn.assertVersion(body); err == nil {
+				t.Fatalf("assertVersion(%q): expected an error, got nil", body)
+			}
+		}()
+	}
+}

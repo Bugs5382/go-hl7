@@ -161,23 +161,33 @@ func (f *FileBatch) Get(path string) HL7Node {
 	return rv
 }
 
-// Messages parses the carried text into individual Message nodes, one per MSH
-// line. It panics with HL7FatalError when there is no
-// file text to parse.
-func (f *FileBatch) Messages() []*Message {
+// ParseMessages parses the carried text into individual Message nodes, one per
+// MSH line. It returns an HL7FatalError when there is no file text to parse
+// and the error from NewMessage when a line is not a valid message.
+func (f *FileBatch) ParseMessages() ([]*Message, error) {
 	if f.lines != nil && f.opt.NewLine != "" {
 		messages := make([]*Message, 0, len(f.lines))
 		for _, line := range f.lines {
 			text := strings.TrimSuffix(line, f.opt.NewLine)
 			m, err := NewMessage(MessageOptions{Text: text})
 			if err != nil {
-				panic(err)
+				return nil, err
 			}
 			messages = append(messages, m)
 		}
-		return messages
+		return messages, nil
 	}
-	panic(helpers.NewHL7FatalError("No messages inside file segment."))
+	return nil, helpers.NewHL7FatalError("No messages inside file segment.")
+}
+
+// Messages is ParseMessages that panics on error. It panics with HL7FatalError
+// when there is no file text to parse.
+func (f *FileBatch) Messages() []*Message {
+	messages, err := f.ParseMessages()
+	if err != nil {
+		panic(err)
+	}
+	return messages
 }
 
 // Read resolves a split path, returning a SegmentList for a bare segment name.

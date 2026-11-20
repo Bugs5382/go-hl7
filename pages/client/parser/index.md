@@ -58,7 +58,7 @@ hl7 := strings.Join([]string{
 
 batch, _ := builder.NewBatch(builder.BatchOptions{Text: hl7})
 
-for _, message := range batch.Messages() {
+for _, message := range batch.Messages() { // ParseMessages() returns an error instead of panicking
     msh_9_1 := message.Get("MSH.9.1").String() // ADT
     evn_2 := message.Get("EVN.2").String()     // 20081231
 
